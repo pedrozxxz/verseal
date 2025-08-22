@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap');
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Open Sans', sans-serif;
+  background: #f0ece4;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* Padrão diagonal suave com o nome Verseal */
+body::before {
+  content: "Verseal Verseal Verseal Verseal Verseal Verseal Verseal Verseal";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  font-family: 'Playfair Display', serif;
+  font-size: 10rem;
+  color: rgba(204, 98, 78, 0.06);
+  transform: rotate(-30deg);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Container do formulário */
+.container {
+  position: relative;
+  z-index: 10;
+  width: 90%;
+  max-width: 500px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  padding: 2rem 3rem;
+  box-shadow: 0 8px 25px rgba(204, 98, 78, 0.25);
+  backdrop-filter: blur(12px);
+  animation: fadeIn 1s ease;
+}
+
+/* Título */
+.container h1 {
+  font-family: 'Playfair Display', serif;
+  text-align: center;
+  color: #cc624e;
+  margin-bottom: 2rem;
+}
+
+/* Labels */
+label {
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 0.3rem;
+  font-weight: 700;
+  color: #6b4226;
+}
+
+/* Inputs e textarea */
+input, textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid #d8b4a6;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-family: 'Open Sans', sans-serif;
+  color: #5a3e26;
+  background: #fef8f5;
+  transition: border-color 0.3s ease;
+  outline: none;
+  resize: none;
+}
+
+input:focus, textarea:focus {
+  border-color: #cc624e;
+  box-shadow: 0 0 8px #cc624e99;
+}
+
+/* Botão */
+button {
+  margin-top: 2rem;
+  width: 100%;
+  padding: 14px 0;
+  background: linear-gradient(135deg, #cc624e, #e07b67);
+  border: none;
+  border-radius: 40px;
+  color: #fff;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(204, 98, 78, 0.5);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+  background: linear-gradient(135deg, #e07b67, #ffd5c2);
+  box-shadow: 0 8px 25px rgba(224, 123, 103, 0.7);
+}
+
+/* Mensagens */
+.sucesso {
+  background: #d4edda;
+  color: #155724;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid #c3e6cb;
+}
+
+.erro {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid #f5c6cb;
+}
+
+/* Link voltar */
+.voltar {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.voltar a {
+  color: #cc624e;
+  text-decoration: none;
+  font-weight: 700;
+  transition: color 0.3s ease;
+}
+
+.voltar a:hover {
+  color: #e07b67;
+  text-decoration: underline;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
