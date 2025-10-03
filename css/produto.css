@@ -163,11 +163,45 @@ nav a.active, nav a:hover {
   text-decoration: none;
 }
 
-/* Footer */
-.verseal-footer {
+/* RODAPÉ COM FONT AWESOME */
+footer {
+  background: #ffffff;
+  color: #000000;
   text-align: center;
-  padding: 1rem;
-  background-color: #111;
-  color: var(--cinza-areia);
-  margin-top: 2rem;
+  padding: 40px 20px;
+  border-top: 1px solid #eee;
+}
+
+footer p {
+  margin-bottom: 25px;
+  font-size: 1rem;
+  color: #666;
+}
+
+footer .social {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+}
+
+footer .social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  background: #f8f8f8;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  color: #333;
+  text-decoration: none;
+  font-size: 1.2rem;
+}
+
+footer .social a:hover {
+  background: #e07b67;
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(224, 123, 103, 0.3);
 }
