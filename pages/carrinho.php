@@ -1,0 +1,544 @@
+<?php
+session_start();
+$usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
+
+// Lista de produtos disponíveis (COMPLETA - 12 produtos)
+$produtos = [
+    1 => [
+        "id" => 1,
+        "img" => "../img/arte4.png",
+        "nome" => "Obra da Daniele",
+        "preco" => 199.99,
+        "desc" => "Desenho realizado por Stefani e Daniele, feito digitalmente e manualmente.",
+        "dimensao" => "21 x 29,7cm (Manual) / 390cm x 522cm (Digital)"
+    ],
+    2 => [
+        "id" => 2,
+        "img" => "../img/arte3.png",
+        "nome" => "Obra da Stefani",
+        "preco" => 188.99,
+        "desc" => "Desenho realizado com técnica mista.",
+        "dimensao" => "42 x 59,4cm"
+    ],
+    3 => [
+        "id" => 3,
+        "img" => "../img/arte1.png",
+        "nome" => "Obra Moderna",
+        "preco" => 250.00,
+        "desc" => "Arte contemporânea com técnicas inovadoras.",
+        "dimensao" => "50 x 70cm"
+    ],
+    4 => [
+        "id" => 4,
+        "img" => "../img/arte2.png",
+        "nome" => "Paisagem Expressionista",
+        "preco" => 179.99,
+        "desc" => "Paisagem com cores vibrantes e traços expressionistas",
+        "dimensao" => "60 x 80cm"
+    ],
+    5 => [
+        "id" => 5,
+        "img" => "../img/arte5.png",
+        "nome" => "Abstração Colorida",
+        "preco" => 159.90,
+        "desc" => "Obra abstrata com paleta de cores vibrantes",
+        "dimensao" => "40 x 60cm"
+    ],
+    6 => [
+        "id" => 6,
+        "img" => "../img/arte6.png",
+        "nome" => "Figura Humana",
+        "preco" => 220.00,
+        "desc" => "Estudo da figura humana em movimento",
+        "dimensao" => "70 x 100cm"
+    ],
+    7 => [
+        "id" => 7,
+        "img" => "../img/arte7.png",
+        "nome" => "Natureza Morta",
+        "preco" => 145.50,
+        "desc" => "Natureza morta com elementos clássicos",
+        "dimensao" => "50 x 70cm"
+    ],
+    8 => [
+        "id" => 8,
+        "img" => "../img/arte8.png",
+        "nome" => "Cidade Noturna",
+        "preco" => 189.99,
+        "desc" => "Panorama urbano noturno",
+        "dimensao" => "80 x 120cm"
+    ],
+    9 => [
+        "id" => 9,
+        "img" => "../img/arte9.png",
+        "nome" => "Abstração Minimalista",
+        "preco" => 249.00,
+        "desc" => "Obra minimalista com formas puras",
+        "dimensao" => "60 x 60cm"
+    ],
+    10 => [
+        "id" => 10,
+        "img" => "../img/arte10.png",
+        "nome" => "Flores Silvestres",
+        "preco" => 120.00,
+        "desc" => "Composição floral com cores suaves",
+        "dimensao" => "40 x 50cm"
+    ],
+    11 => [
+        "id" => 11,
+        "img" => "../img/arte11.png",
+        "nome" => "Mar em Movimento",
+        "preco" => 199.90,
+        "desc" => "Representação do movimento das ondas",
+        "dimensao" => "90 x 120cm"
+    ],
+    12 => [
+        "id" => 12,
+        "img" => "../img/arte12.png",
+        "nome" => "Retrato em Preto e Branco",
+        "preco" => 134.99,
+        "desc" => "Retrato clássico em técnica monocromática",
+        "dimensao" => "50 x 70cm"
+    ]
+];
+
+// Inicializar carrinho na sessão se não existir
+if (!isset($_SESSION['carrinho'])) {
+    $_SESSION['carrinho'] = [];
+}
+
+// Se for uma requisição AJAX, retornar JSON
+if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+    $acao = $_POST['acao'] ?? '';
+    $item_id = intval($_POST['item_id'] ?? 0);
+
+    if ($acao === 'adicionar' && isset($produtos[$item_id])) {
+        $produto = $produtos[$item_id];
+        $existe_no_carrinho = false;
+
+        foreach ($_SESSION['carrinho'] as &$item) {
+            if ($item['id'] == $item_id) {
+                $item['qtd'] += 1;
+                $existe_no_carrinho = true;
+                break;
+            }
+        }
+
+        if (!$existe_no_carrinho) {
+            $_SESSION['carrinho'][] = [
+                'id' => $produto['id'],
+                'img' => $produto['img'],
+                'nome' => $produto['nome'],
+                'preco' => $produto['preco'],
+                'qtd' => 1,
+                'desc' => $produto['desc'],
+                'dimensao' => $produto['dimensao']
+            ];
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Produto adicionado ao carrinho!']);
+    } elseif ($acao === 'remover') {
+        $_SESSION['carrinho'] = array_filter($_SESSION['carrinho'], function ($item) use ($item_id) {
+            return $item['id'] != $item_id;
+        });
+        $_SESSION['carrinho'] = array_values($_SESSION['carrinho']);
+        echo json_encode(['success' => true, 'message' => 'Produto removido do carrinho!']);
+    } elseif ($acao === 'atualizar_qtd') {
+        $nova_qtd = intval($_POST['qtd'] ?? 1);
+        foreach ($_SESSION['carrinho'] as &$item) {
+            if ($item['id'] == $item_id) {
+                $item['qtd'] = max(1, $nova_qtd);
+                break;
+            }
+        }
+        echo json_encode(['success' => true, 'message' => 'Quantidade atualizada!']);
+    }
+    exit;
+}
+
+// Processar ações normais (não-AJAX) - fallback
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $acao = $_POST['acao'] ?? '';
+    $item_id = intval($_POST['item_id'] ?? 0);
+
+    if ($acao === 'adicionar' && isset($produtos[$item_id])) {
+        $produto = $produtos[$item_id];
+        $existe_no_carrinho = false;
+
+        foreach ($_SESSION['carrinho'] as &$item) {
+            if ($item['id'] == $item_id) {
+                $item['qtd'] += 1;
+                $existe_no_carrinho = true;
+                break;
+            }
+        }
+
+        if (!$existe_no_carrinho) {
+            $_SESSION['carrinho'][] = [
+                'id' => $produto['id'],
+                'img' => $produto['img'],
+                'nome' => $produto['nome'],
+                'preco' => $produto['preco'],
+                'qtd' => 1,
+                'desc' => $produto['desc'],
+                'dimensao' => $produto['dimensao']
+            ];
+        }
+    } elseif ($acao === 'remover') {
+        $_SESSION['carrinho'] = array_filter($_SESSION['carrinho'], function ($item) use ($item_id) {
+            return $item['id'] != $item_id;
+        });
+        $_SESSION['carrinho'] = array_values($_SESSION['carrinho']);
+    } elseif ($acao === 'atualizar_qtd') {
+        $nova_qtd = intval($_POST['qtd'] ?? 1);
+        foreach ($_SESSION['carrinho'] as &$item) {
+            if ($item['id'] == $item_id) {
+                $item['qtd'] = max(1, $nova_qtd);
+                break;
+            }
+        }
+    }
+
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit;
+}
+
+$carrinho = $_SESSION['carrinho'];
+$total = array_sum(array_map(fn($item) => $item["preco"] * $item["qtd"], $carrinho));
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verseal - Carrinho</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/carrinho.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="logo">Verseal</div>
+        <nav>
+            <a href="../index.php">Início</a>
+            <a href="./produto.php">Obras</a>
+            <a href="./sobre.php">Sobre</a>
+            <a href="./artistas.php">Artistas</a>
+            <a href="./contato.php">Contato</a>
+            <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+            <div class="profile-dropdown">
+                <a href="./perfil.php" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
+                <div class="dropdown-content" id="profile-dropdown">
+                    <?php if ($usuarioLogado): ?>
+                        <div class="user-info">
+                            <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!
+                            </p>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+                        <a href="./minhas-compras.php" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Minhas
+                            Compras</a>
+                        <a href="./favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+                    <?php else: ?>
+                        <div class="user-info">
+                            <p>Faça login para acessar seu perfil</p>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+                        <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- CONTEÚDO -->
+    <main class="pagina-carrinho">
+        <h1 class="titulo-pagina">Carrinho</h1>
+
+        <!-- NOTIFICAÇÃO -->
+        <div id="notificacao" class="notificacao"></div>
+
+        <div id="carrinho-container">
+            <?php if (empty($carrinho)): ?>
+                <div class="carrinho-vazio">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h2>Seu carrinho está vazio</h2>
+                    <p>Confira nossas sugestões de obras abaixo!</p>
+                </div>
+            <?php else: ?>
+                <div class="carrinho-conteudo">
+                    <!-- LISTA DE ITENS -->
+                    <div class="carrinho-itens">
+                        <?php foreach ($carrinho as $item): ?>
+                            <div class="item-card" data-item-id="<?php echo $item['id']; ?>">
+                                <img src="<?php echo $item['img']; ?>" alt="<?php echo $item['nome']; ?>">
+                                <div class="item-info">
+                                    <p><strong><?php echo $item['nome']; ?></strong></p>
+                                    <span class="preco-unitario">R$
+                                        <?php echo number_format($item['preco'], 2, ',', '.'); ?></span>
+
+                                    <div class="controles-quantidade">
+                                        <button type="button" class="btn-diminuir"
+                                            onclick="alterarQuantidade(<?php echo $item['id']; ?>, -1)">-</button>
+                                        <input type="number" class="quantidade-input" value="<?php echo $item['qtd']; ?>"
+                                            min="1" onchange="atualizarQuantidade(<?php echo $item['id']; ?>, this.value)">
+                                        <button type="button" class="btn-aumentar"
+                                            onclick="alterarQuantidade(<?php echo $item['id']; ?>, 1)">+</button>
+                                    </div>
+
+                                    <div class="subtotal">
+                                        Subtotal: R$ <span
+                                            class="subtotal-valor"><?php echo number_format($item['preco'] * $item['qtd'], 2, ',', '.'); ?></span>
+                                    </div>
+
+                                    <button type="button" class="btn-remover"
+                                        onclick="removerDoCarrinho(<?php echo $item['id']; ?>)">
+                                        <i class="fas fa-trash"></i> Remover
+                                    </button>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <!-- RESUMO -->
+                    <div class="carrinho-resumo">
+                        <h3>Resumo do Pedido</h3>
+
+                        <div class="resumo-itens">
+                            <?php foreach ($carrinho as $item): ?>
+                                <div class="resumo-item">
+                                    <span class="resumo-nome"><?php echo $item['nome']; ?></span>
+                                    <span class="resumo-qtd"><?php echo $item['qtd']; ?>x</span>
+                                    <span class="resumo-preco">R$
+                                        <?php echo number_format($item['preco'] * $item['qtd'], 2, ',', '.'); ?></span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <div class="total">
+                            <span>Total</span>
+                            <strong id="total-geral">R$ <?php echo number_format($total, 2, ',', '.'); ?></strong>
+                        </div>
+
+                        <?php if ($usuarioLogado): ?>
+                            <button class="btn-comprar" onclick="finalizarCompra()">
+                                <i class="fas fa-credit-card"></i> Finalizar Compra
+                            </button>
+                        <?php else: ?>
+                            <div class="aviso-login-carrinho">
+                                <div class="aviso-conteudo">
+                                    <i class="fas fa-user-lock"></i>
+                                    <div class="aviso-texto">
+                                        <h4>Login Necessário</h4>
+                                        <p>Para finalizar sua compra, faça login ou cadastre-se</p>
+                                    </div>
+                                </div>
+                                <div class="botoes-acao">
+                                    <a href="login.php?from=checkout" class="btn-login-carrinho">
+                                        <i class="fas fa-sign-in-alt"></i> Fazer Login
+                                    </a>
+                                    <a href="login.php?from=checkout" class="btn-cadastro-carrinho">
+                                        <i class="fas fa-user-plus"></i> Cadastrar
+                                    </a>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                        <a href="./produto.php" class="btn-continuar-comprando">Continuar Comprando</a>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- SEÇÃO DE SUGESTÕES DE OBRAS -->
+        <section class="sugestoes-obras">
+            <h2>Sugestão de Obras</h2>
+            <div class="lista-produtos">
+                <?php foreach ($produtos as $produto): ?>
+                    <div class="produto-card">
+                        <img src="<?php echo $produto['img']; ?>" alt="<?php echo $produto['nome']; ?>">
+                        <div class="produto-info">
+                            <h3><?php echo $produto['nome']; ?></h3>
+                            <span class="preco">R$ <?php echo number_format($produto['preco'], 2, ',', '.'); ?></span>
+                            <p class="descricao"><?php echo $produto['desc']; ?></p>
+                            <button type="button" class="btn-adicionar"
+                                onclick="adicionarAoCarrinho(<?php echo $produto['id']; ?>)">
+                                <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
+                            </button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2025 Verseal. Todos os direitos reservados.</p>
+        <div class="social">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#"><i class="fab fa-whatsapp"></i></a>
+        </div>
+    </footer>
+
+    <script>
+        // Função para mostrar notificação
+        function mostrarNotificacao(mensagem, tipo = 'success') {
+            const notificacao = document.getElementById('notificacao');
+            notificacao.textContent = mensagem;
+            notificacao.className = `notificacao ${tipo}`;
+            notificacao.style.display = 'block';
+
+            setTimeout(() => {
+                notificacao.style.display = 'none';
+            }, 3000);
+        }
+
+        // Função para atualizar a interface do carrinho
+        function atualizarInterfaceCarrinho() {
+            fetch(window.location.href)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const novoContainer = doc.getElementById('carrinho-container');
+
+                    if (novoContainer) {
+                        document.getElementById('carrinho-container').innerHTML = novoContainer.innerHTML;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao atualizar carrinho:', error);
+                    // Fallback: recarregar a página
+                    window.location.reload();
+                });
+        }
+
+        // Função para adicionar produto ao carrinho
+        function adicionarAoCarrinho(itemId) {
+            const formData = new FormData();
+            formData.append('acao', 'adicionar');
+            formData.append('item_id', itemId);
+
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        mostrarNotificacao(data.message);
+                        atualizarInterfaceCarrinho();
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarNotificacao('Erro ao adicionar produto', 'error');
+                });
+        }
+
+        // Função para remover produto do carrinho
+        function removerDoCarrinho(itemId) {
+            if (!confirm('Tem certeza que deseja remover este item do carrinho?')) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('acao', 'remover');
+            formData.append('item_id', itemId);
+
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        mostrarNotificacao(data.message);
+                        atualizarInterfaceCarrinho();
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarNotificacao('Erro ao remover produto', 'error');
+                });
+        }
+
+        // Função para alterar quantidade com os botões +/-
+        function alterarQuantidade(itemId, alteracao) {
+            const input = document.querySelector(`.item-card[data-item-id="${itemId}"] .quantidade-input`);
+            let novaQuantidade = parseInt(input.value) + alteracao;
+            if (novaQuantidade < 1) novaQuantidade = 1;
+
+            input.value = novaQuantidade;
+            atualizarQuantidade(itemId, novaQuantidade);
+        }
+
+        // Função para atualizar quantidade via input
+        function atualizarQuantidade(itemId, quantidade) {
+            if (quantidade < 1) quantidade = 1;
+
+            const formData = new FormData();
+            formData.append('acao', 'atualizar_qtd');
+            formData.append('item_id', itemId);
+            formData.append('qtd', quantidade);
+
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        atualizarInterfaceCarrinho();
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarNotificacao('Erro ao atualizar quantidade', 'error');
+                });
+        }
+
+        // Função para finalizar compra
+        function finalizarCompra() {
+            window.location.href = './checkout.php';
+        }
+
+        // Dropdown do perfil
+        const profileIcon = document.getElementById("profile-icon");
+        const profileDropdown = document.getElementById("profile-dropdown");
+        if (profileIcon && profileDropdown) {
+            profileIcon.addEventListener("click", (e) => {
+                e.preventDefault();
+                profileDropdown.style.display =
+                    profileDropdown.style.display === "block" ? "none" : "block";
+            });
+            document.addEventListener("click", (e) => {
+                if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
+                    profileDropdown.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

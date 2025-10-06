@@ -1,207 +1,205 @@
-:root {
-  --preto: #0D0D0D;
-  --branco-gelo: #F5F5F5;
-  --terracota: #E2725B;
-  --verde-pastel: #B5CBB7;
-  --cinza-areia: #C4B7A6;
+/* Página Obras de Arte */
+
+.pagina-obras {
+  padding: 60px 7%;
 }
 
-body {
-  margin: 0;
-  background-color: var(--preto);
-  color: var(--branco-gelo);
-  font-family: 'Poppins', sans-serif;
+.titulo-pagina {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+  color: #cc624e;
 }
 
-/* Header */
-.verseal-header {
+/* Topo: Ordenação e Busca */
+.barra-filtros-topo {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 3rem;
-  background-color: rgba(13, 13, 13, 0.95);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.8rem;
-  color: var(--terracota);
-}
-nav a {
-  color: var(--branco-gelo);
-  margin: 0 1rem;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-nav a.active, nav a:hover {
-  color: var(--verde-pastel);
-}
-
-/* Hero */
-.hero {
-  text-align: center;
-  padding: 3rem 2rem;
-}
-.hero h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
-  color: var(--terracota);
-}
-.hero p {
-  color: var(--cinza-areia);
-}
-
-/* Filtros */
-.filtros {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
+  margin-bottom: 30px;
   flex-wrap: wrap;
-  margin: 1.5rem auto;
-}
-.filtros input, .filtros select {
-  padding: 0.6rem;
-  border-radius: 20px;
-  border: none;
-  outline: none;
-  background-color: var(--cinza-areia);
-  color: var(--preto);
+  gap: 20px;
 }
 
-/* Grid */
-.produtos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  padding: 0 5%;
-}
-.produto-card {
-  background: rgba(255,255,255,0.05);
-  border-radius: 15px;
-  backdrop-filter: blur(10px);
-  text-align: center;
-  padding: 1rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.produto-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 20px rgba(226, 114, 91, 0.3);
-}
-.produto-card img {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-.produto-card h3 {
-  margin: 0.8rem 0 0.4rem;
-}
-.produto-card .preco {
-  color: var(--verde-pastel);
+.ordenacao span {
+  margin-right: 10px;
   font-weight: bold;
-}
-.produto-card a {
-  display: inline-block;
-  margin-top: 0.6rem;
-  background-color: var(--terracota);
-  padding: 0.6rem 1.4rem;
-  border-radius: 20px;
-  color: var(--branco-gelo);
-  text-decoration: none;
-  transition: background 0.3s ease;
-}
-.produto-card a:hover {
-  background-color: var(--verde-pastel);
-  color: var(--preto);
+  color: #444;
 }
 
-/* Paginação */
-.paginacao {
-  text-align: center;
-  margin: 2rem 0;
+.btn-ordenar {
+  padding: 8px 18px;
+  border: 1px solid #cc624e;
+  border-radius: 30px;
+  background: white;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-left: 5px;
 }
-#carregarMais {
-  background-color: var(--terracota);
-  color: var(--branco-gelo);
+
+.btn-ordenar:hover, .btn-ordenar.ativo {
+  background: #cc624e;
+  color: white;
+}
+
+.busca-artista {
+  display: flex;
+  gap: 8px;
+}
+
+.busca-artista input {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.busca-artista button {
+  padding: 10px 16px;
+  background: #cc624e;
   border: none;
-  padding: 0.7rem 1.5rem;
-  border-radius: 20px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.busca-artista button:hover {
+  background: #e07b67;
+}
+
+/* Estrutura Conteúdo */
+.conteudo-obras {
+  display: flex;
+  gap: 40px;
+}
+
+/* Sidebar Filtros */
+.filtro {
+  width: 250px;
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+}
+
+.filtro h3 {
+  margin-bottom: 15px;
+  font-family: 'Playfair Display', serif;
+  color: #cc624e;
+}
+
+.filtro-box {
+  margin-bottom: 25px;
+}
+
+.filtro-box p {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.filtro-box label {
+  display: block;
+  margin: 6px 0;
+  font-size: 0.95rem;
   cursor: pointer;
 }
-#carregarMais:hover {
-  background-color: var(--verde-pastel);
-  color: var(--preto);
-}
 
-/* Detalhes */
-.detalhe-produto {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  padding: 3rem 5%;
-}
-.detalhe-produto img {
-  max-width: 450px;
-  width: 100%;
-  border-radius: 10px;
-  object-fit: cover;
-}
-.detalhe-produto .info {
+/* Cards de Obras */
+.lista-obras {
   flex: 1;
-}
-.detalhe-produto .preco {
-  color: var(--verde-pastel);
-  font-size: 1.3rem;
-  font-weight: bold;
-}
-.btn-voltar {
-  display: inline-block;
-  margin-top: 1rem;
-  color: var(--terracota);
-  text-decoration: none;
-}
-
-/* RODAPÉ COM FONT AWESOME */
-footer {
-  background: #ffffff;
-  color: #000000;
-  text-align: center;
-  padding: 40px 20px;
-  border-top: 1px solid #eee;
-}
-
-footer p {
-  margin-bottom: 25px;
-  font-size: 1rem;
-  color: #666;
-}
-
-footer .social {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 25px;
 }
 
-footer .social a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 45px;
-  height: 45px;
-  background: #f8f8f8;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  color: #333;
-  text-decoration: none;
-  font-size: 1.2rem;
+.obra-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  text-align: center;
 }
 
-footer .social a:hover {
+.obra-card img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.obra-card p {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #444;
+}
+
+.obra-card span {
+  color: #cc624e;
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.btn-comprar {
   background: #e07b67;
+  border: none;
   color: white;
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(224, 123, 103, 0.3);
+  padding: 10px 18px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-comprar:hover {
+  background: #cc624e;
+}
+
+.btn-ver-mais {
+  grid-column: 1 / -1;
+  padding: 14px;
+  background: #cc624e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-ver-mais:hover {
+  background: #e07b67;
+}
+
+/* Responsivo */
+@media (max-width: 900px) {
+  .conteudo-obras {
+    flex-direction: column;
+  }
+
+  .filtro {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+  }
+
+  .filtro-box {
+    flex: 1;
+  }
+}
+.btn-detalhes {
+  background: transparent;
+  border: 1px solid #cc624e;
+  color: #cc624e;
+  padding: 8px 16px;
+  border-radius: 30px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: 0.3s;
+}
+
+.btn-detalhes:hover {
+  background: #cc624e;
+  color: #fff;
 }

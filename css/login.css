@@ -174,3 +174,44 @@ body::before {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
   z-index: 2000; /* garante que fique acima das partículas */
 }
+/* Aviso checkout */
+.aviso-checkout {
+    background: linear-gradient(135deg, #cc624e, #e07b67);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(204, 98, 78, 0.3);
+    animation: slideDown 0.5s ease;
+    max-width: 400px;
+    margin: 0 auto 30px auto;
+}
+
+.aviso-checkout i {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.aviso-checkout p {
+    margin: 0;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Ajuste no container para acomodar o aviso */
+.container {
+    margin-top: 20px;
+}

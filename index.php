@@ -28,7 +28,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
       <a href="./pages/sobre.php">Sobre</a>
       <a href="./pages/artistas.php">Artistas</a>
       <a href="./pages/contato.php">Contato</a>
-      <a href="./pages/minhas-compras.php" class="icon-link" id="cart-icon">
+      <a href="./pages/carrinho.php" class="icon-link" id="cart-icon">
         <i class="fas fa-shopping-cart"></i>
       </a>
       <div class="profile-dropdown">

@@ -12,7 +12,8 @@ if ($conn->connect_error) {
   die("Falha na conexão: " . $conn->connect_error);
 }
 
-
+// Verificar se veio do checkout
+$fromCheckout = isset($_GET['from']) && $_GET['from'] === 'checkout';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -42,16 +43,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $stmt->bind_param("sss", $nome, $email, $senhaHash);
 
       if ($stmt->execute()) {
+        // Logar automaticamente após cadastro
+        $_SESSION["usuario"] = $nome;
+        
         echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
         echo "<script>
                 document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire({
-                        title: 'Usuário criado!',
-                        text: 'O usuário foi criado com sucesso.',
+                        title: 'Cadastro realizado!',
+                        text: 'Você foi cadastrado e logado com sucesso.',
                         icon: 'success',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.href = '../index.php';
+                        " . ($fromCheckout ? "window.location.href = 'checkout.php';" : "window.location.href = '../index.php';") . "
                     });
                 });
             </script>";
@@ -93,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         icon: 'success',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.href = '../index.php';
+                        " . ($fromCheckout ? "window.location.href = 'checkout.php';" : "window.location.href = '../index.php';") . "
                     });
                 });
             </script>";
