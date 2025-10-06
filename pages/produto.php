@@ -22,7 +22,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     <nav>
       <a href="../index.php">Início</a>
       <a href="./produto.php">Obras</a>
-      <a href="./sobre.html">Sobre</a>
+      <a href="./sobre.php">Sobre</a>
       <a href="./artistas.php">Artistas</a>
       <a href="./contato.php">Contato</a>
       <a href="./minhas-compras.php" class="icon-link" id="cart-icon">

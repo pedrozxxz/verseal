@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <nav>
       <a href="../index.php">Início</a>
       <a href="./produto.php">Obras</a>
-      <a href="./sobre.html">Sobre</a>
+      <a href="./sobre.php">Sobre</a>
       <a href="./contato.php">Contato</a>
       <a href="./carrinho.php" class="icon-link" id="cart-icon">
         <i class="fas fa-shopping-cart"></i>
