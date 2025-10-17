@@ -8,6 +8,22 @@ $nome_cliente = '';
 $codigo_barras = '';
 $vencimento = '';
 
+// Função para calcular dias úteis
+function calcularVencimento($dias_uteis = 3) {
+    $data = new DateTime();
+    $dias_adicionados = 0;
+    
+    while ($dias_adicionados < $dias_uteis) {
+        $data->modify('+1 day');
+        // Verifica se não é final de semana (6 = sábado, 7 = domingo)
+        if ($data->format('N') < 6) {
+            $dias_adicionados++;
+        }
+    }
+    
+    return $data->format('d/m/Y');
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Simular dados do pedido
     $pedido_id = 'VS' . date('YmdHis') . rand(100, 999);
@@ -16,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Gerar dados do boleto (simulado)
     $codigo_barras = generateCodigoBarras();
-    $vencimento = date('d/m/Y', strtotime('+3 days'));
+    $vencimento = calcularVencimento(3); // 3 dias úteis
     
     // Salvar pedido na sessão
     $_SESSION['ultimo_pedido'] = [
@@ -154,6 +170,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flex-wrap: wrap;
             margin-top: 20px;
         }
+
+        .info-vencimento {
+            background: #e8f5e8;
+            border: 1px solid #c3e6c3;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .linha-digitavel {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            background: white;
+            padding: 15px;
+            border: 1px dashed #ccc;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
@@ -163,6 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <nav>
         <a href="../index.php">Início</a>
         <a href="./produto.php">Obras</a>
+        <a href="./carrinho.php">Carrinho</a>
     </nav>
 </header>
 
@@ -179,6 +216,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="boleto-container">
         <h3>Boleto Bancário</h3>
         
+        <div class="info-vencimento">
+            <h4><i class="fas fa-calendar-alt"></i> Data de Vencimento</h4>
+            <p style="font-size: 1.3rem; font-weight: bold; color: #d63031;">
+                <?php echo $vencimento; ?>
+            </p>
+            <p style="font-size: 0.9rem; color: #666;">
+                (3 dias úteis a partir de hoje)
+            </p>
+        </div>
+        
         <div class="linha-boleto">
             <span>Beneficiário:</span>
             <strong>Verseal Galeria de Arte LTDA</strong>
@@ -189,10 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <strong><?php echo htmlspecialchars($nome_cliente); ?></strong>
         </div>
         
-        <div class="linha-boleto">
-            <span>Vencimento:</span>
-            <strong><?php echo $vencimento; ?></strong>
-        </div>
+        
         
         <div class="linha-boleto">
             <span>Valor:</span>
@@ -204,8 +248,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         
         <p><strong>Linha digitável:</strong></p>
-        <div class="codigo-barras" id="linha-digitavel">
-            <?php echo formatLinhaDigitavel($codigo_barras); ?>
+        <div class="linha-digitavel" id="linha-digitavel">
+            <?php 
+            // Gerar linha digitável formatada corretamente
+            $linha_digitavel = formatLinhaDigitavel($codigo_barras);
+            echo $linha_digitavel;
+            ?>
         </div>
         
         <div style="text-align: center; margin-top: 20px;">
@@ -215,15 +263,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button class="btn-imprimir" onclick="copiarCodigoBarras()">
                 <i class="fas fa-copy"></i> Copiar Código
             </button>
+            <button class="btn-imprimir" onclick="copiarLinhaDigitavel()">
+                <i class="fas fa-copy"></i> Copiar Linha Digitável
+            </button>
         </div>
     </div>
 
     <div class="instrucoes">
         <h3>Instruções de pagamento:</h3>
         <ol>
-            <li>Imprima o boleto ou anote o código de barras</li>
+            <li>Imprima o boleto ou anote o código de barras/linha digitável</li>
             <li>Pague em qualquer banco, lotérica ou internet banking</li>
-            <li>O prazo de vencimento é de 3 dias úteis</li>
+            <li>O prazo de vencimento é de <strong>3 dias úteis</strong> (até <?php echo $vencimento; ?>)</li>
             <li>Após o pagamento, a confirmação pode levar 1-2 dias úteis</li>
             <li>Você receberá um email quando o pagamento for confirmado</li>
         </ol>
@@ -255,6 +306,13 @@ function copiarCodigoBarras() {
     const codigo = document.getElementById('codigo-barras').textContent;
     navigator.clipboard.writeText(codigo).then(() => {
         alert('Código de barras copiado!');
+    });
+}
+
+function copiarLinhaDigitavel() {
+    const linha = document.getElementById('linha-digitavel').textContent;
+    navigator.clipboard.writeText(linha).then(() => {
+        alert('Linha digitável copiada!');
     });
 }
 
@@ -315,16 +373,25 @@ function generateCodigoBarras() {
 
 function formatLinhaDigitavel($codigo_barras) {
     // Formatar linha digitável no padrão brasileiro
-    if (empty($codigo_barras)) {
-        return '';
+    if (empty($codigo_barras) || strlen($codigo_barras) !== 44) {
+        // Se não tiver 44 dígitos, gerar um padrão válido
+        $codigo_barras = generateCodigoBarras();
     }
-    return substr($codigo_barras, 0, 5) . '.' . 
-           substr($codigo_barras, 5, 5) . ' ' .
-           substr($codigo_barras, 10, 5) . '.' . 
-           substr($codigo_barras, 15, 6) . ' ' .
-           substr($codigo_barras, 21, 5) . '.' . 
-           substr($codigo_barras, 26, 6) . ' ' .
-           substr($codigo_barras, 32, 1) . ' ' .
-           substr($codigo_barras, 33);
+    
+    // Formatar no padrão: AAAAA.BBBBB BBBBB.CCCCC CCCCC.DDDDD D E FFFFFFFFFFFF
+    $parte1 = substr($codigo_barras, 0, 4) . substr($codigo_barras, 19, 1);
+    $parte2 = substr($codigo_barras, 20, 4) . substr($codigo_barras, 24, 1);
+    $parte3 = substr($codigo_barras, 25, 4) . substr($codigo_barras, 29, 1);
+    $parte4 = substr($codigo_barras, 30, 1);
+    $parte5 = substr($codigo_barras, 31, 13);
+    
+    return $parte1 . '.' . 
+           substr($codigo_barras, 4, 4) . ' ' .
+           $parte2 . '.' . 
+           substr($codigo_barras, 10, 4) . ' ' .
+           $parte3 . '.' . 
+           substr($codigo_barras, 15, 4) . ' ' .
+           $parte4 . ' ' .
+           $parte5;
 }
 ?>

@@ -6,7 +6,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
 $produtos = [
     1 => [
         "id" => 1,
-        "img" => "../img/arte4.png",
+        "img" => "../img/imagem2.png",
         "nome" => "Obra da Daniele",
         "artista" => "Daniele Oliveira",
         "preco" => 199.99,
@@ -19,7 +19,7 @@ $produtos = [
     ],
     2 => [
         "id" => 2,
-        "img" => "../img/arte3.png",
+        "img" => "../img/imagem9.png",
         "nome" => "Obra da Stefani", 
         "artista" => "Stefani Correa",
         "preco" => 188.99,
@@ -32,7 +32,7 @@ $produtos = [
     ],
     3 => [
         "id" => 3,
-        "img" => "../img/arte1.png",
+        "img" => "../img/imagem2.png",
         "nome" => "Obra Moderna",
         "artista" => "Daniele Oliveira",
         "preco" => 250.00,
@@ -45,7 +45,7 @@ $produtos = [
     ],
     4 => [
         "id" => 4,
-        "img" => "../img/arte2.png",
+        "img" => "../img/imagem2.png",
         "nome" => "Paisagem Expressionista",
         "artista" => "Stefani Correa", 
         "preco" => 179.99,
@@ -58,7 +58,7 @@ $produtos = [
     ],
     5 => [
         "id" => 5,
-        "img" => "../img/arte5.png",
+        "img" => "../img/imagem2.png",
         "nome" => "Abstração Colorida",
         "artista" => "Lucas Andrade",
         "preco" => 159.90,
@@ -71,7 +71,7 @@ $produtos = [
     ],
     6 => [
         "id" => 6,
-        "img" => "../img/arte6.png",
+        "img" => "../img/imagem2.png",
         "nome" => "Figura Humana",
         "artista" => "Mariana Santos",
         "preco" => 220.00,
@@ -84,7 +84,7 @@ $produtos = [
     ],
     7 => [
         "id" => 7,
-        "img" => "../img/arte7.png",
+        "img" => "../img/imagem2.png",
         "nome" => "Natureza Morta",
         "artista" => "Rafael Costa",
         "preco" => 145.50,
@@ -97,7 +97,7 @@ $produtos = [
     ],
     8 => [
         "id" => 8,
-        "img" => "../img/arte8.png",
+        "img" => "../img/imagem2.png",
         "nome" => "Cidade Noturna",
         "artista" => "Camila Rocha",
         "preco" => 189.99,
@@ -110,7 +110,7 @@ $produtos = [
     ],
     9 => [
         "id" => 9,
-        "img" => "../img/arte9.png",
+        "img" => "../img/imagem2.png",
         "nome" => "Abstração Minimalista",
         "artista" => "João Almeida",
         "preco" => 249.00,
@@ -123,7 +123,7 @@ $produtos = [
     ],
     10 => [
         "id" => 10,
-        "img" => "../img/arte10.png",
+        "img" => "../img/imagem2.png",
         "nome" => "Flores Silvestres",
         "artista" => "Bianca Freitas",
         "preco" => 120.00,
@@ -136,7 +136,7 @@ $produtos = [
     ],
     11 => [
         "id" => 11,
-        "img" => "../img/arte11.png",
+        "img" => "../img/imagem2.png",
         "nome" => "Mar em Movimento",
         "artista" => "Felipe Duarte",
         "preco" => 199.90,
@@ -149,7 +149,7 @@ $produtos = [
     ],
     12 => [
         "id" => 12,
-        "img" => "../img/arte12.png",
+        "img" => "../img/imagem2.png",
         "nome" => "Retrato em Preto e Branco",
         "artista" => "Ana Clara",
         "preco" => 134.99,
