@@ -23,7 +23,6 @@ img {
 }
 
 /* HEADER */
-/* HEADER */
 header {
   display: flex;
   justify-content: space-between;
@@ -87,6 +86,101 @@ nav a:hover {
 
 nav a:hover::after {
   width: 100%;
+}
+
+/* MENU HAMBURGUER */
+.hamburger-menu {
+  position: relative;
+  display: none;
+}
+
+#menu-toggle {
+  display: none;
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  padding: 10px;
+  z-index: 1001;
+}
+
+.hamburger span {
+  width: 25px;
+  height: 3px;
+  background: #444;
+  margin: 3px 0;
+  transition: 0.3s;
+  border-radius: 2px;
+}
+
+#menu-toggle:checked ~ .hamburger span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+#menu-toggle:checked ~ .hamburger span:nth-child(2) {
+  opacity: 0;
+}
+
+#menu-toggle:checked ~ .hamburger span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -6px);
+}
+
+.menu-content {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  min-width: 250px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  border-radius: 12px;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+#menu-toggle:checked ~ .menu-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.menu-section h3 {
+  color: #e07b67;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  color: #444;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:hover {
+  color: #e07b67;
+  transform: translateX(5px);
+}
+
+.menu-item i {
+  width: 20px;
+  margin-right: 12px;
+  font-size: 1.1rem;
 }
 
 /* HERO */
@@ -195,7 +289,7 @@ nav a:hover::after {
 .card {
   background: #fafafa;
   border-radius: 15px;
-  overflow: hidden; /* garante que a imagem não vaze do card */
+  overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   cursor: pointer;
   display: flex;
@@ -204,9 +298,9 @@ nav a:hover::after {
 
 .card img {
   width: 100%;
-  height: 300px;       /* altura fixa para uniformidade */
-  object-fit: cover;   /* mantém proporção e corta o excesso */
-  border-radius: 0;    /* sem arredondar a imagem dentro do card */
+  height: 300px;
+  object-fit: cover;
+  border-radius: 0;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -273,7 +367,7 @@ nav a:hover::after {
   }
 }
 
-/* RODAPÉ COM FONT AWESOME */
+/* RODAPÉ */
 footer {
   background: #ffffff;
   color: #000000;
@@ -316,51 +410,6 @@ footer .social a:hover {
   box-shadow: 0 5px 15px rgba(224, 123, 103, 0.3);
 }
 
-/* RESPONSIVIDADE */
-@media (max-width: 768px) {
-  footer {
-    padding: 30px 15px;
-  }
-  
-  footer .social {
-    gap: 20px;
-  }
-  
-  footer .social a {
-    width: 40px;
-    height: 40px;
-  }
-  
-  footer .social img {
-    width: 18px;
-    height: 18px;
-  }
-}
-
-/* RESPONSIVO */
-@media (max-width: 768px) {
-  .hero {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .hero-content {
-    padding-right: 0;
-  }
-
-  .hero-gallery {
-    margin-top: 20px;
-    justify-content: center;
-  }
-
-  .conteudo-sobre h2 {
-    font-size: 2.2rem;
-  }
-
-  .conteudo-sobre p {
-    font-size: 1.1rem;
-  }
-}
 /* NAVBAR ICONS */
 .nav-icons {
   display: flex;
@@ -463,19 +512,75 @@ footer .social a:hover {
   font-weight: 600;
 }
 
-/* RESPONSIVIDADE PARA OS ÍCONES */
+/* RESPONSIVIDADE */
 @media (max-width: 768px) {
-  .nav-icons {
-    margin-left: 20px;
-    gap: 10px;
+  /* Header responsivo */
+  header {
+    padding: 20px 25px;
   }
   
-  .icon-link {
-    font-size: 1.2rem;
+  .logo {
+    font-size: 2.2rem;
   }
   
-  .dropdown-content {
-    right: -50px;
-    min-width: 220px;
+  nav a:not(.icon-link) {
+    display: none;
+  }
+  
+  .hamburger-menu {
+    display: block;
+  }
+  
+  /* Hero responsivo */
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 60px 5%;
+  }
+
+  .hero-content {
+    padding-right: 0;
+  }
+
+  .hero-gallery {
+    margin-top: 20px;
+    justify-content: center;
+  }
+  
+  .hero-content h1 {
+    font-size: 2.8rem;
+    letter-spacing: 4px;
+  }
+  
+  .hero-gallery img {
+    width: 150px;
+    height: 150px;
+  }
+
+  .conteudo-sobre h2 {
+    font-size: 2.2rem;
+  }
+
+  .conteudo-sobre p {
+    font-size: 1.1rem;
+  }
+  
+  footer {
+    padding: 30px 15px;
+  }
+  
+  footer .social {
+    gap: 20px;
+  }
+  
+  footer .social a {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (min-width: 769px) {
+  .hamburger-menu {
+    display: none;
   }
 }

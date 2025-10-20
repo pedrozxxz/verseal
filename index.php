@@ -1,7 +1,3 @@
-<?php
-session_start();
-$usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
-?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -21,6 +17,34 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
   <!-- HEADER -->
   <header>
     <div class="logo">Verseal</div>
+    
+    <!-- Menu Hamburguer -->
+    <div class="hamburger-menu">
+      <input type="checkbox" id="menu-toggle">
+      <label for="menu-toggle" class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </label>
+      <div class="menu-content">
+        <div class="menu-section">
+          <h3>ACESSO</h3>
+          <a href="#" class="menu-item">
+            <i class="fas fa-user"></i>
+            <span>Cliente</span>
+          </a>
+          <a href="#" class="menu-item">
+            <i class="fas fa-user-shield"></i>
+            <span>ADM</span>
+          </a>
+          <a href="#" class="menu-item">
+            <i class="fas fa-palette"></i>
+            <span>Artista</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
     <nav>
       <a href="#">Início</a>
       <a href="./pages/produto.php">Obras</a>
@@ -122,7 +146,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     </div>
   </section>
 
-    <!-- RODAPÉ -->
+  <!-- RODAPÉ -->
   <footer>
     <p>&copy; 2025 Verseal. Todos os direitos reservados.</p>
     <div class="social">
@@ -174,8 +198,18 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
       profileDropdown.addEventListener('click', function (e) {
         e.stopPropagation();
       });
+
+      // Menu Hamburguer
+      const menuToggle = document.getElementById('menu-toggle');
+      const menuContent = document.querySelector('.menu-content');
+
+      // Fechar menu ao clicar fora
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.hamburger-menu')) {
+          menuToggle.checked = false;
+        }
+      });
     });
   </script>
 </body>
-
 </html>
