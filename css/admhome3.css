@@ -1,0 +1,182 @@
+/* Reset básico e fonte */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f4f4f9;
+    color: #333;
+    margin: 0;
+    display: flex;
+    justify-content: flex-start; /* sidebar fixa à esquerda */
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 230px;
+    background: linear-gradient(180deg, #db6d56 0%, #a7503e 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px 0;
+    transition: width 0.3s ease;
+}
+.sidebar.collapsed { width: 80px; }
+
+.logo {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.menu a {
+    color: white;
+    text-decoration: none;
+    padding: 15px 20px;
+    display: block;
+    text-align: left;
+    font-weight: 500;
+    transition: 0.3s;
+}
+.menu a:hover, .menu a.active {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+}
+
+.toggle-btn,
+.logout-btn {
+    margin-top: auto;
+    margin-bottom: 10px;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 80%;
+    transition: 0.3s;
+}
+.toggle-btn:hover,
+.logout-btn:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Dashboard */
+.dashboard {
+    flex: 1;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* centraliza horizontalmente */
+    width: 100%;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 30px;
+}
+.topbar h1 {
+    font-size: 1.8em;
+}
+.topbar .welcome {
+    font-weight: 500;
+    color: #555;
+}
+
+/* Tabela de obras */
+.table-container {
+    background: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    width: 90%;
+    max-width: 900px;
+    margin: 0 auto 40px auto;
+    overflow-x: auto;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+th {
+    background: #d1cfcf;
+    padding: 12px;
+    font-weight: 600;
+    color: #333;
+    border-radius: 5px;
+}
+td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Botões de ação na tabela */
+button {
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: 500;
+}
+button.edit {
+    background-color: #db6d56;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 12px;
+    margin-right: 5px;
+}
+button.edit:hover {
+    background-color: #bf5a46;
+}
+button.delete {
+    background-color: #e03737;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 12px;
+}
+button.delete:hover {
+    background-color: #c02727;
+}
+
+/* Área de ações */
+.actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+button.refresh {
+    background-color: #b4b4b4;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+}
+button.refresh:hover {
+    background-color: #999;
+}
+button.new {
+    background-color: #db6d56;
+    color: #fff;
+    padding: 12px 25px;
+    border-radius: 25px;
+}
+button.new:hover {
+    background-color: #bf5a46;
+}
+.view-more {
+    color: #db6d56;
+    cursor: pointer;
+    font-weight: 500;
+}
+.view-more:hover {
+    text-decoration: underline;
+}
