@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Obra - Verscal</title>
+    <link rel="stylesheet" href="../css/editar-obra.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1>Verscal</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">MÍGIO</a></li>
+                    <li><a href="#" class="active">OBRAS</a></li>
+                    <li><a href="#">SOBRE</a></li>
+                    <li><a href="#">ARTISTA</a></li>
+                    <li><a href="#">CONTATO</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="page-title">
+                <h2>EDITAR OBRA</h2>
+            </div>
+            
+            <div class="form-container">
+                <form id="edit-artwork-form">
+                    <div class="form-group">
+                        <label for="artwork-name">Nome da Obra</label>
+                        <input type="text" id="artwork-name" placeholder="Digite...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="artwork-price">Preço</label>
+                        <input type="text" id="artwork-price" placeholder="Digite...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="artwork-technique">Técnica/Estilo</label>
+                        <select id="artwork-technique">
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="manual">Manual</option>
+                            <option value="nft">NFT</option>
+                            <option value="mesa-digital">Mesa-digital</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="artwork-dimension">Dimensão</label>
+                        <input type="text" id="artwork-dimension" placeholder="Digite...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="artwork-date">Data de Criação</label>
+                        <input type="date" id="artwork-date">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="artwork-keywords">Palavras-chaves</label>
+                        <input type="text" id="artwork-keywords" placeholder='EX: "Abstrato", "paisagem"'>
+                    </div>
+                    
+                    <div class="form-group image-upload">
+                        <label>INSERIR IMAGEM</label>
+                        <div class="upload-area">
+                            <div class="upload-icon">+</div>
+                            <p>Clique para fazer upload da imagem</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-save">SALVAR</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2025 Verscal. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Script para simular o upload de imagem
+        document.querySelector('.upload-area').addEventListener('click', function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        document.querySelector('.upload-area').innerHTML = `
+                            <img src="${event.target.result}" alt="Prévia da imagem">
+                            <p>Imagem carregada. Clique para alterar.</p>
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        });
+    </script>
+</body>
+</html>
