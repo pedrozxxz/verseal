@@ -3,50 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../css/admhome.css">
+    <title>Artistas - Verseal</title>
+    <link rel="stylesheet" href="../css/admhome3.css">
     <script defer src="../js/admhome.js"></script>
-    <title>ADM3</title>
 </head>
 <body>
- <aside class="sidebar">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
         <h2 class="logo">Verseal</h2>
         <nav class="menu">
-            <a href="admhome.php" class="active">Início</a>
+            <a href="admhome.php">Início</a>
             <a href="adm2.php">Clientes</a>
-            <a href="adm3.php">Artistas</a>
+            <a href="adm3.php" class="active">Artistas</a>
             <a href="adm4.php">Obras</a>
             <a href="adm5.php">Contato</a>
         </nav>
-    <header class="topbar">
-        <h1>Artistas</h1>
-        <span class="welcome">Gerencie os artistas cadastrados</span>
-    </header>
 
-    <section class="content">
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Estilo</th>
-                        <th>Email</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>Vincent Van Gogh</td><td>Pós-impressionismo</td><td>vangogh@gmail.com</td><td><button class="edit">Editar</button><button class="delete">Excluir</button></td></tr>
-                    <tr><td>Claude Monet</td><td>Impressionismo</td><td>monet@gmail.com</td><td><button class="edit">Editar</button><button class="delete">Excluir</button></td></tr>
-                </tbody>
-            </table>
-        </div>
+        <button class="logout-btn">Sair</button>
+    </aside>
 
-        <div class="actions">
-            <button class="refresh">Atualizar</button>
-            <p class="view-more">Ver Mais</p>
-            <button class="new">Novo Cadastro</button>
-        </div>
-    </section>
-</main>
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="dashboard">
+        <header class="topbar">
+            <h1>Artistas</h1>
+            <span class="welcome">Gerencie os artistas cadastrados</span>
+        </header>
 
+        <section class="content">
+            <!-- TABELA DE ARTISTAS -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Estilo</th>
+                            <th>Email</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Vincent Van Gogh</td>
+                            <td>Pós-impressionismo</td>
+                            <td>vangogh@gmail.com</td>
+                            <td>
+                                <button class="edit">Editar</button>
+                                <button class="delete">Excluir</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Claude Monet</td>
+                            <td>Impressionismo</td>
+                            <td>monet@gmail.com</td>
+                            <td>
+                                <button class="edit">Editar</button>
+                                <button class="delete">Excluir</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- AÇÕES -->
+            <div class="actions">
+                <button class="refresh">Atualizar</button>
+                <p class="view-more">Ver Mais</p>
+                <button class="new">Novo Cadastro</button>
+            </div>
+        </section>
+    </main>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f4f5fb;
+            color: #333;
+        }
+
+        /* ======== SIDEBAR ======== */
+        .sidebar {
+            width: 240px;
+            height: 100vh;
+            background: linear-gradient(180deg, #db6d56 0%, #a7503e 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            color: #fdfdfd;
+            letter-spacing: 5px;
+            font-style: italic;
+            cursor: default;
+            user-select: none;
+            transition: color 0.3s ease;
+            text-shadow: 2px 2px 5px rgba(194, 181, 178, 0.75);
+        }
+
+        .logo:hover {
+            color: #a7503e;
+            text-shadow: 2px 2px 8px #db6d56;
+        }
+
+        .menu {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 80%;
+            transition: 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ======== CONTEÚDO PRINCIPAL ======== */
+        .dashboard {
+            flex: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+        }
+
+        /* ======== TOPO ======== */
+        .topbar {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e2e3f0;
+            padding-bottom: 10px;
+        }
+
+        .topbar h1 {
+            font-size: 1.8rem;
+            color: #e74c3c;
+            margin-bottom: 5px;
+        }
+
+        .topbar .welcome {
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        /* ======== TABELA ======== */
+        .table-container {
+            background: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            width: 90%;
+            max-width: 900px;
+            margin: 0 auto 40px auto;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        th {
+            background: #d1cfcf;
+            padding: 12px;
+            font-weight: 600;
+            color: #333;
+            border-radius: 5px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover td {
+            background: #f8f9ff;
+        }
+
+        /* ======== BOTÕES ======== */
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .edit {
+            background: #f39c12;
+            color: #fff;
+            padding: 7px 15px;
+            margin-right: 5px;
+        }
+
+        .edit:hover {
+            background: #d68910;
+        }
+
+        .delete {
+            background: #e74c3c;
+            color: #fff;
+            padding: 7px 15px;
+        }
+
+        .delete:hover {
+            background: #c0392b;
+        }
+
+        .refresh,
+        .new {
+            background: #e74c3c;
+            color: #fff;
+            padding: 10px 22px;
+            font-size: 0.95rem;
+        }
+
+        .refresh:hover,
+        .new:hover {
+            background: #7e190e;
+        }
+
+        /* ======== AÇÕES ======== */
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+        }
+
+        .view-more {
+            color: #e74c3c;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .view-more:hover {
+            text-decoration: underline;
+        }
+
+        /* ======== RESPONSIVIDADE ======== */
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-around;
+                padding: 15px;
+                height: auto;
+            }
+
+            .menu {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .menu a {
+                margin: 5px;
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+
+            .dashboard {
+                padding: 20px;
+            }
+
+            th,
+            td {
+                font-size: 0.85rem;
+            }
+
+            .actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
 </body>
 </html>
