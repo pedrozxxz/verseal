@@ -1,31 +1,44 @@
-/* Reset básico e fonte */
-body {
-    font-family: 'Poppins', sans-serif;
-    background: #f4f4f9;
-    color: #333;
+* {
     margin: 0;
-    display: flex;
-    justify-content: flex-start; /* sidebar fixa à esquerda */
-    min-height: 100vh;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* Sidebar */
+body {
+    display: flex;
+    height: 100vh;
+    background-color: #f4f5fb;
+    color: #333;
+}
+
+/* ======== SIDEBAR ======== */
 .sidebar {
-    width: 230px;
+    width: 240px;
     background: linear-gradient(180deg, #db6d56 0%, #a7503e 100%);
-    color: white;
+    color: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 25px 0;
-    transition: width 0.3s ease;
+    padding: 30px 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
 }
-.sidebar.collapsed { width: 80px; }
 
 .logo {
-    font-size: 1.8em;
-    margin-bottom: 20px;
-    font-weight: bold;
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  color: #fdfdfdff;
+  letter-spacing: 5px;
+  font-style: italic;
+  cursor: default;
+  user-select: none;
+  transition: color 0.3s ease;
+  text-shadow: 2px 2px 5px rgba(194, 181, 178, 0.75);
+}
+ 
+.logo:hover {
+  color: #a7503e;
+  text-shadow: 2px 2px 8px #db6d56
 }
 
 .menu {
@@ -33,20 +46,20 @@ body {
     flex-direction: column;
     width: 100%;
 }
+
 .menu a {
-    color: white;
     text-decoration: none;
-    padding: 15px 20px;
-    display: block;
-    text-align: left;
-    font-weight: 500;
-    transition: 0.3s;
+    color: #ffffffff;
+    padding: 12px 18px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: background 0.3s, color 0.3s;
 }
+
 .menu a:hover, .menu a.active {
     background: rgba(255,255,255,0.2);
     border-radius: 10px;
 }
-
 .toggle-btn,
 .logout-btn {
     margin-top: auto;
@@ -60,37 +73,40 @@ body {
     width: 80%;
     transition: 0.3s;
 }
+
 .toggle-btn:hover,
 .logout-btn:hover {
     background: rgba(255,255,255,0.3);
 }
 
-/* Dashboard */
+/* ======== CONTEÚDO PRINCIPAL ======== */
 .dashboard {
     flex: 1;
-    padding: 30px;
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* centraliza horizontalmente */
-    width: 100%;
+    padding: 30px 40px;
+    overflow-y: auto;
 }
 
+/* ======== TOPO ======== */
 .topbar {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 30px;
-}
-.topbar h1 {
-    font-size: 1.8em;
-}
-.topbar .welcome {
-    font-weight: 500;
-    color: #555;
+    flex-direction: column;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #e2e3f0;
+    padding-bottom: 10px;
 }
 
-/* Tabela de obras */
+.topbar h1 {
+    font-size: 1.8rem;
+    color: #e74c3c;
+    margin-bottom: 5px;
+}
+
+.topbar .welcome {
+    font-size: 0.95rem;
+    color: #666;
+}
+
+/* ======== TABELA ======== */
 .table-container {
     background: #fff;
     border-radius: 15px;
@@ -101,11 +117,13 @@ body {
     margin: 0 auto 40px auto;
     overflow-x: auto;
 }
+
 table {
     width: 100%;
     border-collapse: collapse;
     text-align: center;
 }
+
 th {
     background: #d1cfcf;
     padding: 12px;
@@ -118,65 +136,89 @@ td {
     border-bottom: 1px solid #eee;
 }
 
-/* Botões de ação na tabela */
-button {
-    border: none;
-    cursor: pointer;
-    transition: 0.3s;
-    font-weight: 500;
-}
-button.edit {
-    background-color: #db6d56;
-    color: #fff;
-    padding: 6px 12px;
-    border-radius: 12px;
-    margin-right: 5px;
-}
-button.edit:hover {
-    background-color: #bf5a46;
-}
-button.delete {
-    background-color: #e03737;
-    color: #fff;
-    padding: 6px 12px;
-    border-radius: 12px;
-}
-button.delete:hover {
-    background-color: #c02727;
+tr:hover td {
+    background: #f8f9ff;
 }
 
-/* Área de ações */
+/* ======== BOTÕES ======== */
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.delete {
+    background: #e74c3c;
+    color: #fff;
+    padding: 7px 15px;
+}
+
+.delete:hover {
+    background: #c0392b;
+}
+
+.refresh {
+    background: #e74c3c;
+    color: #fff;
+    padding: 10px 22px;
+    font-size: 0.95rem;
+}
+
+.refresh:hover {
+    background: #7e190eff;
+}
+
+/* ======== AÇÕES ======== */
 .actions {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin-bottom: 40px;
+    margin-top: 25px;
 }
-button.refresh {
-    background-color: #b4b4b4;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 20px;
-}
-button.refresh:hover {
-    background-color: #999;
-}
-button.new {
-    background-color: #db6d56;
-    color: #fff;
-    padding: 12px 25px;
-    border-radius: 25px;
-}
-button.new:hover {
-    background-color: #bf5a46;
-}
+
 .view-more {
-    color: #db6d56;
+    color: #e74c3c;
+    font-weight: 600;
     cursor: pointer;
-    font-weight: 500;
+    transition: 0.3s;
 }
+
 .view-more:hover {
     text-decoration: underline;
+}
+
+/* ======== RESPONSIVIDADE ======== */
+@media (max-width: 900px) {
+    body {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 15px;
+    }
+
+    .menu {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .menu a {
+        margin: 5px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    .dashboard {
+        padding: 20px;
+    }
+
+    th, td {
+        font-size: 0.85rem;
+    }
 }
