@@ -84,7 +84,6 @@
 
             <div class="actions">
                 <button class="refresh">Atualizar</button>
-                <p class="view-more">Ver mais</p>
             </div>
         </section>
     </main>
