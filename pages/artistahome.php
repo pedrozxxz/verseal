@@ -37,7 +37,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
         </label>
         <div class="menu-content-desktop">
           <div class="menu-section">
-            <a href="../index.html" class="menu-item">
+            <a href="../index.php" class="menu-item">
               <i class="fas fa-user"></i>
               <span>Cliente</span>
             </a>

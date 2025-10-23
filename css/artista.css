@@ -602,3 +602,68 @@
         font-size: 1.1rem;
       }
     }
+    /* Botão hamburger */
+.hamburger {
+  display: none;
+  font-size: 1.8rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #444;
+  z-index: 1002; /* acima da navbar */
+  position: absolute;
+  top: 25px;
+  right: 50px;
+}
+
+/* Mostrar botão apenas no mobile */
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+
+  nav {
+    position: fixed;
+    top: 0;
+    left: -100%; /* escondido por padrão */
+    width: 100%;
+    height: 100vh;
+    background: #fff;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    transition: left 0.3s ease;
+    z-index: 1000;
+  }
+
+  nav.nav-open {
+    left: 0; /* menu aparece */
+  }
+
+  nav a {
+    font-size: 1.5rem;
+    margin: 0;
+  }
+
+  .nav-icons {
+    flex-direction: column;
+    margin: 0;
+    gap: 20px;
+  }
+
+  .profile-dropdown {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .dropdown-content {
+    position: relative;
+    top: 0;
+    right: 0;
+    box-shadow: none;
+    width: 90%;
+    margin: 15px 0;
+  }
+}

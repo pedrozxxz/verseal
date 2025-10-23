@@ -160,7 +160,6 @@ nav a i {
   display: none;
 }
 
-/* Responsividade para a página do artista */
 @media (max-width: 768px) {
   /* Hero Section */
   .hero .hero-content h1 {

@@ -25,3 +25,11 @@ document.addEventListener("click", e => {
 document.querySelector(".toggle-btn").addEventListener("click", () => {
     document.querySelector(".sidebar").classList.toggle("collapsed");
 });
+
+document.addEventListener('click', function(e) {
+  const toggle = document.getElementById('menu-toggle-desktop');
+  const menu = document.querySelector('.menu-content-desktop');
+  if (!e.target.closest('.hamburger-menu-desktop')) {
+    toggle.checked = false;
+  }
+});

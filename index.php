@@ -38,7 +38,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
         </label>
         <div class="menu-content-desktop">
           <div class="menu-section">
-            <a href="#" class="menu-item" onclick="event.preventDefault(); document.getElementById('menu-toggle-desktop').checked = false;">
+            <a href="../index.php" class="menu-item" onclick="event.preventDefault(); document.getElementById('menu-toggle-desktop').checked = false;">
               <i class="fas fa-user"></i>
               <span>Cliente</span>
             </a>
