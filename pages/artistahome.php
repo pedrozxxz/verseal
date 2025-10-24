@@ -25,8 +25,8 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     
     <nav>
       <a href="artistahome.php"><i class="fas fa-home"></i> Início</a>
-      <a href="#"><i class="fas fa-palette"></i> Obras</a>
-      <a href="#"><i class="fas fa-user"></i> Quem eu sou?</a>
+      <a href="artistasobras.php"><i class="fas fa-palette"></i> Obras</a>
+      <a href="artistabiografia.php"><i class="fas fa-user"></i> Quem eu sou?</a>
       
       <!-- Menu Hamburguer Flutuante -->
       <div class="hamburger-menu-desktop">
@@ -59,7 +59,6 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
           <i class="fas fa-user"></i>
         </a>
         <div class="dropdown-content" id="profile-dropdown">
-          <?php if ($usuarioLogado): ?>
             <div class="user-info">
               <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
             </div>
@@ -77,18 +76,6 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
             <a href="#" class="dropdown-item logout-btn">
               <i class="fas fa-sign-out-alt"></i> Sair
             </a>
-          <?php else: ?>
-            <div class="user-info">
-              <p>Faça login para acessar seu perfil</p>
-            </div>
-            <div class="dropdown-divider"></div>
-            <a href="#" class="dropdown-item">
-              <i class="fas fa-sign-in-alt"></i> Fazer Login
-            </a>
-            <a href="#" class="dropdown-item">
-              <i class="fas fa-user-plus"></i> Cadastrar
-            </a>
-          <?php endif; ?>
         </div>
       </div>
     </nav>
