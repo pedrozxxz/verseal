@@ -177,6 +177,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <input type="password" name="senha" id="cadastroSenha" placeholder="Senha" required />
       <input type="password" name="confirmar_senha" id="cadastroSenhaConfirm" placeholder="Confirmar senha" required />
       <button type="submit" name="cadastro" class="botao-estilizado">Cadastrar</button>
+      <p>Você é um artista? <a href="cadastroArtista.php">Cadastre-se aqui</a></p>
     </form>
 
     <div id="particles-js"></div>
