@@ -1,0 +1,179 @@
+<!-- adicionar uma caixa de seleção de opções de obras, especficamente do botão
+ de editar obras da home -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Editar Obra - Verseal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/adicionar-obras.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">Verseal</div>
+    
+    <nav>
+      <a href="artistahome.php"><i class="fas fa-home"></i> Início</a>
+      <a href="artistasobra.php"><i class="fas fa-palette"></i> Obras</a>
+      <a href="artistabiografia.php"><i class="fas fa-user"></i> Quem eu sou?</a>
+      
+      <!-- Menu Hamburger -->
+      <div class="hamburger-menu-desktop">
+        <input type="checkbox" id="menu-toggle-desktop">
+        <label for="menu-toggle-desktop" class="hamburger-desktop">
+          <i class="fas fa-bars"></i>
+          <span>ACESSO</span>
+        </label>
+        <div class="menu-content-desktop">
+          <div class="menu-section">
+            <a href="../index.html" class="menu-item">
+              <i class="fas fa-user"></i>
+              <span>Cliente</span>
+            </a>
+            <a href="admhome.html" class="menu-item">
+              <i class="fas fa-user-shield"></i>
+              <span>ADM</span>
+            </a>
+            <a href="artistahome.html" class="menu-item active">
+              <i class="fas fa-palette"></i>
+              <span>Artista</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <a href="#" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+      <div class="profile-dropdown">
+        <a href="#" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
+        <div class="dropdown-content" id="profile-dropdown">
+          <div class="user-info">
+            <p>Faça login para acessar seu perfil</p>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+          <a href="#" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- FORMULÁRIO EDITAR OBRAS -->
+  <section class="adicionar-obras">
+    <div class="container">
+      <h1>EDITAR OBRAS</h1>
+      
+      <form class="form-obras" id="form-obras">
+        <div class="form-grid">
+          <div class="form-column">
+            <div class="form-group">
+              <label for="nome-obra">Nome da Obra</label>
+              <input type="text" id="nome-obra" placeholder="Digite..." value="Nome existente">
+            </div>
+            
+            <div class="form-group">
+              <label for="preco">Preço</label>
+              <input type="text" id="preco" placeholder="Digite..." value="1000">
+            </div>
+            
+            <div class="form-group">
+              <label for="tecnica">Técnica/Estilo</label>
+              <select id="tecnica">
+                <option value="" disabled>Selecione</option>
+                <option value="manual" selected>Manual</option>
+                <option value="nft">NFT</option>
+                <option value="mesa-digital">Mesa-digital</option>
+                <option value="pintura">Pintura</option>
+                <option value="escultura">Escultura</option>
+                <option value="fotografia">Fotografia</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="dimensao">Dimensão</label>
+              <input type="text" id="dimensao" placeholder="Digite..." value="50x70cm">
+            </div>
+            
+            <div class="form-group">
+              <label for="data-criacao">Data de Criação</label>
+              <input type="date" id="data-criacao" value="2025-01-01">
+            </div>
+            
+            <div class="form-group">
+              <label for="palavras-chave">Palavras-chaves</label>
+              <input type="text" id="palavras-chave" placeholder='EX: "Abstrato", "paisagem"' value="Abstrato, Paisagem">
+            </div>
+          </div>
+          
+          <div class="form-column">
+            <div class="upload-area" id="upload-area">
+              <div class="upload-content">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>INSERIR IMAGEM</h3>
+                <p>Arraste e solte ou clique para fazer upload</p>
+                <span>PNG, JPG, JPEG até 10MB</span>
+              </div>
+              <input type="file" id="imagem-obra" accept="image/*" hidden>
+            </div>
+            <div class="image-preview" id="image-preview">
+              <img src="../imagens/exemplo.jpg" alt="Imagem da obra">
+            </div>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn-salvar">
+          <i class="fas fa-save"></i> SALVAR
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- RODAPÉ -->
+  <footer>
+    <p>&copy; 2025 Verseal. Todos os direitos reservados.</p>
+    <div class="social">
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#"><i class="fab fa-whatsapp"></i></a>
+    </div>
+  </footer>
+
+  <script>
+    // Dropdown do perfil
+    const profileIcon = document.getElementById('profile-icon');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    profileIcon.addEventListener('click', function(e){
+      e.preventDefault();
+      profileDropdown.classList.toggle('show');
+    });
+    document.addEventListener('click', function(e){
+      if(!profileDropdown.contains(e.target) && e.target !== profileIcon){
+        profileDropdown.classList.remove('show');
+      }
+    });
+
+    // Upload de imagem
+    const uploadArea = document.getElementById('upload-area');
+    const imageInput = document.getElementById('imagem-obra');
+    const imagePreview = document.getElementById('image-preview');
+
+    uploadArea.addEventListener('click', () => imageInput.click());
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if(file){
+        const reader = new FileReader();
+        reader.onload = function(event){
+          imagePreview.innerHTML = `<img src="${event.target.result}" alt="Imagem da obra">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+
+</body>
+</html>

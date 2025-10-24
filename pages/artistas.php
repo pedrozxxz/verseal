@@ -12,8 +12,26 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-    integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    .btn-editar-perfil-card {
+      display: inline-block;
+      margin-top: 12px;
+      background: linear-gradient(135deg, #cc624e, #b34f3e);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.25s ease;
+    }
+
+    .btn-editar-perfil-card:hover {
+      background: linear-gradient(135deg, #e07b67, #cc624e);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(204,98,78,0.3);
+    }
+  </style>
 </head>
 
 <body>
@@ -73,7 +91,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     </nav>
   </header>
 
-  <!-- HERO ARTISTAS - DESIGN MELHORADO -->
+  <!-- HERO ARTISTAS -->
   <section class="hero-artistas">
     <div class="hero-artistas-content">
       <h1>Nossos Artistas</h1>
@@ -93,6 +111,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     </p>
     
     <div class="galeria-artistas">
+
       <!-- Artista 1 -->
       <div class="card-artista">
         <div class="artista-imagem" style="background: linear-gradient(135deg, #e07b67, #cc624e);">
@@ -118,9 +137,12 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
               <span>Instagram: @oliveirzz.a</span>
             </div>
           </div>
+          <?php if ($usuarioLogado === 'JAMILE FRANQUILIM'): ?>
+            <a href="editarbiografia.php" class="btn-editar-perfil-card">Editar Perfil</a>
+          <?php endif; ?>
         </div>
       </div>
-      
+
       <!-- Artista 2 -->
       <div class="card-artista">
         <div class="artista-imagem" style="background: linear-gradient(135deg, #5b4a42, #8a7360);">
@@ -146,9 +168,12 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
               <span>Instagram: stefani@gmail.com</span>
             </div>
           </div>
+          <?php if ($usuarioLogado === 'STEFAN CORREA'): ?>
+            <a href="editarbiografia.php" class="btn-editar-perfil-card">Editar Perfil</a>
+          <?php endif; ?>
         </div>
       </div>
-      
+
       <!-- Artista 3 -->
       <div class="card-artista">
         <div class="artista-imagem" style="background: linear-gradient(135deg, #8a7360, #a88c7d);">
@@ -174,9 +199,12 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
               <span>Instagram: @marina.artes</span>
             </div>
           </div>
+          <?php if ($usuarioLogado === 'MARINA OLIVEIRA'): ?>
+            <a href="editarbiografia.php" class="btn-editar-perfil-card">Editar Perfil</a>
+          <?php endif; ?>
         </div>
       </div>
-      
+
       <!-- Artista 4 -->
       <div class="card-artista">
         <div class="artista-imagem" style="background: linear-gradient(135deg, #cc624e, #e07b67);">
@@ -202,8 +230,12 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
               <span>Instagram: @lucas_sketches</span>
             </div>
           </div>
+          <?php if ($usuarioLogado === 'LUCAS FERNANDES'): ?>
+            <a href="editarbiografia.php" class="btn-editar-perfil-card">Editar Perfil</a>
+          <?php endif; ?>
         </div>
       </div>
+
     </div>
   </section>
 
@@ -230,37 +262,5 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
       <a href="#"><i class="fab fa-whatsapp"></i></a>
     </div>
   </footer>
-
-  <script>
-    // Animação de entrada para a seção sobre
-    document.addEventListener('DOMContentLoaded', function() {
-      const sobreSection = document.querySelector('.conteudo-sobre-artistas');
-      setTimeout(() => {
-        sobreSection.style.opacity = '1';
-      }, 300);
-      
-      // Dropdown do perfil
-      const profileIcon = document.getElementById('profile-icon');
-      const profileDropdown = document.getElementById('profile-dropdown');
-
-      profileIcon.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
-      });
-
-      // Fechar dropdown ao clicar fora
-      document.addEventListener('click', function (e) {
-        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
-          profileDropdown.style.display = 'none';
-        }
-      });
-
-      // Prevenir fechamento ao clicar dentro do dropdown
-      profileDropdown.addEventListener('click', function (e) {
-        e.stopPropagation();
-      });
-    });
-  </script>
 </body>
 </html>

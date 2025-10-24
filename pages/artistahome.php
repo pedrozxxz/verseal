@@ -18,68 +18,48 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
 </head>
 
 <body>
-
-  <!-- HEADER -->
-  <header>
-    <div class="logo">Verseal</div>
+<header>
+  <div class="logo">Verseal</div>
+  
+  <nav>
+    <a href="artistahome.php">Início</a>
+    <a href="./artistasobra.php">Obras</a>
+    <a href="./artistabiografia.php">Artistas</a>
     
-    <nav>
-      <a href="artistahome.php"><i class="fas fa-home"></i> Início</a>
-      <a href="artistasobras.php"><i class="fas fa-palette"></i> Obras</a>
-      <a href="artistabiografia.php"><i class="fas fa-user"></i> Quem eu sou?</a>
-      
-      <!-- Menu Hamburguer Flutuante -->
-      <div class="hamburger-menu-desktop">
-        <input type="checkbox" id="menu-toggle-desktop">
-        <label for="menu-toggle-desktop" class="hamburger-desktop">
-          <i class="fas fa-bars"></i>
-          <span>ACESSO</span>
-        </label>
-        <div class="menu-content-desktop">
-          <div class="menu-section">
-            <a href="../index.php" class="menu-item">
-              <i class="fas fa-user"></i>
-              <span>Cliente</span>
-            </a>
-            <a href="./admhome.php" class="menu-item">
-              <i class="fas fa-user-shield"></i>
-              <span>ADM</span>
-            </a>
-            <a href="./artistahome.php" class="menu-item active">
-              <i class="fas fa-palette"></i>
-              <span>Artista</span>
-            </a>
-          </div>
+    <div class="hamburger-menu-desktop">
+      <input type="checkbox" id="menu-toggle-desktop">
+      <label for="menu-toggle-desktop" class="hamburger-desktop"><i class="fas fa-bars"></i><span>ACESSO</span></label>
+      <div class="menu-content-desktop">
+        <div class="menu-section">
+          <a href="../index.php" class="menu-item"><i class="fas fa-user"></i><span>Cliente</span></a>
+          <a href="./admhome.php" class="menu-item"><i class="fas fa-user-shield"></i><span>ADM</span></a>
+          <a href="./artistahome.php" class="menu-item"><i class="fas fa-palette"></i><span>Artista</span></a>
         </div>
       </div>
+    </div>
 
-      
-      <div class="profile-dropdown">
-        <a href="#" class="icon-link" id="profile-icon">
-          <i class="fas fa-user"></i>
-        </a>
-        <div class="dropdown-content" id="profile-dropdown">
-            <div class="user-info">
-              <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
-            </div>
-            <div class="dropdown-divider"></div>
-            <a href="#" class="dropdown-item">
-              <i class="fas fa-user-circle"></i> Meu Perfil
-            </a>
-            <a href="#" class="dropdown-item">
-              <i class="fas fa-shopping-bag"></i> Minhas Vendas
-            </a>
-            <a href="#" class="dropdown-item">
-              <i class="fas fa-heart"></i> Favoritos
-            </a>
-            <div class="dropdown-divider"></div>
-            <a href="#" class="dropdown-item logout-btn">
-              <i class="fas fa-sign-out-alt"></i> Sair
-            </a>
-        </div>
+    <a href="./carrinho.php" class="icon-link" id="cart-icon"><i class="fas fa-shopping-cart"></i></a>
+    <div class="profile-dropdown">
+      <a href="./perfil.php" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
+      <div class="dropdown-content" id="profile-dropdown">
+        <?php if ($usuarioLogado): ?>
+          <div class="user-info"><p>Seja bem-vindo, <?php echo htmlspecialchars($usuarioLogado); ?>!</p></div>
+          <div class="dropdown-divider"></div>
+          <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+          <a href="./minhas-compras.php" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Minhas Compras</a>
+          <a href="./favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+          <div class="dropdown-divider"></div>
+          <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        <?php else: ?>
+          <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+          <div class="dropdown-divider"></div>
+          <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+          <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+        <?php endif; ?>
       </div>
-    </nav>
-  </header>
+    </div>
+  </nav>
+</header>
 
   <!-- Hero Section -->
   <section class="hero">
@@ -88,7 +68,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
       <p>Explore NFT e obras únicas feitas à mão.</p>
       <div class="hero-buttons">
         <a href="adicionar-obras.html" class="btn-destaque">ADICIONAR OBRAS</a>
-        <a href="editar-obra.html" class="btn-destaque secundario">EDITAR OBRAS</a>
+        <a href="editar_obra2.php" class="btn-destaque secundario">EDITAR OBRAS</a>
       </div>
     </div>
     <div class="hero-gallery">
