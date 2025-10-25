@@ -14,6 +14,17 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="./css/style.css" />
+  <style>
+    .fade-in {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease-out, transform 0.4s ease-out;
+    }
+    .fade-in.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
 </head>
 
 <body>
@@ -100,11 +111,11 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
   <!-- HERO -->
   <section class="hero">
     <div class="hero-content">
-      <h1>Arte que Transforma.</h1>
-      <p>Explore NFTs e obras únicas feitas à mão.</p>
+      <h1 class="fade-in">Arte que Transforma.</h1>
+      <p class="fade-in">Explore NFTs e obras únicas feitas à mão.</p>
       <a href="./pages/produto.php" class="btn-destaque">Ver Obras</a>
     </div>
-    <div class="hero-gallery">
+    <div class="hero-gallery fade-in">
       <img src="./img/imagem9.png" alt="Arte destaque 1" />
       <img src="./img/imagem.jfif" alt="Arte destaque 2" />
       <img src="./img/imagem2.png" alt="Arte destaque 3" />
@@ -113,19 +124,19 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
 
   <!-- PRODUTOS -->
   <section id="produtos" class="produtos">
-    <h2>Obras em Destaque</h2>
+    <h2 class="fade-in">Obras em Destaque</h2>
     <div class="galeria">
-      <div class="card">
+      <div class="card fade-in">
         <img src="./img/midia.jfif" alt="Produto 1" />
         <h3>"Noite de Safira"</h3>
         <p>Arte digital - R$ 120</p>
       </div>
-      <div class="card">
+      <div class="card fade-in">
         <img src="./img/todos.jfif" alt="Produto 2" />
         <h3>"Princesa Das Sombras"</h3>
         <p>Arte Manual - R$ 200</p>
       </div>
-      <div class="card">
+      <div class="card fade-in">
         <img src="./img/desenho.jfif" alt="Produto 3" />
         <h3>"Guardiões Da Lâmina"</h3>
         <p>Arte NFT exclusiva - R$ 165</p>
@@ -137,13 +148,13 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
   <section class="sobre" id="sobre">
     <div id="particles-sobre"></div>
     <div class="conteudo-sobre">
-      <h2>Sobre a Verseal</h2>
-      <p>
+      <h2 class="fade-in">Sobre a Verseal</h2>
+      <p class="fade-in">
         Unindo o digital ao artesanal, a <strong>Verseal</strong> é o elo entre o <em>futuro</em> e o <em>feito à
           mão</em>. Aqui, artistas expressam sua alma em NFTs e criações únicas, para colecionadores que buscam mais do
         que uma obra: uma <span class="destaque">conexão real</span>.
       </p>
-      <p>
+      <p class="fade-in">
         Somos mais do que um marketplace. Somos uma galeria viva de expressão, movimento e autenticidade.
       </p>
     </div>
@@ -225,5 +236,24 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
       });
     });
   </script>
+
+
+<script>
+  // Animação ao rolar a página
+  document.addEventListener('DOMContentLoaded', () => {
+    const elementos = document.querySelectorAll('.fade-in');
+
+    const observador = new IntersectionObserver((entradas) => {
+      entradas.forEach(entrada => {
+        if (entrada.isIntersecting) {
+          entrada.target.classList.add('show');
+          observador.unobserve(entrada.target);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    elementos.forEach(el => observador.observe(el));
+  });
+</script>
 </body>
 </html>
