@@ -19,12 +19,11 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
 
 <body>
 <header>
-  <div class="logo">Verseal</div>
-  
-  <nav>
-    <a href="artistahome.php">Início</a>
-    <a href="./artistasobra.php">Obras</a>
-    <a href="./artistabiografia.php">Artistas</a>
+    <div class="logo">Verseal</div>
+    <nav>
+      <a href="artistahome.php"><i class="fas fa-home"></i> Início</a>
+      <a href="artistasobra.php"><i class="fas fa-palette"></i> Obras</a>
+      <a href="artistabiografia.php"><i class="fas fa-user"></i> Quem eu sou?</a>
     
     <div class="hamburger-menu-desktop">
       <input type="checkbox" id="menu-toggle-desktop">
@@ -38,36 +37,25 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
       </div>
     </div>
 
-    <a href="./carrinho.php" class="icon-link" id="cart-icon"><i class="fas fa-shopping-cart"></i></a>
     <div class="profile-dropdown">
       <a href="./perfil.php" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
       <div class="dropdown-content" id="profile-dropdown">
-        <?php if ($usuarioLogado): ?>
           <div class="user-info"><p>Seja bem-vindo, <?php echo htmlspecialchars($usuarioLogado); ?>!</p></div>
           <div class="dropdown-divider"></div>
           <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-          <a href="./minhas-compras.php" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Minhas Compras</a>
-          <a href="./favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
           <div class="dropdown-divider"></div>
           <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
-        <?php else: ?>
-          <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
-          <div class="dropdown-divider"></div>
-          <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-          <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
-        <?php endif; ?>
       </div>
     </div>
   </nav>
 </header>
 
-  <!-- Hero Section -->
   <section class="hero">
     <div class="hero-content">
       <h1>ARTE QUE TRANSFORMA.</h1>
-      <p>Explore NFT e obras únicas feitas à mão.</p>
+      <p>Crie obras únicas e as coloque em exibição aqui</p>
       <div class="hero-buttons">
-        <a href="adicionar-obras.html" class="btn-destaque">ADICIONAR OBRAS</a>
+        <a href="adicionar-obras.php" class="btn-destaque">ADICIONAR OBRAS</a>
         <a href="editar_obra2.php" class="btn-destaque secundario">EDITAR OBRAS</a>
       </div>
     </div>
@@ -78,7 +66,6 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     </div>
   </section>
 
-  <!-- RODAPÉ -->
   <footer>
     <p>&copy; 2025 Verseal. Todos os direitos reservados.</p>
     <div class="social">
@@ -88,11 +75,9 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     </div>
   </footer>
 
-  <!-- SCRIPTS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
   <script>
-    // Efeito Vanta Waves
     VANTA.WAVES({
       el: ".hero",
       mouseControls: true,
