@@ -75,6 +75,8 @@ header {
   top: 0;
   z-index: 1000;
   font-weight: 700;
+  color: #222;
+  font-family: 'Open Sans', sans-serif;
 }
 
 .logo {
@@ -97,19 +99,16 @@ header {
 nav {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 25px;
 }
 
 nav a {
-  margin-left: 25px;
   font-weight: 600;
   font-size: 1.1rem;
   color: #444;
   text-transform: uppercase;
   transition: color 0.3s ease, letter-spacing 0.3s ease;
   position: relative;
-  display: flex;
-  align-items: center;
 }
 
 nav a::after {
@@ -133,26 +132,23 @@ nav a:hover::after {
 }
 
 /* ICONES NA NAVBAR */
+.nav-icons {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 .icon-link {
   font-size: 1.3rem;
   color: #444;
-  transition: all 0.3s ease;
+  transition: color 0.3s ease;
   position: relative;
-  padding: 8px;
-  margin-left: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 40px;
+  padding: 5px;
 }
 
 .icon-link:hover {
   color: #e07b67;
   transform: scale(1.1);
-}
-
-.icon-link:hover::after {
-  width: 100%;
 }
 
 /* PROFILE DROPDOWN */
@@ -295,9 +291,11 @@ nav a:hover::after {
   padding: 30px 25px;
   border-radius: 15px;
   box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
   text-align: center;
   border-top: 4px solid #e07b67;
+  position: relative;
+  overflow: hidden;
 }
 
 .cards-missao .card:hover {
@@ -325,6 +323,29 @@ nav a:hover::after {
   font-size: 1rem;
 }
 
+.cards-missao .card p {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  max-height: 0;
+  overflow: hidden;
+}
+.cards-missao .card:hover p {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 200px;
+}
+.cards-missao .card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(224, 123, 103, 0.25);
+  background: #fff;
+  border-top-color: #ff8b77;
+}
+.cards-missao .card:hover h3,
+.cards-missao .card:hover .icon-card {
+  color: #e07b67;
+}
+
 /* SEÇÃO DE VALORES */
 .valores {
   text-align: center;
@@ -333,6 +354,7 @@ nav a:hover::after {
 /* SEÇÃO DO VÍDEO PITCH */
 .video-pitch {
   text-align: center;
+  margin-bottom: 30px;
 }
 
 .video-container {
@@ -423,7 +445,7 @@ nav a:hover::after {
 }
 
 /* MISSÃO */
-.missao {
+ .missao {
   text-align: center;
   margin-bottom: 30px;
 }
@@ -432,6 +454,7 @@ nav a:hover::after {
 .projeto {
   text-align: center;
   margin-bottom: 30px;
+  margin-top: 30px;
 }
 
 .projeto h2 {
