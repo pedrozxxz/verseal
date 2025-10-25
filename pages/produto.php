@@ -227,7 +227,6 @@ if ($ordenacao === 'preco_asc') {
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    /* Modal Detalhes da Obra */
     .modal-detalhes {
       display: none;
       position: fixed;
@@ -240,11 +239,9 @@ if ($ordenacao === 'preco_asc') {
       justify-content: center;
       align-items: center;
     }
-
     .modal-detalhes.active {
       display: flex;
     }
-
     .modal-conteudo {
       background: white;
       border-radius: 15px;
@@ -255,7 +252,6 @@ if ($ordenacao === 'preco_asc') {
       position: relative;
       animation: modalAppear 0.3s ease;
     }
-
     @keyframes modalAppear {
       from {
         opacity: 0;
@@ -266,7 +262,6 @@ if ($ordenacao === 'preco_asc') {
         transform: scale(1);
       }
     }
-
     .modal-header {
       display: flex;
       justify-content: space-between;
@@ -274,14 +269,12 @@ if ($ordenacao === 'preco_asc') {
       padding: 20px 25px;
       border-bottom: 1px solid #eee;
     }
-
     .modal-header h2 {
       font-family: 'Playfair Display', serif;
       color: #cc624e;
       margin: 0;
       font-size: 1.8rem;
     }
-
     .btn-fechar {
       background: none;
       border: none;
@@ -291,11 +284,22 @@ if ($ordenacao === 'preco_asc') {
       padding: 5px;
       transition: color 0.3s;
     }
-
     .btn-fechar:hover {
       color: #cc624e;
     }
-
+    .btn-aplicar-filtros{
+      background: #cc624e;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: background 0.3s;
+    }
+    .btn-aplicar-filtros:hover {
+      background: #e07b67;
+    }
     .modal-body {
       padding: 25px;
       display: grid;
@@ -558,7 +562,7 @@ if ($ordenacao === 'preco_asc') {
           <button type="submit" class="btn-aplicar-filtros">Aplicar Filtros</button>
           <?php if (!empty($filtroCategoria)): ?>
             <a href="?<?php echo !empty($filtroArtista) ? 'artista=' . urlencode($filtroArtista) : ''; ?>" 
-               class="btn-limpar-categorias">Limpar Categorias</a>
+               class="btn-limpar-categorias"></a>
           <?php endif; ?>
         </form>
       </aside>
@@ -570,7 +574,6 @@ if ($ordenacao === 'preco_asc') {
             <i class="fas fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
             <h3>Nenhuma obra encontrada</h3>
             <p>Tente ajustar os filtros ou buscar por outro artista.</p>
-            <a href="?" class="btn-limpar-filtros">Limpar Todos os Filtros</a>
           </div>
         <?php else: ?>
           <?php foreach ($produtosFiltrados as $produto): ?>
