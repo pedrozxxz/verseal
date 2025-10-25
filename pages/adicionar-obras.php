@@ -15,11 +15,14 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="../css/style.css" />
   <link rel="stylesheet" href="../css/adicionar-obras.css" />
+  <style>
+    .btn-salvar{
+      margin-left: 400px;
+    }
+  </style>
 </head>
 
 <body>
-
-  <!-- HEADER -->
   <header>
     <div class="logo">Verseal</div>
     
@@ -27,35 +30,8 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
       <a href="artistahome.php"><i class="fas fa-home"></i> Início</a>
       <a href="#"><i class="fas fa-palette"></i> Obras</a>
       <a href="#"><i class="fas fa-user"></i> Quem eu sou?</a>
-      
-      <!-- Menu Hamburguer Flutuante -->
-      <div class="hamburger-menu-desktop">
-        <input type="checkbox" id="menu-toggle-desktop">
-        <label for="menu-toggle-desktop" class="hamburger-desktop">
-          <i class="fas fa-bars"></i>
-          <span>ACESSO</span>
-        </label>
-        <div class="menu-content-desktop">
-          <div class="menu-section">
-            <a href="../index.html" class="menu-item">
-              <i class="fas fa-user"></i>
-              <span>Cliente</span>
-            </a>
-            <a href="admhome.php" class="menu-item">
-              <i class="fas fa-user-shield"></i>
-              <span>ADM</span>
-            </a>
-            <a href="artistahome.php" class="menu-item active">
-              <i class="fas fa-palette"></i>
-              <span>Artista</span>
-            </a>
-          </div>
-        </div>
-      </div>
 
-      <a href="#" class="icon-link" id="cart-icon">
-        <i class="fas fa-shopping-cart"></i>
-      </a>
+      
       <div class="profile-dropdown">
         <a href="#" class="icon-link" id="profile-icon">
           <i class="fas fa-user"></i>
