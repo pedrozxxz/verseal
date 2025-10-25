@@ -164,24 +164,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <button id="btn-register" class="tab">Cadastrar</button>
     </div>
 
+    <!-- Formulário de Login -->
     <form id="loginForm" class="form active" method="POST" action="">
       <h2>Entrar</h2>
-      <input type="email" name="email" id="loginEmail" placeholder="Email" required />
-      <input type="password" name="senha" id="loginSenha" placeholder="Senha" required />
+
+      <div class="campo">
+        <input type="email" name="email" id="loginEmail" placeholder=" " required />
+        <label for="loginEmail">Email</label>
+      </div>
+      <div class="campo">
+        <input type="password" name="senha" id="loginSenha" placeholder=" " required />
+        <label for="loginSenha">Senha</label>
+      </div>
       <button type="submit" name="login" class="botao-estilizado">Entrar</button>
     </form>
 
     <!-- Formulário de Cadastro -->
     <form id="cadastroForm" class="form" method="POST" action="">
       <h2>Cadastrar Artista</h2>
-      <input type="text" name="nome" id="cadastroNome" placeholder="Nome completo" required />
-      <input type="text" name="nome" id="cadastroNomeArtistico" placeholder="Nome artistíco (opcional)"/>
-      <input type="email" name="email" id="cadastroEmail" placeholder="Email" required />
-      <input type="number" name="telefone" id="cadastroTelefone" placeholder="Telefone" required />
-      <input type="number" name="cpf" id="cadastroCPF" placeholder="CPF" required />
-      <input type="password" name="senha" id="cadastroSenha" placeholder="Senha" required />
-      <input type="password" name="confirmar_senha" id="cadastroSenhaConfirm" placeholder="Confirmar senha" required />
+      <div class="campo">
+        <input type="text" name="nome" id="cadastroNome" placeholder=" " required />
+        <label for="cadastroNome">Nome completo</label>
+      </div>
+      <div class="campo">
+        <input type="text" name="nome" id="cadastroNomeArtistico" placeholder=" " required />
+        <label for="cadastroNomeArtistico">Nome artistíco (opcional)</label>
+      </div>
+      <div class="campo">
+        <input type="text" name="insta" id="cadastroInsta" placeholder=" " required />
+        <label for="cadastroInsta">Instagram</label>
+      </div>
+      <div class="campo">
+        <input type="email" name="email" id="cadastroEmail" placeholder=" " required />
+        <label for="cadastroEmail">Email</label>
+      </div>
+      <div class="campo">
+        <input type="number" name="telefone" id="cadastroTelefone" placeholder=" " required />
+        <label for="cadastroTelefone">Telefone</label>
+      </div>
+      <div class="campo">
+        <input type="number" name="cpf" id="cadastroCPF" placeholder=" " required />
+        <label for="cadastroCPF">CPF</label>
+      </div>
+      <div class="campo">
+        <input type="password" name="senha" id="cadastroSenha" placeholder=" " required />
+        <label for="cadastroSenha">Senha</label>
+      </div>
+      <div class="campo">
+        <input type="password" name="confirmar_senha" id="cadastroSenhaConfirm" placeholder=" " required />
+        <label for="cadastroSenhaConfirm">Confirmar senha</label>
+      </div>
+
       <button type="submit" name="cadastro" class="botao-estilizado">Cadastrar</button>
+      
       <p>Não é um artista? <a href="login.php">Cadastre-se aqui</a></p>
     </form>
 
