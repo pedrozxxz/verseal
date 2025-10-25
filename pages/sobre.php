@@ -16,6 +16,17 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
   <link
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@400;500&display=swap"
     rel="stylesheet">
+    <style>
+    .fade-in {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease-out, transform 0.4s ease-out;
+    }
+    .fade-in.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
 </head>
 
 <body>
@@ -75,68 +86,68 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
   <section class="hero-sobre">
     <div id="particles-sobre"></div>
     <div class="hero-content">
-      <h1>Sobre a Verseal</h1>
-      <p>Transformando arte em experiências únicas, físicas e digitais.</p>
+      <h1 class="fade-in">Sobre a Verseal</h1>
+      <p class="fade-in">Transformando arte em experiências únicas, físicas e digitais.</p>
     </div>
   </section>
 
   <!-- QUEM SOMOS EM CARDS -->
-  <section class="quem-somos container">
-    <h2>Quem Somos</h2>
+  <section class="quem-somos container fade-in">
+    <h2 class="fade-in">Quem Somos</h2>
     <div class="cards-container">
       <div class="card-texto">
-        <p>A Verseal nasceu da paixão por arte e inovação. Unimos técnicas tradicionais e digitais para criar peças únicas
+        <p class="fade-in">A Verseal nasceu da paixão por arte e inovação. Unimos técnicas tradicionais e digitais para criar peças únicas
           que contam histórias e provocam emoções, conectando artistas e colecionadores em uma experiência transformadora.</p>
       </div>
     </div>
   </section>
 
   <!-- MISSÃO EM CARDS -->
-  <section class="missao container">
-    <h2>Nossa Missão</h2>
+  <section class="missao container fade-in">
+    <h2 class="fade-in">Nossa Missão</h2>
     <div class="cards-missao">
-      <div class="card">
+      <div class="card fade-in">
         <i class="fas fa-palette icon-card"></i>
-        <h3>Arte Autêntica</h3>
-        <p>Valorizamos cada detalhe e a autenticidade de cada criação, preservando a essência única de cada artista.</p>
+        <h3 class="fade-in">Arte Autêntica</h3>
+        <p class="fade-in">Valorizamos cada detalhe e a autenticidade de cada criação, preservando a essência única de cada artista.</p>
       </div>
-      <div class="card">
+      <div class="card fade-in">
         <i class="fas fa-laptop-code icon-card"></i>
-        <h3>Inovação Digital</h3>
-        <p>Unimos tecnologia e criatividade para criar experiências únicas que transcendem o convencional.</p>
+        <h3 class="fade-in">Inovação Digital</h3>
+        <p class="fade-in">Unimos tecnologia e criatividade para criar experiências únicas que transcendem o convencional.</p>
       </div>
-      <div class="card">
+      <div class="card fade-in">
         <i class="fas fa-handshake icon-card"></i>
-        <h3>Conexão</h3>
-        <p>Proporcionar aos clientes uma relação verdadeira e significativa com a arte que adquirem.</p>
+        <h3 class="fade-in">Conexão</h3>
+        <p class="fade-in">Proporcionar aos clientes uma relação verdadeira e significativa com a arte que adquirem.</p>
       </div>
     </div>
   </section>
 
   <!-- VALORES EM CARDS -->
-  <section class="valores container">
-    <h2>Nossos Valores</h2>
-    <div class="cards-missao">
-      <div class="card">
+  <section class="valores container fade-in">
+    <h2 class="fade-in">Nossos Valores</h2>
+    <div class="cards-missao fade-in">
+      <div class="card fade-in">
         <i class="fas fa-gem icon-card"></i>
-        <h3>Excelência</h3>
-        <p>Buscamos a perfeição em cada detalhe, desde a criação até a entrega final ao colecionador.</p>
+        <h3 class="fade-in">Excelência</h3>
+        <p class="fade-in">Buscamos a perfeição em cada detalhe, desde a criação até a entrega final ao colecionador.</p>
       </div>
-      <div class="card">
+      <div class="card fade-in">
         <i class="fas fa-heart icon-card"></i>
-        <h3>Paixão</h3>
-        <p>Amamos o que fazemos e acreditamos no poder transformador da arte na vida das pessoas.</p>
+        <h3 class="fade-in">Paixão</h3>
+        <p class="fade-in">Amamos o que fazemos e acreditamos no poder transformador da arte na vida das pessoas.</p>
       </div>
-      <div class="card">
+      <div class="card fade-in">
         <i class="fas fa-shield-alt icon-card"></i>
-        <h3>Transparência</h3>
-        <p>Mantemos relações claras e honestas com artistas, colecionadores e parceiros.</p>
+        <h3 class="fade-in">Transparência</h3>
+        <p class="fade-in">Mantemos relações claras e honestas com artistas, colecionadores e parceiros.</p>
       </div>
     </div>
   </section>
 
   <!-- PROJETO VERSEAL EM CARD -->
-  <section class="projeto container">
+  <section class="projeto container fade-in">
     <h2>O Projeto Verseal</h2>
     <div class="cards-container">
       <div class="card-texto">
@@ -150,7 +161,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
   </section>
 
   <!-- VÍDEO PITCH -->
-  <section class="video-pitch container">
+  <section class="video-pitch container fade-in">
     <h2>Conheça Nossa História</h2>
     <div class="video-container">
       <div class="card-video">
@@ -223,5 +234,23 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     });
   </script>
 
+
+<script>
+  // Animação ao rolar a página
+  document.addEventListener('DOMContentLoaded', () => {
+    const elementos = document.querySelectorAll('.fade-in');
+
+    const observador = new IntersectionObserver((entradas) => {
+      entradas.forEach(entrada => {
+        if (entrada.isIntersecting) {
+          entrada.target.classList.add('show');
+          observador.unobserve(entrada.target);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    elementos.forEach(el => observador.observe(el));
+  });
+</script>
 </body>
 </html>
