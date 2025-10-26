@@ -39,9 +39,9 @@
                 <i class="fas fa-user-shield"></i>
                 <span>ADM</span>
             </a>
-            <a href="./adm4.php" class="menu-item active">
+            <a href="./artistahome.php" class="menu-item active">
                 <i class="fas fa-image"></i>
-                <span>Obras</span>
+                <span>Artista</span>
             </a>
         </div>
     </div>

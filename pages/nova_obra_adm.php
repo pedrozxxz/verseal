@@ -16,6 +16,44 @@
         .form-group input { width:100%; padding:12px 40px 12px 12px; border-radius:12px; border:1px solid #ccc; outline:none; transition:0.3s;}
         .form-group input:focus { border-color:#db6d56; box-shadow:0 2px 8px rgba(219,109,86,0.2);}
         .form-group i { position:absolute; right:12px; top:36px; color:#db6d56; font-size:1.1rem;}
+        
+        /* Estilo do upload */
+        .upload-wrapper {
+            border: 2px dashed #db6d56;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .upload-wrapper:hover {
+            background: rgba(219,109,86,0.05);
+            transform: scale(1.02);
+        }
+        .upload-wrapper i {
+            font-size: 2.2rem;
+            color: #db6d56;
+            margin-bottom: 10px;
+        }
+        .upload-wrapper p {
+            color: #555;
+            font-size: 0.95rem;
+        }
+        .upload-input {
+            display: none;
+        }
+        .preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+        .preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            object-fit: cover;
+        }
+
         .save-btn { width:100%; padding:14px; border:none; border-radius:12px; background:linear-gradient(135deg,#db6d56,#a7503e); color:#fff; font-weight:600; font-size:1rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 12px rgba(219,109,86,0.3);}
         .save-btn:hover { transform: scale(1.03); background: linear-gradient(135deg,#a7503e,#db6d56);}
         @media(max-width:500px) { .form-container{padding:30px 20px;} .form-group i{top:38px;} }
@@ -40,8 +78,34 @@
                 <input type="text" id="preco" placeholder="Digite o preço">
                 <i class="fas fa-dollar-sign"></i>
             </div>
+
+            <!-- Upload de imagem -->
+            <div class="form-group">
+                <label>Imagem da Obra</label>
+                <div class="upload-wrapper" onclick="document.getElementById('fileUpload').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Clique para fazer upload da imagem</p>
+                </div>
+                <input type="file" id="fileUpload" class="upload-input" accept="image/*" onchange="previewImage(event)">
+                <div class="preview" id="preview"></div>
+            </div>
+
             <button type="button" class="save-btn" onclick="window.location.href='adm4.php'">Salvar</button>
         </form>
     </div>
+
+    <script>
+        function previewImage(event) {
+            const preview = document.getElementById('preview');
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Prévia da imagem">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
 </body>
 </html>

@@ -38,7 +38,7 @@
                     <i class="fas fa-user-shield"></i>
                     <span>ADM</span>
                 </a>
-                <a href="./adm3.php" class="menu-item active">
+                <a href="./artistahome.php" class="menu-item active">
                     <i class="fas fa-palette"></i>
                     <span>Artista</span>
                 </a>
@@ -60,10 +60,10 @@
                 <table>
                     <thead>
                         <tr>
-                            <th><img src="../img/artistas.png" alt="Artista" class="icon"> Nome</th>
-                            <th><img src="../img/email.png" alt="Email" class="icon"> Email</th>
-                            <th><img src="../img/paleta_tintas.png" alt="Obras" class="icon"> Obras</th>
-                            <th>Ações</th>
+                            <th><img src="../img/artistas.png" alt="Artista" class="icon">NOME</th>
+                            <th><img src="../img/email.png" alt="Email" class="icon">EMAIL</th>
+                            <th><img src="../img/paleta_tintas.png" alt="Obras" class="icon">OBRAS</th>
+                            <th>AÇÕES</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -4,19 +4,15 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sobre - Verseal</title>
   <link rel="stylesheet" href="../css/sobre.css">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@400;500&display=swap"
-    rel="stylesheet">
-    <style>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+  <style>
     .fade-in {
       opacity: 0;
       transform: translateY(40px);
@@ -28,61 +24,65 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     }
   </style>
 </head>
-
 <body>
-
-  <!-- HEADER -->
-  <header>
-    <div class="logo">Verseal</div>
-    <nav>
-      <a href="../index.php">Início</a>
-      <a href="./produto.php">Obras</a>
-      <a href="./sobre.php">Sobre</a>
-      <a href="./artistas.php">Artistas</a>
-      <a href="./contato.php">Contato</a>
-      <a href="./minhas-compras.php" class="icon-link" id="cart-icon">
-        <i class="fas fa-shopping-cart"></i>
+<header>
+  <div class="logo">Verseal</div>
+  <nav>
+    <a href="../index.php">Início</a>
+    <a href="./produto.php">Obras</a>
+    <a href="./sobre.php">Sobre</a>
+    <a href="./artistas.php">Artistas</a>
+    <a href="./contato.php">Contato</a>
+    
+    <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+    
+    <!-- Dropdown Perfil -->
+    <div class="profile-dropdown">
+      <a href="#" class="icon-link" id="profile-icon">
+        <i class="fas fa-user"></i>
       </a>
-      <div class="profile-dropdown">
-        <a href="#" class="icon-link" id="profile-icon">
-          <i class="fas fa-user"></i>
-        </a>
-        <div class="dropdown-content" id="profile-dropdown">
-          <?php if ($usuarioLogado): ?>
-            <div class="user-info">
-              <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
-            </div>
-            <div class="dropdown-divider"></div>
-            <a href="./perfil.php" class="dropdown-item">
-              <i class="fas fa-user-circle"></i> Meu Perfil
-            </a>
-            <a href="./minhas-compras.php" class="dropdown-item">
-              <i class="fas fa-shopping-bag"></i> Minhas Compras
-            </a>
-            <a href="./favoritos.php" class="dropdown-item">
-              <i class="fas fa-heart"></i> Favoritos
-            </a>
-            <div class="dropdown-divider"></div>
-            <a href="./logout.php" class="dropdown-item logout-btn">
-              <i class="fas fa-sign-out-alt"></i> Sair
-            </a>
-          <?php else: ?>
-            <div class="user-info">
-              <p>Faça login para acessar seu perfil</p>
-            </div>
-            <div class="dropdown-divider"></div>
-            <a href="./login.php" class="dropdown-item">
-              <i class="fas fa-sign-in-alt"></i> Fazer Login
-            </a>
-            <a href="./login.php" class="dropdown-item">
-              <i class="fas fa-user-plus"></i> Cadastrar
-            </a>
-          <?php endif; ?>
+      <div class="dropdown-content" id="profile-dropdown">
+        <?php if ($usuarioLogado): ?>
+          <div class="user-info">
+            <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a href="./pages/perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+          <a href="./pages/minhas-compras.php" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Minhas Compras</a>
+          <a href="./pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+          <div class="dropdown-divider"></div>
+          <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        <?php else: ?>
+          <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+          <div class="dropdown-divider"></div>
+          <a href="./pages/login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+          <a href="./pages/login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+        <?php endif; ?>
+      </div>
+    </div>
+
+    <!-- Menu Hamburguer Flutuante -->
+    <div class="hamburger-menu-desktop">
+      <input type="checkbox" id="menu-toggle-desktop">
+      <label for="menu-toggle-desktop" class="hamburger-desktop">
+        <i class="fas fa-bars"></i>
+        <span>ACESSO</span>
+      </label>
+      <div class="menu-content-desktop">
+        <div class="menu-section">
+          <a href="../index.php" class="menu-item" onclick="document.getElementById('menu-toggle-desktop').checked = false;">
+            <i class="fas fa-user"></i> <span>Cliente</span>
+          </a>
+          <a href="./pages/admhome.php" class="menu-item"><i class="fas fa-user-shield"></i> <span>ADM</span></a>
+          <a href="./pages/artistahome.php" class="menu-item"><i class="fas fa-palette"></i> <span>Artista</span></a>
         </div>
       </div>
-    </nav>
-  </header>
+    </div>
+  </nav>
+</header>
 
+<main>
+  <!-- HERO -->
   <section class="hero-sobre">
     <div id="particles-sobre"></div>
     <div class="hero-content">
@@ -91,18 +91,17 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     </div>
   </section>
 
-  <!-- QUEM SOMOS EM CARDS -->
+  <!-- QUEM SOMOS -->
   <section class="quem-somos container fade-in">
     <h2 class="fade-in">Quem Somos</h2>
     <div class="cards-container">
       <div class="card-texto">
-        <p class="fade-in">A Verseal nasceu da paixão por arte e inovação. Unimos técnicas tradicionais e digitais para criar peças únicas
-          que contam histórias e provocam emoções, conectando artistas e colecionadores em uma experiência transformadora.</p>
+        <p class="fade-in">A Verseal nasceu da paixão por arte e inovação. Unimos técnicas tradicionais e digitais para criar peças únicas que contam histórias e provocam emoções, conectando artistas e colecionadores em uma experiência transformadora.</p>
       </div>
     </div>
   </section>
 
-  <!-- MISSÃO EM CARDS -->
+  <!-- MISSÃO -->
   <section class="missao container fade-in">
     <h2 class="fade-in">Nossa Missão</h2>
     <div class="cards-missao">
@@ -124,7 +123,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     </div>
   </section>
 
-  <!-- VALORES EM CARDS -->
+  <!-- VALORES -->
   <section class="valores container fade-in">
     <h2 class="fade-in">Nossos Valores</h2>
     <div class="cards-missao fade-in">
@@ -146,16 +145,13 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     </div>
   </section>
 
-  <!-- PROJETO VERSEAL EM CARD -->
+  <!-- PROJETO VERSEAL -->
   <section class="projeto container fade-in">
     <h2>O Projeto Verseal</h2>
     <div class="cards-container">
       <div class="card-texto">
-        <p>Nosso projeto busca unir o mundo físico e digital da arte de maneira harmoniosa. Cada obra é cuidadosamente criada, 
-          podendo ser apreciada tanto como peça física única quanto como NFT exclusivo. Acreditamos em experiências imersivas 
-          e personalizadas que conectam colecionadores e amantes da arte de forma profunda e significativa.</p>
-        <p>Através da Verseal, democratizamos o acesso à arte de qualidade, permitindo que novos talentos sejam descobertos 
-          e que colecionadores encontrem peças que realmente conversem com sua essência.</p>
+        <p>Nosso projeto busca unir o mundo físico e digital da arte de maneira harmoniosa. Cada obra é cuidadosamente criada, podendo ser apreciada tanto como peça física única quanto como NFT exclusivo. Acreditamos em experiências imersivas e personalizadas que conectam colecionadores e amantes da arte de forma profunda e significativa.</p>
+        <p>Através da Verseal, democratizamos o acesso à arte de qualidade, permitindo que novos talentos sejam descobertos e que colecionadores encontrem peças que realmente conversem com sua essência.</p>
       </div>
     </div>
   </section>
@@ -166,7 +162,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     <div class="video-container">
       <div class="card-video">
         <div class="video-wrapper">
-          <iframe width="560" height="315" src="https://www.youtube.com/embed/20-niIkV-3M?si=XZy6feS-19UBfQMB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+          <iframe width="560" height="315" src="https://www.youtube.com/embed/20-niIkV-3M?si=XZy6feS-19UBfQMB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
         </div>
         <div class="video-info">
           <h3>Pitch Verseal</h3>
@@ -175,71 +171,44 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
       </div>
     </div>
   </section>
+</main>
 
-  <!-- RODAPÉ -->
-  <footer>
-    <p>&copy; 2025 Verseal. Todos os direitos reservados.</p>
-    <div class="social">
-      <a href="#"><i class="fab fa-instagram"></i></a>
-      <a href="#"><i class="fab fa-linkedin-in"></i></a>
-      <a href="#"><i class="fab fa-whatsapp"></i></a>
-    </div>
-  </footer>
+<footer>
+  <p>&copy; 2025 Verseal. Todos os direitos reservados.</p>
+  <div class="social">
+    <a href="#"><i class="fab fa-instagram"></i></a>
+    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+    <a href="#"><i class="fab fa-whatsapp"></i></a>
+  </div>
+</footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.waves.min.js"></script>
-  <script>
-    // Efeito Vanta Waves (opcional - descomente se quiser usar)
-    /*
-    VANTA.WAVES({
-      el: "#particles-sobre",
-      mouseControls: true,
-      touchControls: true,
-      minHeight: 200.00,
-      minWidth: 200.00,
-      scale: 1.0,
-      scaleMobile: 1.0,
-      color: 0x8a7360,
-      shininess: 40.0,
-      waveHeight: 20.0,
-      waveSpeed: 0.5,
-      zoom: 1
-    });
-    */
-
-    // Dropdown do perfil
-    document.addEventListener('DOMContentLoaded', function () {
-      const profileIcon = document.getElementById('profile-icon');
-      const profileDropdown = document.getElementById('profile-dropdown');
-
-      if (profileIcon && profileDropdown) {
-        profileIcon.addEventListener('click', function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
-        });
-
-        // Fechar dropdown ao clicar fora
-        document.addEventListener('click', function (e) {
-          if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
-            profileDropdown.style.display = 'none';
-          }
-        });
-
-        // Prevenir fechamento ao clicar dentro do dropdown
-        profileDropdown.addEventListener('click', function (e) {
-          e.stopPropagation();
-        });
-      }
-    });
-  </script>
-
-
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.waves.min.js"></script>
 <script>
-  // Animação ao rolar a página
+  // Dropdown do perfil
+  document.addEventListener('DOMContentLoaded', function () {
+    const profileIcon = document.getElementById('profile-icon');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    if (profileIcon && profileDropdown) {
+      profileIcon.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+      });
+      document.addEventListener('click', function (e) {
+        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
+          profileDropdown.style.display = 'none';
+        }
+      });
+      profileDropdown.addEventListener('click', function (e) {
+        e.stopPropagation();
+      });
+    }
+  });
+
+  // Fade-in on scroll
   document.addEventListener('DOMContentLoaded', () => {
     const elementos = document.querySelectorAll('.fade-in');
-
     const observador = new IntersectionObserver((entradas) => {
       entradas.forEach(entrada => {
         if (entrada.isIntersecting) {
@@ -248,7 +217,6 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
         }
       });
     }, { threshold: 0.2 });
-
     elementos.forEach(el => observador.observe(el));
   });
 </script>

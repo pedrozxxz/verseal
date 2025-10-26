@@ -1,22 +1,30 @@
-// Controle das abas
+
 const btnLogin = document.getElementById('btn-login');
 const btnRegister = document.getElementById('btn-register');
 const formLogin = document.getElementById('loginForm');
 const formRegister = document.getElementById('cadastroForm');
+const toggleText = document.getElementById('toggleText');
+const toggleLink = document.getElementById('toggleLink');
 
-btnLogin.addEventListener('click', () => {
+function showLogin() {
   btnLogin.classList.add('active');
   btnRegister.classList.remove('active');
   formLogin.classList.add('active');
   formRegister.classList.remove('active');
-});
+  toggleText.querySelector('#toggleLink').addEventListener('click', showRegister);
+}
 
-btnRegister.addEventListener('click', () => {
+function showRegister() {
   btnRegister.classList.add('active');
   btnLogin.classList.remove('active');
   formRegister.classList.add('active');
   formLogin.classList.remove('active');
-});
+  toggleText.querySelector('#toggleLink').addEventListener('click', showLogin);
+}
+
+btnLogin.addEventListener('click', showLogin);
+btnRegister.addEventListener('click', showRegister);
+toggleLink.addEventListener('click', showRegister);
 
 // Validação com SweetAlert2 e redirecionamento
 // formLogin.addEventListener('submit', e => {

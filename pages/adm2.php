@@ -60,10 +60,10 @@
                 <table>
                     <thead>
                         <tr>
-                            <th><img src="../img/icon_user.png" alt="Usuário" class="icon"> Nome</th>
-                            <th><img src="../img/email.png" alt="Email" class="icon"> Email</th>
-                            <th><img src="../img/sacola_compras.png" alt="Compras" class="icon"> Compras</th>
-                            <th>Ações</th>
+                            <th><img src="../img/icon_user.png" alt="Usuário" class="icon">NOME</th>
+                            <th><img src="../img/email.png" alt="Email" class="icon">EMAIL</th>
+                            <th><img src="../img/sacola_compras.png" alt="Compras" class="icon">COMPRAS</th>
+                            <th>AÇÕES</th>
                         </tr>
                     </thead>
                     <tbody>

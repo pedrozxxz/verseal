@@ -48,47 +48,53 @@
                 <i class="fas fa-user-shield"></i>
                 <span>ADM</span>
             </a>
-            <a href="./adm4.php" class="menu-item active">
+            <a href="./artistahome.php" class="menu-item active">
                 <i class="fas fa-image"></i>
-                <span>Obras</span>
+                <span>Artista</span>
             </a>
         </div>
     </div>
 </div>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th><img src="../img/lápis.png" alt="Lápis" class="icon"> TÍTULO</th>
+                <th><img src="../img/artistas.png" alt="Artista" class="icon"> ARTISTA</th>
+                <th><img src="../img/preço.png" alt="Preço" class="icon"> PREÇO</th>
+                <th><i class="fas fa-image"></i>IMAGEM</th>
+                <th>AÇÕES</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Noite Estrelada</td>
+                <td>Vincent Van Gogh</td>
+                <td>R$ 8.000</td>
+                <td>
+                    <img src="../uploads/noite-estrelada.jpg" alt="Noite Estrelada" class="obra-img">
+                </td>
+                <td>
+                    <button class="edit">Editar</button>
+                    <button class="delete">Excluir</button>
+                </td>
+            </tr>
+            <tr>
+                <td>Impressão, Sol Nascente</td>
+                <td>Claude Monet</td>
+                <td>R$ 6.500</td>
+                <td>
+                    <img src="../uploads/sol-nascente.jpg" alt="Impressão Sol Nascente" class="obra-img">
+                </td>
+                <td>
+                    <button class="edit">Editar</button>
+                    <button class="delete">Excluir</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-            <!-- CONTAINER DA TABELA -->
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th><img src="../img/lápis.png" alt="Lápis" class="icon"> Título</th>
-                            <th><img src="../img/artistas.png" alt="Artista" class="icon"> Artista</th>
-                            <th><img src="../img/preço.png" alt="Preço" class="icon"> Preço</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Noite Estrelada</td>
-                            <td>Vincent Van Gogh</td>
-                            <td>R$ 8.000</td>
-                            <td>
-                                <button class="edit">Editar</button>
-                                <button class="delete">Excluir</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Impressão, Sol Nascente</td>
-                            <td>Claude Monet</td>
-                            <td>R$ 6.500</td>
-                            <td>
-                                <button class="edit">Editar</button>
-                                <button class="delete">Excluir</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
 
             <!-- BOTÕES DE AÇÃO -->
             <div class="actions">
