@@ -19,12 +19,36 @@ body {
 }
 
 /* PADRÃO PARA TÍTULOS */
-h1, h2, h3 {
+h3 {
   font-family: 'Playfair Display', serif;
   margin-bottom: 1rem;
   color: #cc624e;
 }
-
+h1, h2 {
+  margin-top: 3rem ;
+  font-size: 1.5rem;
+  text-align: center;
+  position: relative;
+  display: inline-block;
+  padding: 0 15px;
+  color: #5b3a29;
+  font-family: 'Playfair Display', serif;
+  z-index: 1;
+}
+p{
+  color: #5b3a29;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+h1::before, h2::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('../img/pinceladas-legais.png') no-repeat center/contain;
+  opacity: 0.5; /* pode ajustar entre 0.4 e 0.7 */
+  z-index: -1;
+  transform: scale(1.2);
+}
 /* PARÁGRAFOS */
 p {
   margin-bottom: 1.5rem;

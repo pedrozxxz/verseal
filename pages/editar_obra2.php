@@ -117,10 +117,11 @@
         </div>
       </div>
 
-      <div class="botoes-acoes">
-        <button type="submit" class="btn-salvar">
-          <i class="fas fa-save"></i> SALVAR
-        </button>
+     <div class="botoes-acoes">
+  <button type="button" class="btn-salvar" onclick="window.location.href='artistasobra.php'">
+    <i class="fas fa-save"></i> SALVAR
+  </button>
+
         <button type="button" class="btn-excluir">
           <i class="fas fa-trash"></i> EXCLUIR
         </button>

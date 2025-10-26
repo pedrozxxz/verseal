@@ -29,6 +29,22 @@
             z-index: 1000;
             font-weight: 700;
         }
+h3 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 1rem;
+  color: #cc624e;
+}
+h1, h2 {
+  margin-top: 3rem ;
+  font-size: 1.5rem;
+  text-align: center;
+  position: relative;
+  display: inline-block;
+  padding: 0 15px;
+  color: #5b3a29;
+  font-family: 'Playfair Display', serif;
+  z-index: 1;
+}
 
         .logo {
             font-family: 'Playfair Display', serif;

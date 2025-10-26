@@ -42,7 +42,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
       <div class="dropdown-content" id="profile-dropdown">
           <div class="user-info"><p>Seja bem-vindo, <?php echo htmlspecialchars($usuarioLogado); ?>!</p></div>
           <div class="dropdown-divider"></div>
-          <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+          <a href="./artistaperfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
           <div class="dropdown-divider"></div>
           <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
       </div>
@@ -56,7 +56,6 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
       <p>Crie obras únicas e as coloque em exibição aqui</p>
       <div class="hero-buttons">
         <a href="adicionar-obras.php" class="btn-destaque">ADICIONAR OBRAS</a>
-        <a href="editar_obra2.php" class="btn-destaque secundario">EDITAR OBRAS</a>
       </div>
     </div>
     <div class="hero-gallery">

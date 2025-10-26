@@ -315,6 +315,171 @@ if ($ordenacao === 'preco_asc') {
       gap: 15px;
       margin-top: 20px;
     }
+    button {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* Botão Comprar (Card da obra) */
+.btn-comprar {
+  background: linear-gradient(135deg, #cc624e, #e07b67);
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 10px rgba(204, 98, 78, 0.4);
+}
+
+.btn-comprar:hover {
+  background: linear-gradient(135deg, #e07b67, #cc624e);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(204, 98, 78, 0.5);
+}
+
+/* Botão Ver Detalhes */
+.btn-detalhes {
+  background: transparent;
+  border: 2px solid #cc624e;
+  color: #cc624e;
+  padding: 10px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.btn-detalhes:hover {
+  background: #cc624e;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Botão Buscar (Barra de busca) */
+.busca-artista button {
+  background: linear-gradient(135deg, #cc624e, #e07b67);
+  color: white;
+  border-radius: 12px;
+  padding: 10px 18px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.busca-artista button:hover {
+  background: linear-gradient(135deg, #e07b67, #cc624e);
+  transform: translateY(-1px);
+}
+
+/* Botão Aplicar Filtros */
+.btn-aplicar-filtros {
+  background: #cc624e;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.btn-aplicar-filtros:hover {
+  background: #e07b67;
+  transform: translateY(-2px);
+}
+
+/* Botão Limpar Filtros */
+.btn-limpar-filtros {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.btn-limpar-filtros:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+/* Botões do Modal */
+.btn-comprar-modal {
+  background: linear-gradient(135deg, #cc624e, #e07b67);
+  color: white;
+  border-radius: 12px;
+  padding: 12px 25px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.btn-comprar-modal:hover {
+  background: linear-gradient(135deg, #e07b67, #cc624e);
+  transform: translateY(-2px);
+}
+
+.btn-fechar-modal {
+  background: #6c757d;
+  color: white;
+  border-radius: 12px;
+  padding: 12px 25px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.btn-fechar-modal:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+
+/* Botões Ordenação */
+.btn-ordenar {
+  padding: 8px 18px;
+  border: 2px solid #cc624e;
+  border-radius: 30px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-ordenar:hover,
+.btn-ordenar.ativo {
+  background: #cc624e;
+  color: white;
+  transform: translateY(-1px);
+}
     .btn-comprar-modal {
       background: #cc624e;
       color: white;
@@ -380,19 +545,31 @@ if ($ordenacao === 'preco_asc') {
 </head>
 
 <body>
-  <header>
+<header>
     <div class="logo">Verseal</div>
     <nav>
       <a href="artistahome.php"><i class="fas fa-home"></i> Início</a>
       <a href="artistasobra.php"><i class="fas fa-palette"></i> Obras</a>
       <a href="artistabiografia.php"><i class="fas fa-user"></i> Quem eu sou?</a>
+    
+    <div class="hamburger-menu-desktop">
+      <input type="checkbox" id="menu-toggle-desktop">
+      <label for="menu-toggle-desktop" class="hamburger-desktop"><i class="fas fa-bars"></i><span>ACESSO</span></label>
+      <div class="menu-content-desktop">
+        <div class="menu-section">
+          <a href="../index.php" class="menu-item"><i class="fas fa-user"></i><span>Cliente</span></a>
+          <a href="./admhome.php" class="menu-item"><i class="fas fa-user-shield"></i><span>ADM</span></a>
+          <a href="./artistahome.php" class="menu-item"><i class="fas fa-palette"></i><span>Artista</span></a>
+        </div>
+      </div>
+    </div>
 
     <div class="profile-dropdown">
       <a href="./perfil.php" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
       <div class="dropdown-content" id="profile-dropdown">
           <div class="user-info"><p>Seja bem-vindo, <?php echo htmlspecialchars($usuarioLogado); ?>!</p></div>
           <div class="dropdown-divider"></div>
-          <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+          <a href="./artistaperfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
           <div class="dropdown-divider"></div>
           <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
       </div>
@@ -486,7 +663,9 @@ if ($ordenacao === 'preco_asc') {
                class="btn-limpar-categorias"></a>
           <?php endif; ?>
 
-          <button type="submit" class="btn-adiconar-obra">Adicionar Obra</button>
+<button type="button" class="btn-adiconar-obra" onclick="window.location.href='adicionar-obras.php'">
+    Adicionar Obra
+</button>
         </form>
       </aside>
 
@@ -594,12 +773,12 @@ if ($ordenacao === 'preco_asc') {
           <p>${obra.desc}</p>
         </div>
         <div class="modal-actions">
-          <button class="btn-comprar-modal" onclick="adicionarAoCarrinho(${obra.id}); fecharModal()">
+          <button class="btn-comprar-modal" onclick="adicionarAoCarrinho(${obra.id})">
             <i class="fas fa-shopping-cart"></i> Adicionar ao Carrinho
           </button>
-          <button class="btn-fechar-modal" onclick="fecharModal()">
-            <i class="fas fa-times"></i> Fechar
-          </button>
+          <a href="editar_obra2.php?id=${obra.id}" class="btn-editar-modal">
+            <i class="fas fa-edit"></i> Editar Obra
+          </a>
         </div>
       `;
 
@@ -608,31 +787,26 @@ if ($ordenacao === 'preco_asc') {
       document.body.style.overflow = 'hidden';
     }
 
-    // Função para fechar modal
-    function fecharModal() {
-      const modal = document.getElementById('modalDetalhes');
-      modal.classList.remove('active');
-      document.body.style.overflow = 'auto';
-    }
-
     // Fechar modal ao clicar fora
     document.getElementById('modalDetalhes').addEventListener('click', function(e) {
       if (e.target === this) {
-        fecharModal();
+        this.classList.remove('active');
+        document.body.style.overflow = 'auto';
       }
     });
 
     // Fechar modal com ESC
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
-        fecharModal();
+        const modal = document.getElementById('modalDetalhes');
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
       }
     });
 
     // Função para adicionar produto ao carrinho
     function adicionarAoCarrinho(itemId) {
-      // Mostrar loading
-      const btn = event?.target || document.querySelector(`.btn-comprar-modal`);
+      const btn = event?.target.closest('button');
       const originalText = btn.innerHTML;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adicionando...';
       btn.disabled = true;
@@ -643,19 +817,11 @@ if ($ordenacao === 'preco_asc') {
 
       fetch('carrinho.php', {
         method: 'POST',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest'
-        },
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
         body: formData
       })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Erro na rede');
-        }
-        return response.json();
-      })
+      .then(response => response.json())
       .then(data => {
-        // Restaurar botão
         btn.innerHTML = originalText;
         btn.disabled = false;
 
@@ -676,12 +842,9 @@ if ($ordenacao === 'preco_asc') {
           });
         }
       })
-      .catch(error => {
-        console.error('Erro:', error);
-        // Restaurar botão
+      .catch(() => {
         btn.innerHTML = originalText;
         btn.disabled = false;
-        
         Swal.fire({
           icon: 'error',
           title: 'Erro de conexão',
@@ -705,7 +868,7 @@ if ($ordenacao === 'preco_asc') {
         }
       });
     }
-  </script>
+</script>
 </body>
 
 </html>

@@ -8,11 +8,13 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Artistas - Verseal</title>
-  <link rel="stylesheet" href="../css/artista.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/artista.css">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     .btn-editar-perfil-card {
       display: inline-block;
@@ -37,60 +39,60 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
 <body>
   <!-- HEADER -->
   <header>
-    <div class="logo">Verseal</div>
-    <nav>
-      <a href="../index.php">Início</a>
-      <a href="./produto.php">Obras</a>
-      <a href="./sobre.php">Sobre</a>
-      <a href="./artistas.php" style="color: #e07b67;">Artistas</a>
-      <a href="./contato.php">Contato</a>
-      
-      <div class="nav-icons">
-        <a href="./carrinho.php" class="icon-link" id="cart-icon">
-          <i class="fas fa-shopping-cart"></i>
-        </a>
-        
-        <div class="profile-dropdown">
-          <a href="./perfil.php" class="icon-link" id="profile-icon">
-            <i class="fas fa-user"></i>
-          </a>
-          <div class="dropdown-content" id="profile-dropdown">
-            <?php if ($usuarioLogado): ?>
-              <div class="user-info">
-                <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
-              </div>
-              <div class="dropdown-divider"></div>
-              <a href="./perfil.php" class="dropdown-item">
-                <i class="fas fa-user-circle"></i> Meu Perfil
-              </a>
-              <a href="./minhas-compras.php" class="dropdown-item">
-                <i class="fas fa-shopping-bag"></i> Minhas Compras
-              </a>
-              <a href="./favoritos.php" class="dropdown-item">
-                <i class="fas fa-heart"></i> Favoritos
-              </a>
-              <div class="dropdown-divider"></div>
-              <a href="./logout.php" class="dropdown-item logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Sair
-              </a>
-            <?php else: ?>
-              <div class="user-info">
-                <p>Faça login para acessar seu perfil</p>
-              </div>
-              <div class="dropdown-divider"></div>
-              <a href="./login.php" class="dropdown-item">
-                <i class="fas fa-sign-in-alt"></i> Fazer Login
-              </a>
-              <a href="./login.php" class="dropdown-item">
-                <i class="fas fa-user-plus"></i> Cadastrar
-              </a>
-            <?php endif; ?>
+  <div class="logo">Verseal</div>
+  <nav>
+    <a href="../index.php">Início</a>
+    <a href="./produto.php">Obras</a>
+    <a href="./sobre.php">Sobre</a>
+    <a href="./artistas.php">Artistas</a>
+    <a href="./contato.php">Contato</a>
+    
+    <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+    
+    <!-- Dropdown Perfil -->
+    <div class="profile-dropdown">
+      <a href="perfil.php" class="icon-link" id="profile-icon">
+        <i class="fas fa-user"></i>
+      </a>
+      <div class="dropdown-content" id="profile-dropdown">
+        <?php if ($usuarioLogado): ?>
+          <div class="user-info">
+            <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
           </div>
+          <div class="dropdown-divider"></div>
+          <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+          <a href="./minhas-compras.php" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Minhas Compras</a>
+          <a href="./favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+          <div class="dropdown-divider"></div>
+          <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        <?php else: ?>
+          <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+          <div class="dropdown-divider"></div>
+          <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+          <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+        <?php endif; ?>
+      </div>
+    </div>
+
+    <!-- Menu Hamburguer Flutuante -->
+    <div class="hamburger-menu-desktop">
+      <input type="checkbox" id="menu-toggle-desktop">
+      <label for="menu-toggle-desktop" class="hamburger-desktop">
+        <i class="fas fa-bars"></i>
+        <span>ACESSO</span>
+      </label>
+      <div class="menu-content-desktop">
+        <div class="menu-section">
+          <a href="../index.php" class="menu-item" onclick="document.getElementById('menu-toggle-desktop').checked = false;">
+            <i class="fas fa-user"></i> <span>Cliente</span>
+          </a>
+          <a href="./pages/admhome.php" class="menu-item"><i class="fas fa-user-shield"></i> <span>ADM</span></a>
+          <a href="./pages/artistahome.php" class="menu-item"><i class="fas fa-palette"></i> <span>Artista</span></a>
         </div>
       </div>
-    </nav>
-  </header>
-
+    </div>
+  </nav>
+</header>
   <!-- HERO ARTISTAS -->
   <section class="hero-artistas">
     <div class="hero-artistas-content">

@@ -1,5 +1,20 @@
 /* Página Obras de Arte */
-
+h3 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 1rem;
+  color: #cc624e;
+}
+h1, h2 {
+  margin-top: 3rem ;
+  font-size: 1.5rem;
+  text-align: center;
+  position: relative;
+  display: inline-block;
+  padding: 0 15px;
+  color: #5b3a29;
+  font-family: 'Playfair Display', serif;
+  z-index: 1;
+}
 .pagina-obras {
   padding: 60px 7%;
 }
@@ -202,4 +217,169 @@
 .btn-detalhes:hover {
   background: #cc624e;
   color: #fff;
+}
+button {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* Botão Comprar (Card da obra) */
+.btn-comprar {
+  background: linear-gradient(135deg, #cc624e, #e07b67);
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 10px rgba(204, 98, 78, 0.4);
+}
+
+.btn-comprar:hover {
+  background: linear-gradient(135deg, #e07b67, #cc624e);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(204, 98, 78, 0.5);
+}
+
+/* Botão Ver Detalhes */
+.btn-detalhes {
+  background: transparent;
+  border: 2px solid #cc624e;
+  color: #cc624e;
+  padding: 10px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.btn-detalhes:hover {
+  background: #cc624e;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Botão Buscar (Barra de busca) */
+.busca-artista button {
+  background: linear-gradient(135deg, #cc624e, #e07b67);
+  color: white;
+  border-radius: 12px;
+  padding: 10px 18px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.busca-artista button:hover {
+  background: linear-gradient(135deg, #e07b67, #cc624e);
+  transform: translateY(-1px);
+}
+
+/* Botão Aplicar Filtros */
+.btn-aplicar-filtros {
+  background: #cc624e;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.btn-aplicar-filtros:hover {
+  background: #e07b67;
+  transform: translateY(-2px);
+}
+
+/* Botão Limpar Filtros */
+.btn-limpar-filtros {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.btn-limpar-filtros:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+/* Botões do Modal */
+.btn-comprar-modal {
+  background: linear-gradient(135deg, #cc624e, #e07b67);
+  color: white;
+  border-radius: 12px;
+  padding: 12px 25px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.btn-comprar-modal:hover {
+  background: linear-gradient(135deg, #e07b67, #cc624e);
+  transform: translateY(-2px);
+}
+
+.btn-fechar-modal {
+  background: #6c757d;
+  color: white;
+  border-radius: 12px;
+  padding: 12px 25px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.btn-fechar-modal:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+
+/* Botões Ordenação */
+.btn-ordenar {
+  padding: 8px 18px;
+  border: 2px solid #cc624e;
+  border-radius: 30px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-ordenar:hover,
+.btn-ordenar.ativo {
+  background: #cc624e;
+  color: white;
+  transform: translateY(-1px);
 }
