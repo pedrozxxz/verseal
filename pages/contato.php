@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+$usuarioLogado = $_SESSION['usuario'] ?? null;
 $mensagem = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -82,13 +83,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <a href="../index.php" class="menu-item" onclick="document.getElementById('menu-toggle-desktop').checked = false;">
             <i class="fas fa-user"></i> <span>Cliente</span>
           </a>
-          <a href="./pages/admhome.php" class="menu-item"><i class="fas fa-user-shield"></i> <span>ADM</span></a>
-          <a href="./pages/artistahome.php" class="menu-item"><i class="fas fa-palette"></i> <span>Artista</span></a>
+          <a href="./admhome.php" class="menu-item"><i class="fas fa-user-shield"></i> <span>ADM</span></a>
+          <a href="./artistahome.php" class="menu-item"><i class="fas fa-palette"></i> <span>Artista</span></a>
         </div>
       </div>
     </div>
   </nav>
 </header>
+
   <main>
     <div class="container">
       <h1>Fale Conosco</h1>
@@ -131,7 +133,46 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }, 4000);
       }
     });
-  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.waves.min.js"></script>
+<script>
+  // Dropdown do perfil
+  document.addEventListener('DOMContentLoaded', function () {
+    const profileIcon = document.getElementById('profile-icon');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    if (profileIcon && profileDropdown) {
+      profileIcon.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+      });
+      document.addEventListener('click', function (e) {
+        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
+          profileDropdown.style.display = 'none';
+        }
+      });
+      profileDropdown.addEventListener('click', function (e) {
+        e.stopPropagation();
+      });
+    }
+  });
+
+  // Fade-in on scroll
+  document.addEventListener('DOMContentLoaded', () => {
+    const elementos = document.querySelectorAll('.fade-in');
+    const observador = new IntersectionObserver((entradas) => {
+      entradas.forEach(entrada => {
+        if (entrada.isIntersecting) {
+          entrada.target.classList.add('show');
+          observador.unobserve(entrada.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    elementos.forEach(el => observador.observe(el));
+  });
+</script>
+
 </body>
 
 </html>

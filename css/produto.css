@@ -18,7 +18,16 @@ h1, h2 {
 .pagina-obras {
   padding: 60px 7%;
 }
-
+.pagina-obras h1,
+.pagina-obras h2,
+.titulo-pagina {
+  display: block;           /* Faz o título ocupar toda a largura */
+  text-align: center;       /* Centraliza o texto */
+  margin: 40px auto 30px;   /* Espaçamento superior e inferior */
+  font-size: 2.2rem;
+  color: #cc624e;           /* Mantém o tom principal */
+  font-family: 'Playfair Display', serif;
+}
 .titulo-pagina {
   font-family: 'Playfair Display', serif;
   font-size: 2.5rem;

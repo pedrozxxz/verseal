@@ -128,6 +128,7 @@
         backdrop-filter:blur(6px); color:#fff; display:flex; flex-direction:column; align-items:center; padding:35px 20px;
         box-shadow:3px 0 15px rgba(0,0,0,0.15); border-right:2px solid rgba(255,255,255,0.15);
     }
+    
     .logo { font-family:'Playfair Display', serif; font-size:2.6rem; color:#fdfdfd; letter-spacing:5px; font-style:italic; text-shadow:2px 2px 8px rgba(0,0,0,0.3); margin-bottom:40px; cursor:default; }
     .menu { display:flex; flex-direction:column; width:100%; }
     .menu a { text-decoration:none; color:#fff; padding:12px 20px; border-radius:10px; margin-bottom:10px; transition: all 0.3s ease; font-weight:500; }

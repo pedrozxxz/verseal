@@ -76,8 +76,8 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
           <a href="../index.php" class="menu-item" onclick="document.getElementById('menu-toggle-desktop').checked = false;">
             <i class="fas fa-user"></i> <span>Cliente</span>
           </a>
-          <a href="./pages/admhome.php" class="menu-item"><i class="fas fa-user-shield"></i> <span>ADM</span></a>
-          <a href="./pages/artistahome.php" class="menu-item"><i class="fas fa-palette"></i> <span>Artista</span></a>
+          <a href="./admhome.php" class="menu-item"><i class="fas fa-user-shield"></i> <span>ADM</span></a>
+          <a href="./artistahome.php" class="menu-item"><i class="fas fa-palette"></i> <span>Artista</span></a>
         </div>
       </div>
     </div>

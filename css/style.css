@@ -43,14 +43,16 @@ header {
 }
 h1, h2 {
   position: relative;
-  display: inline-block;
+  display: block;        /* Faz o título ocupar toda a largura */
+  text-align: center;    /* Centraliza o texto */
   padding: 10px 25px;
   color: #5b3a29;
   font-family: 'Playfair Display', serif;
   z-index: 1;
+  margin: 40px auto;     /* Centraliza e adiciona espaçamento superior/inferior */
 }
 
-h1::before, h2::before {
+h1::before{
   content: "";
   position: absolute;
   inset: 0;

@@ -23,19 +23,57 @@
     }
 
     /* HEADER */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #fff;
-      padding: 25px 50px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      font-weight: 700;
-    }
+ header {
+  display: flex;
+  justify-content: space-between; /* logo à esquerda, nav à direita */
+  align-items: center;
+  background: #fff;
+  padding: 25px 50px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  font-weight: 700;
+  gap: 30px;
+}
 
+nav {
+  display: flex;
+  align-items: center; /* mantém os links centralizados verticalmente */
+  gap: 15px; /* espaçamento entre os links */
+}
+
+nav a {
+  margin: 0; /* 🔹 remove margem lateral */
+  padding: 8px 15px; /* 🔹 adiciona espaçamento interno suave */
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #444;
+  text-transform: uppercase;
+  transition: color 0.3s ease, letter-spacing 0.3s ease;
+  position: relative;
+  display: inline-block;
+}
+
+nav a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: #e07b67;
+  transition: width 0.3s ease;
+}
+
+nav a:hover {
+  color: #e07b67;
+  letter-spacing: 1px;
+}
+
+nav a:hover::after {
+  width: 100%;
+}
     .logo {
       font-family: 'Playfair Display', serif;
       font-size: 2.8rem;
@@ -51,41 +89,6 @@
     .logo:hover {
       color: #cc624e;
       text-shadow: 2px 2px 8px rgba(204,98,78,0.8);
-    }
-
-    nav {
-      display: flex;
-      align-items: center;
-    }
-
-    nav a {
-      margin-left: 35px;
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: #444;
-      text-transform: uppercase;
-      transition: color 0.3s ease, letter-spacing 0.3s ease;
-      position: relative;
-    }
-
-    nav a::after {
-      content: '';
-      position: absolute;
-      width: 0;
-      height: 2px;
-      bottom: -4px;
-      left: 0;
-      background-color: #e07b67;
-      transition: width 0.3s ease;
-    }
-
-    nav a:hover {
-      color: #e07b67;
-      letter-spacing: 2px;
-    }
-
-    nav a:hover::after {
-      width: 100%;
     }
 
     /* NAVBAR ICONS */

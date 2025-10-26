@@ -259,26 +259,47 @@ nav a:hover::after {
 /* HERO SOBRE */
 .hero-sobre {
   position: relative;
-  height: 40vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.4), transparent 70%);
+  flex-direction: column; /* organiza título e parágrafo em coluna */
+  align-items: center;    /* centraliza horizontalmente */
+  justify-content: center; /* centraliza verticalmente */
+  height: 45vh;
   text-align: center;
+  background: linear-gradient(180deg, rgba(255,255,255,0.3), transparent 90%);
   overflow: hidden;
+  padding: 20px;
 }
 
+/* Título centralizado e com pincelada ajustada */
 .hero-sobre h1 {
+  position: relative;
   font-family: 'Playfair Display', serif;
   font-size: 3rem;
   color: #cc624e;
-  text-shadow: 2px 2px 5px rgba(204,98,78,0.4);
+  margin-bottom: 1rem;
+  z-index: 2;
 }
 
+.hero-sobre h1::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('../img/pinceladas-legais.png') no-repeat center/contain;
+  opacity: 0.5;
+  z-index: -1;
+  transform: scale(2.2);
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%; /* garante centralização perfeita da imagem de fundo */
+}
+
+/* Subtítulo centralizado */
 .hero-sobre p {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   color: #5b4a42;
   font-weight: 500;
+  max-width: 700px;
+  line-height: 1.6;
 }
 
 /* ESTILOS PARA CARDS DE TEXTO */

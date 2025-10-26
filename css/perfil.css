@@ -17,33 +17,75 @@
         }
 
         /* HEADER */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fff;
-            padding: 25px 50px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            font-weight: 700;
-        }
-h3 {
-  font-family: 'Playfair Display', serif;
-  margin-bottom: 1rem;
-  color: #cc624e;
+   header {
+  display: flex;
+  justify-content: space-between; /* logo à esquerda, nav à direita */
+  align-items: center;
+  background: #fff;
+  padding: 25px 50px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  font-weight: 700;
+  gap: 30px;
 }
-h1, h2 {
-  margin-top: 3rem ;
-  font-size: 1.5rem;
-  text-align: center;
+
+nav {
+  display: flex;
+  align-items: center; /* mantém os links centralizados verticalmente */
+  gap: 15px; /* espaçamento entre os links */
+}
+
+nav a {
+  margin: 0; /* 🔹 remove margem lateral */
+  padding: 8px 15px; /* 🔹 adiciona espaçamento interno suave */
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #444;
+  text-transform: uppercase;
+  transition: color 0.3s ease, letter-spacing 0.3s ease;
   position: relative;
   display: inline-block;
-  padding: 0 15px;
+}
+
+nav a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: #e07b67;
+  transition: width 0.3s ease;
+}
+
+nav a:hover {
+  color: #e07b67;
+  letter-spacing: 1px;
+}
+
+nav a:hover::after {
+  width: 100%;
+}
+        
+h1{
+  position: relative;
+  display: inline-block;
+  padding: 20px 30px;
   color: #5b3a29;
   font-family: 'Playfair Display', serif;
   z-index: 1;
+}
+
+h1::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('../img/pinceladas-legais.png') no-repeat center/contain;
+  opacity: 0.5; /* pode ajustar entre 0.4 e 0.7 */
+  z-index: -1;
+  transform: scale(1.2);
 }
 
         .logo {
@@ -61,41 +103,6 @@ h1, h2 {
         .logo:hover {
             color: #cc624e;
             text-shadow: 2px 2px 8px rgba(204,98,78,0.8);
-        }
-
-        nav {
-            display: flex;
-            align-items: center;
-        }
-
-        nav a {
-            margin-left: 35px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: #444;
-            text-transform: uppercase;
-            transition: color 0.3s ease, letter-spacing 0.3s ease;
-            position: relative;
-        }
-
-        nav a::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background-color: #e07b67;
-            transition: width 0.3s ease;
-        }
-
-        nav a:hover {
-            color: #e07b67;
-            letter-spacing: 2px;
-        }
-
-        nav a:hover::after {
-            width: 100%;
         }
 
         /* NAVBAR ICONS */
