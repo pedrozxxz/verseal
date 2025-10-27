@@ -1,36 +1,75 @@
 <?php
 session_start();
-$usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
 
-// Inicializar produtos na sessão se não existirem
-if (!isset($_SESSION['produtos'])) {
-    $_SESSION['produtos'] = [
-        1 => [
-            "id" => 1,
-            "img" => "../img/imagem2.png",
-            "nome" => "Obra da Jamile",
-            "artista" => "Jamile Franquilim",
-            "preco" => 199.99,
-            "desc" => "Desenho realizado por Stefani e Daniele, feito digitalmente e manualmente.",
-            "dimensao" => "21 x 29,7cm (Manual) / 390cm x 522cm (Digital)",
-            "tecnica" => "Técnica mista: digital e manual",
-            "ano" => 2024,
-            "material" => "Tinta acrílica e digital",
-            "categoria" => ["manual", "digital", "colorido"]
-        ],
-        2 => [
-            "id" => 2,
-            "img" => "../img/imagem9.png",
-            "nome" => "Obra da Jamile", 
-            "artista" => "Jamile Franquilim",
-            "preco" => 188.99,
-            "desc" => "Desenho realizado com técnica mista.",
-            "dimensao" => "42 x 59,4cm",
-            "tecnica" => "Técnica mista",
-            "ano" => 2024,
-            "material" => "Nanquim e aquarela",
-            "categoria" => ["manual", "colorido"]
-        ],
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db = "verseal";
+
+$conn = new mysqli($host, $user, $pass, $db);
+
+// Verifica se a conexão falhou
+if ($conn->connect_error) {
+    die("Erro na conexão: " . $conn->connect_error);
+}
+
+// Consulta as obras do banco
+$sql = "SELECT * FROM obras";
+$result = $conn->query($sql);
+
+// Verifica se a consulta retornou algo
+if (!$result) {
+    die("Erro na consulta SQL: " . $conn->error);
+}
+
+$produtos = [];
+
+while ($row = $result->fetch_assoc()) {
+    $obraId = $row['id'];
+
+    // Busca as categorias relacionadas à obra
+    $catSql = "SELECT c.nome FROM categorias c
+               JOIN obra_categoria oc ON oc.categoria_id = c.id
+               WHERE oc.obra_id = $obraId";
+    $catRes = $conn->query($catSql);
+
+    $categorias = [];
+    while ($cat = $catRes->fetch_assoc()) {
+        $categorias[] = $cat['nome'];
+    }
+
+    $row['categoria'] = $categorias;
+    $produtos[$obraId] = $row;
+}
+
+// Adiciona obras fixas (exemplo)
+$produtos += [
+    1 => [
+        "id" => 1,
+        "img" => "../img/imagem2.png",
+        "nome" => "Obra da Jamile",
+        "artista" => "Jamile Franquilim",
+        "preco" => 199.99,
+        "desc" => "Desenho realizado por Stefani e Daniele, feito digitalmente e manualmente.",
+        "dimensao" => "21 x 29,7cm (Manual) / 390cm x 522cm (Digital)",
+        "tecnica" => "Técnica mista: digital e manual",
+        "ano" => 2024,
+        "material" => "Tinta acrílica e digital",
+        "categoria" => ["manual", "digital", "colorido"]
+    ],
+    2 => [
+        "id" => 2,
+        "img" => "../img/imagem9.png",
+        "nome" => "Obra da Jamile", 
+        "artista" => "Jamile Franquilim",
+        "preco" => 188.99,
+        "desc" => "Desenho realizado com técnica mista.",
+        "dimensao" => "42 x 59,4cm",
+        "tecnica" => "Técnica mista",
+        "ano" => 2024,
+        "material" => "Nanquim e aquarela",
+        "categoria" => ["manual", "colorido"]
+    ],
         3 => [
             "id" => 3,
             "img" => "../img/imagem2.png",
@@ -110,7 +149,6 @@ if (!isset($_SESSION['produtos'])) {
             "categoria" => ["manual", "colorido"]
         ]
     ];
-}
 
 $produtos = $_SESSION['produtos'];
 

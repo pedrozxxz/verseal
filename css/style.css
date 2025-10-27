@@ -287,11 +287,10 @@ nav a:hover::after {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
 }
-
-.hero-gallery img:hover {
-  transform: scale(1.15) rotate(5deg);
-  box-shadow: 0 12px 40px rgba(204,98,78,0.7);
-}
+.hero-gallery img,
+  .card img {
+    cursor: default !important;
+  }
 
 /* PRODUTOS */
 .produtos {
@@ -317,7 +316,7 @@ nav a:hover::after {
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  cursor: pointer;
+  cursor: pointer; /* mantém o cursor no card */
   display: flex;
   flex-direction: column;
 }
@@ -328,14 +327,12 @@ nav a:hover::after {
   object-fit: cover;
   border-radius: 0;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: default !important; /* força cursor normal */
+  pointer-events: none; /* impede que a imagem seja clicável */
 }
 
-.card:hover img {
-  transform: scale(1.05);
-  box-shadow: 0 12px 40px rgba(204, 98, 78, 0.5);
-}
-
-.card h3, .card p {
+.card h3,
+.card p {
   padding: 15px;
 }
 
