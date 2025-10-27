@@ -136,19 +136,26 @@ $artista = [
       </div>
     </div>
 
-    <div class="profile-dropdown">
-    <a href="./artistaperfil.php" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
-    <div class="dropdown-content" id="profile-dropdown">
-        <div class="user-info">
-            <p>Seja bem-vindo, <?php echo htmlspecialchars($usuario['nome']); ?>!</p>
-        </div>
-        <div class="dropdown-divider"></div>
-        <a href="./artistaperfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-        <div class="dropdown-divider"></div>
-        <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
-    </div>
+       <div class="profile-dropdown">
+  <a href="#" class="icon-link" id="profile-icon">
+    <i class="fas fa-user"></i>
+  </a>
+  <div class="dropdown-content" id="profile-dropdown">
+    <?php if (isset($usuario) && !empty($usuario['nome'])): ?>
+      <div class="user-info">
+        <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuario['nome']); ?></span>!</p>
+      </div>
+      <div class="dropdown-divider"></div>
+      <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+      <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+    <?php else: ?>
+      <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+      <div class="dropdown-divider"></div>
+      <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+      <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+    <?php endif; ?>
+  </div>
 </div>
-    </div>
   </nav>
 </header>
 
@@ -185,6 +192,31 @@ $artista = [
         <?php endif; ?>
       </div>
     </div>
+    <script>
+      // Dropdown do perfil
+  document.addEventListener('DOMContentLoaded', function () {
+    const profileIcon = document.getElementById('profile-icon');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    if (profileIcon && profileDropdown) {
+      profileIcon.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        profileDropdown.style.display =
+          profileDropdown.style.display === 'block' ? 'none' : 'block';
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
+          profileDropdown.style.display = 'none';
+        }
+      });
+
+      profileDropdown.addEventListener('click', function (e) {
+        e.stopPropagation();
+      });
+    }
+  });
+    </script>
   </section>
 </body>
 </html>

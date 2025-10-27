@@ -284,7 +284,7 @@ $total = array_sum(array_map(fn($item) => $item["preco"] * $item["qtd"], $carrin
 <body>
 
     <!-- HEADER -->
-     <header>
+   <header>
   <div class="logo">Verseal</div>
   <nav>
     <a href="../index.php">Início</a>
@@ -307,8 +307,6 @@ $total = array_sum(array_map(fn($item) => $item["preco"] * $item["qtd"], $carrin
           </div>
           <div class="dropdown-divider"></div>
           <a href="./pages/perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-          <a href="./pages/minhas-compras.php" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Minhas Compras</a>
-          <a href="./pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
           <div class="dropdown-divider"></div>
           <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
         <?php else: ?>
@@ -471,153 +469,74 @@ $total = array_sum(array_map(fn($item) => $item["preco"] * $item["qtd"], $carrin
     </footer>
 
     <script>
-        // Função para mostrar notificação
-        function mostrarNotificacao(mensagem, tipo = 'success') {
-            const notificacao = document.getElementById('notificacao');
-            notificacao.textContent = mensagem;
-            notificacao.className = `notificacao ${tipo}`;
-            notificacao.style.display = 'block';
+// Notificação
+function mostrarNotificacao(mensagem, tipo='success') {
+    const n = document.getElementById('notificacao');
+    n.textContent = mensagem; n.className = `notificacao ${tipo}`; n.style.display='block';
+    setTimeout(()=>n.style.display='none',3000);
+}
 
-            setTimeout(() => {
-                notificacao.style.display = 'none';
-            }, 3000);
-        }
+// Atualizar carrinho via AJAX
+function atualizarInterfaceCarrinho() {
+    fetch(window.location.href)
+    .then(r=>r.text())
+    .then(html=>{
+        const doc = new DOMParser().parseFromString(html,'text/html');
+        const novo = doc.getElementById('carrinho-container');
+        if(novo) document.getElementById('carrinho-container').innerHTML = novo.innerHTML;
+    }).catch(e=>window.location.reload());
+}
+function finalizarCompra() {
+    // Verifica se o carrinho está vazio
+    const carrinhoVazio = document.querySelectorAll('.item-card').length === 0;
+    if (carrinhoVazio) {
+        mostrarNotificacao('Seu carrinho está vazio!', 'error');
+        return;
+    }
 
-        // Função para atualizar a interface do carrinho
-        function atualizarInterfaceCarrinho() {
-            fetch(window.location.href)
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const novoContainer = doc.getElementById('carrinho-container');
+    // Redireciona para a página de pagamento (exemplo)
+    window.location.href = './checkout.php';
+}
+// Adicionar
+function adicionarAoCarrinho(id){
+    const fd = new FormData(); fd.append('acao','adicionar'); fd.append('item_id',id);
+    fetch(window.location.href,{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest'}})
+    .then(r=>r.json()).then(d=>{ if(d.success) mostrarNotificacao(d.message,'success'); atualizarInterfaceCarrinho(); });
+}
 
-                    if (novoContainer) {
-                        document.getElementById('carrinho-container').innerHTML = novoContainer.innerHTML;
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro ao atualizar carrinho:', error);
-                    // Fallback: recarregar a página
-                    window.location.reload();
-                });
-        }
+// Remover
+function removerDoCarrinho(id){
+    const fd = new FormData(); fd.append('acao','remover'); fd.append('item_id',id);
+    fetch(window.location.href,{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest'}})
+    .then(r=>r.json()).then(d=>{ if(d.success) mostrarNotificacao(d.message,'info'); atualizarInterfaceCarrinho(); });
+}
 
-        // Função para adicionar produto ao carrinho
-        function adicionarAoCarrinho(itemId) {
-            const formData = new FormData();
-            formData.append('acao', 'adicionar');
-            formData.append('item_id', itemId);
+// Alterar quantidade
+function atualizarQuantidade(id,qtd){
+    const fd = new FormData(); fd.append('acao','atualizar_qtd'); fd.append('item_id',id); fd.append('qtd',qtd);
+    fetch(window.location.href,{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest'}})
+    .then(r=>r.json()).then(d=>{ if(d.success) mostrarNotificacao(d.message,'success'); atualizarInterfaceCarrinho(); });
+}
 
-            fetch('', {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        mostrarNotificacao(data.message);
-                        atualizarInterfaceCarrinho();
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    mostrarNotificacao('Erro ao adicionar produto', 'error');
-                });
-        }
+function alterarQuantidade(id, delta){
+    const input = document.querySelector(`.item-card[data-item-id="${id}"] .quantidade-input`);
+    if(!input) return;
+    let qtd = parseInt(input.value)+delta;
+    if(qtd<1) qtd=1; input.value=qtd;
+    atualizarQuantidade(id,qtd);
+}
 
-        // Função para remover produto do carrinho
-        function removerDoCarrinho(itemId) {
-            if (!confirm('Tem certeza que deseja remover este item do carrinho?')) {
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('acao', 'remover');
-            formData.append('item_id', itemId);
-
-            fetch('', {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        mostrarNotificacao(data.message);
-                        atualizarInterfaceCarrinho();
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    mostrarNotificacao('Erro ao remover produto', 'error');
-                });
-        }
-
-        // Função para alterar quantidade com os botões +/-
-        function alterarQuantidade(itemId, alteracao) {
-            const input = document.querySelector(`.item-card[data-item-id="${itemId}"] .quantidade-input`);
-            let novaQuantidade = parseInt(input.value) + alteracao;
-            if (novaQuantidade < 1) novaQuantidade = 1;
-
-            input.value = novaQuantidade;
-            atualizarQuantidade(itemId, novaQuantidade);
-        }
-
-        // Função para atualizar quantidade via input
-        function atualizarQuantidade(itemId, quantidade) {
-            if (quantidade < 1) quantidade = 1;
-
-            const formData = new FormData();
-            formData.append('acao', 'atualizar_qtd');
-            formData.append('item_id', itemId);
-            formData.append('qtd', quantidade);
-
-            fetch('', {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        atualizarInterfaceCarrinho();
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    mostrarNotificacao('Erro ao atualizar quantidade', 'error');
-                });
-        }
-
-        // Função para finalizar compra
-        function finalizarCompra() {
-            window.location.href = './checkout.php';
-        }
-
-        // Dropdown do perfil
-        const profileIcon = document.getElementById("profile-icon");
-        const profileDropdown = document.getElementById("profile-dropdown");
-        if (profileIcon && profileDropdown) {
-            profileIcon.addEventListener("click", (e) => {
-                e.preventDefault();
-                profileDropdown.style.display =
-                    profileDropdown.style.display === "block" ? "none" : "block";
-            });
-            document.addEventListener("click", (e) => {
-                if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
-                    profileDropdown.style.display = "none";
-                }
-            });
-        }
-    </script>
+// Dropdown perfil
+document.addEventListener('DOMContentLoaded', function () {
+    const profileIcon = document.getElementById('profile-icon');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    if(profileIcon && profileDropdown){
+        profileIcon.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); profileDropdown.style.display=(profileDropdown.style.display==='block'?'none':'block'); });
+        document.addEventListener('click', e=>{ if(!profileDropdown.contains(e.target) && e.target!==profileIcon) profileDropdown.style.display='none'; });
+        profileDropdown.addEventListener('click', e=>{ e.stopPropagation(); });
+    }
+});
+</script>
 </body>
 
 </html>

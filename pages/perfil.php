@@ -208,30 +208,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"])) {
     
     <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
     
-    <!-- Dropdown Perfil -->
     <div class="profile-dropdown">
-      <a href="#" class="icon-link" id="profile-icon">
-        <i class="fas fa-user"></i>
-      </a>
-      <div class="dropdown-content" id="profile-dropdown">
-        <?php if ($usuarioLogado): ?>
-          <div class="user-info">
-            <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
-          </div>
-          <div class="dropdown-divider"></div>
-          <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-          <a href="./minhas-compras.php" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Minhas Compras</a>
-          <a href="./favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
-          <div class="dropdown-divider"></div>
-          <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
-        <?php else: ?>
-          <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
-          <div class="dropdown-divider"></div>
-          <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-          <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
-        <?php endif; ?>
+  <a href="perfil.php" class="icon-link" id="profile-icon">
+    <i class="fas fa-user"></i>
+  </a>
+  </a>
+  <div class="dropdown-content" id="profile-dropdown">
+    <?php if (isset($usuario) && !empty($usuario['nome'])): ?>
+      <div class="user-info">
+        <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuario['nome']); ?></span>!</p>
       </div>
-    </div>
+      <div class="dropdown-divider"></div>
+      <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+      <div class="dropdown-divider"></div>
+      <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+    <?php else: ?>
+      <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+      <div class="dropdown-divider"></div>
+      <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+      <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+    <?php endif; ?>
+  </div>
+</div>
 
     <!-- Menu Hamburguer Flutuante -->
     <div class="hamburger-menu-desktop">
@@ -271,7 +269,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"])) {
                             <i class="fas fa-user"></i>
                         <?php endif; ?>
                     </div>
-                    <h3><?php echo htmlspecialchars($usuario['nome']); ?></h3>
+                    <h3><?php echo htmlspecialchars($usuario['nome']); ?>
+</h3>
                     <p>Membro desde <?php echo date('m/Y', strtotime($usuario['data_cadastro'] ?? 'now')); ?></p>
                 </div>
 
@@ -452,42 +451,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"])) {
                 e.target.value = '';
             }
         });
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.waves.min.js"></script>
-  // Dropdown do perfil
-  document.addEventListener('DOMContentLoaded', function () {
-    const profileIcon = document.getElementById('profile-icon');
-    const profileDropdown = document.getElementById('profile-dropdown');
-    if (profileIcon && profileDropdown) {
-      profileIcon.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
-      });
-      document.addEventListener('click', function (e) {
-        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
-          profileDropdown.style.display = 'none';
-        }
-      });
-      profileDropdown.addEventListener('click', function (e) {
-        e.stopPropagation();
-      });
+<<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const profileIcon = document.getElementById('profile-icon');
+  const profileDropdown = document.getElementById('profile-dropdown');
+
+  profileIcon.addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
+      profileDropdown.style.display = 'none';
     }
   });
 
-  // Fade-in on scroll
-  document.addEventListener('DOMContentLoaded', () => {
-    const elementos = document.querySelectorAll('.fade-in');
-    const observador = new IntersectionObserver((entradas) => {
-      entradas.forEach(entrada => {
-        if (entrada.isIntersecting) {
-          entrada.target.classList.add('show');
-          observador.unobserve(entrada.target);
-        }
-      });
-    }, { threshold: 0.2 });
-    elementos.forEach(el => observador.observe(el));
+  profileDropdown.addEventListener('click', function (e) {
+    e.stopPropagation();
   });
+});
 </script>
 </body>
 </html>

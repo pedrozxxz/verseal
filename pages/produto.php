@@ -453,7 +453,7 @@ if ($ordenacao === 'preco_asc') {
     
     <!-- Dropdown Perfil -->
     <div class="profile-dropdown">
-      <a href="#" class="icon-link" id="profile-icon">
+      <a href="perfil.php" class="icon-link" id="profile-icon">
         <i class="fas fa-user"></i>
       </a>
       <div class="dropdown-content" id="profile-dropdown">
@@ -462,11 +462,9 @@ if ($ordenacao === 'preco_asc') {
             <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
           </div>
           <div class="dropdown-divider"></div>
-          <a href="./pages/perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-          <a href="./pages/minhas-compras.php" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Minhas Compras</a>
-          <a href="./pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+          <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
           <div class="dropdown-divider"></div>
-          <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+          <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
         <?php else: ?>
           <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
           <div class="dropdown-divider"></div>
@@ -488,8 +486,8 @@ if ($ordenacao === 'preco_asc') {
           <a href="../index.php" class="menu-item" onclick="document.getElementById('menu-toggle-desktop').checked = false;">
             <i class="fas fa-user"></i> <span>Cliente</span>
           </a>
-          <a href="./pages/admhome.php" class="menu-item"><i class="fas fa-user-shield"></i> <span>ADM</span></a>
-          <a href="./pages/artistahome.php" class="menu-item"><i class="fas fa-palette"></i> <span>Artista</span></a>
+          <a href="./admhome.php" class="menu-item"><i class="fas fa-user-shield"></i> <span>ADM</span></a>
+          <a href="./artistahome.php" class="menu-item"><i class="fas fa-palette"></i> <span>Artista</span></a>
         </div>
       </div>
     </div>
@@ -788,21 +786,16 @@ if ($ordenacao === 'preco_asc') {
       });
     }
 
-    // Dropdown Perfil
-    const profileIcon = document.getElementById("profile-icon");
-    const profileDropdown = document.getElementById("profile-dropdown");
-    if (profileIcon && profileDropdown) {
-      profileIcon.addEventListener("click", (e) => {
-        e.preventDefault();
-        profileDropdown.style.display =
-          profileDropdown.style.display === "block" ? "none" : "block";
-      });
-      document.addEventListener("click", (e) => {
-        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
-          profileDropdown.style.display = "none";
-        }
-      });
+    // Dropdown perfil
+document.addEventListener('DOMContentLoaded', function () {
+    const profileIcon = document.getElementById('profile-icon');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    if(profileIcon && profileDropdown){
+        profileIcon.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); profileDropdown.style.display=(profileDropdown.style.display==='block'?'none':'block'); });
+        document.addEventListener('click', e=>{ if(!profileDropdown.contains(e.target) && e.target!==profileIcon) profileDropdown.style.display='none'; });
+        profileDropdown.addEventListener('click', e=>{ e.stopPropagation(); });
     }
+});
   </script>
 </body>
 

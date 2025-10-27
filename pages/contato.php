@@ -48,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     
     <!-- Dropdown Perfil -->
     <div class="profile-dropdown">
-      <a href="#" class="icon-link" id="profile-icon">
+      <a href="perfil.php" class="icon-link" id="profile-icon">
         <i class="fas fa-user"></i>
       </a>
       <div class="dropdown-content" id="profile-dropdown">
@@ -57,16 +57,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
           </div>
           <div class="dropdown-divider"></div>
-          <a href="./pages/perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-          <a href="./pages/minhas-compras.php" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Minhas Compras</a>
-          <a href="./pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+          <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
           <div class="dropdown-divider"></div>
-          <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+          <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
         <?php else: ?>
           <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
           <div class="dropdown-divider"></div>
-          <a href="./pages/login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-          <a href="./pages/login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+          <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+          <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
         <?php endif; ?>
       </div>
     </div>

@@ -40,11 +40,11 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     <a href="./pages/artistas.php">Artistas</a>
     <a href="./pages/contato.php">Contato</a>
     
-    <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+    <a href="./pages/carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
     
     <!-- Dropdown Perfil -->
     <div class="profile-dropdown">
-      <a href="#" class="icon-link" id="profile-icon">
+      <a href="perfil.php" class="icon-link" id="profile-icon">
         <i class="fas fa-user"></i>
       </a>
       <div class="dropdown-content" id="profile-dropdown">
@@ -54,7 +54,6 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
           </div>
           <div class="dropdown-divider"></div>
           <a href="./pages/perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-          <a href="./pages/minhas-compras.php" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Minhas Compras</a>
           <a href="./pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
           <div class="dropdown-divider"></div>
           <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
