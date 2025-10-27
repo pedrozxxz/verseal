@@ -114,13 +114,6 @@ $filtroArtista = $_GET['artista'] ?? '';
 $filtroCategoria = $_GET['categoria'] ?? [];
 $ordenacao = $_GET['ordenacao'] ?? 'preco_asc';
 
-// Se vier por POST (do formulário de busca)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buscar_artista'])) {
-    $filtroArtista = $_POST['artista'] ?? '';
-    header('Location: ?artista=' . urlencode($filtroArtista));
-    exit;
-}
-
 // Filtrar produtos
 $produtosFiltrados = $produtos;
 
@@ -615,11 +608,6 @@ if ($ordenacao === 'preco_asc') {
           Recentes
         </a>
       </div>
-      <form method="POST" class="busca-artista">
-        <input type="text" name="artista" placeholder="Procurar por artista..." 
-               value="<?php echo htmlspecialchars($filtroArtista); ?>">
-        <button type="submit" name="buscar_artista">Buscar</button>
-      </form>
     </div>
 
     <div class="conteudo-obras">
