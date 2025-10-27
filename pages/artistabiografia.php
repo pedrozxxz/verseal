@@ -1,18 +1,34 @@
 <?php
 session_start();
-$usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
+$usuarioLogado = $_SESSION["usuario"] ?? null;
 
-// Dados do artista (normalmente você buscaria no banco de dados)
-$artista = [
+// Caminho do arquivo JSON
+$arquivo = 'dados_artista.json';
+
+// Dados padrão (caso o JSON não exista ou esteja incompleto)
+$artistaPadrao = [
     "nome" => "Jamile Franquilim",
-    "idade" => "16 anos",
     "descricao" => "Artista de 16 anos que busca autonomia no mercado artístico, expondo seus desenhos manuais e digitais para Verseal.",
     "telefone" => "123456-7890",
     "email" => "jamyfranquilim@gmail.com",
     "instagram" => "@oliveirzz.a",
     "foto" => "../img/jamile.jpg"
 ];
+
+// Se o arquivo não existir, cria um novo com os dados padrão
+if (!file_exists($arquivo)) {
+    file_put_contents($arquivo, json_encode($artistaPadrao, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    $artista = $artistaPadrao;
+} else {
+    // Lê o conteúdo atual do JSON
+    $conteudo = file_get_contents($arquivo);
+    $dados = json_decode($conteudo, true);
+
+    // Garante que todas as chaves existam (evita warnings)
+    $artista = array_merge($artistaPadrao, $dados ?? []);
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -136,26 +152,16 @@ $artista = [
       </div>
     </div>
 
-       <div class="profile-dropdown">
-  <a href="#" class="icon-link" id="profile-icon">
-    <i class="fas fa-user"></i>
-  </a>
-  <div class="dropdown-content" id="profile-dropdown">
-    <?php if (isset($usuario) && !empty($usuario['nome'])): ?>
-      <div class="user-info">
-        <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuario['nome']); ?></span>!</p>
+    <div class="profile-dropdown">
+      <a href="./perfil.php" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
+      <div class="dropdown-content" id="profile-dropdown">
+          <div class="user-info"><p>Seja bem-vindo, <?php echo htmlspecialchars($usuarioLogado); ?>!</p></div>
+          <div class="dropdown-divider"></div>
+          <a href="./artistaperfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+          <div class="dropdown-divider"></div>
+          <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
       </div>
-      <div class="dropdown-divider"></div>
-      <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-      <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
-    <?php else: ?>
-      <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
-      <div class="dropdown-divider"></div>
-      <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-      <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
-    <?php endif; ?>
-  </div>
-</div>
+    </div>
   </nav>
 </header>
 
@@ -167,7 +173,7 @@ $artista = [
       <h2><?php echo $artista['nome']; ?></h2>
       <div class="bio-item">
         <p><?php echo $artista['descricao']; ?></p>
-        <?php if ($usuarioLogado === $artista['nome']): ?>
+        <?php if (!empty($usuarioLogado)): ?>
           <a class="btn-editar" href="editarbiografia.php?campo=descricao">Editar Descrição</a>
         <?php endif; ?>
       </div>
@@ -175,19 +181,19 @@ $artista = [
       <h3>Contato</h3>
       <div class="bio-item">
         <p>Telefone: <?php echo $artista['telefone']; ?></p>
-        <?php if ($usuarioLogado === $artista['nome']): ?>
+        <?php if (!empty($usuarioLogado)): ?>
           <a class="btn-editar" href="editarbiografia.php?campo=telefone">Editar Telefone</a>
         <?php endif; ?>
       </div>
       <div class="bio-item">
         <p>Email: <?php echo $artista['email']; ?></p>
-        <?php if ($usuarioLogado === $artista['nome']): ?>
+        <?php if (!empty($usuarioLogado)): ?>
           <a class="btn-editar" href="editarbiografia.php?campo=email">Editar Email</a>
         <?php endif; ?>
       </div>
       <div class="bio-item">
         <p>Instagram: <?php echo $artista['instagram']; ?></p>
-        <?php if ($usuarioLogado === $artista['nome']): ?>
+        <?php if (!empty($usuarioLogado)): ?>
           <a class="btn-editar" href="editarbiografia.php?campo=instagram">Editar Instagram</a>
         <?php endif; ?>
       </div>

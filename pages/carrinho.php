@@ -312,8 +312,8 @@ $total = array_sum(array_map(fn($item) => $item["preco"] * $item["qtd"], $carrin
         <?php else: ?>
           <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
           <div class="dropdown-divider"></div>
-          <a href="./pages/login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-          <a href="./pages/login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+          <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+          <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
         <?php endif; ?>
       </div>
     </div>

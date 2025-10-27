@@ -1,10 +1,21 @@
 <?php
 session_start();
 
+// Garante que o carrinho exista
+if (!isset($_SESSION['carrinho'])) {
+    $_SESSION['carrinho'] = [];
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $meio_pagamento = $_POST['meio_pagamento'] ?? '';
-    
-    // Salvar dados na sessão
+
+    $carrinho = $_SESSION['carrinho'] ?? [];
+    $valor_total = 0;
+
+    if (!empty($carrinho) && is_array($carrinho)) {
+        $valor_total = array_sum(array_map(fn($item) => $item["preco"] * $item["qtd"], $carrinho));
+    }
+
     $_SESSION['dados_pedido'] = [
         'cliente' => [
             'nome' => $_POST['nome_completo'],
@@ -22,11 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ],
         'pagamento' => [
             'metodo' => $meio_pagamento,
-            'valor_total' => array_sum(array_map(fn($item) => $item["preco"] * $item["qtd"], $_SESSION['carrinho']))
+            'valor_total' => $valor_total
         ]
     ];
-    
-    // Redirecionar
+
+    // Redirecionamentos
     if ($meio_pagamento === 'pix') {
         header('Location: processar-pix.php');
         exit;
@@ -34,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: processar-boleto.php');
         exit;
     } elseif ($meio_pagamento === 'cartao') {
-        // Processar cartão
         unset($_SESSION['carrinho']);
         header('Location: sucesso-compra.php');
         exit;

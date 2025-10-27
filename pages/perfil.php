@@ -276,8 +276,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"])) {
 
                 <ul class="menu-links">
                     <li><a href="perfil.php" class="ativo"><i class="fas fa-user-circle"></i> Meu Perfil</a></li>
-                    <li><a href="minhas-compras.php"><i class="fas fa-shopping-bag"></i> Minhas Compras</a></li>
-                    <li><a href="favoritos.php"><i class="fas fa-heart"></i> Favoritos</a></li>
                     <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
                 </ul>
             </div>

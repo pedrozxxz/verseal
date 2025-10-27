@@ -54,7 +54,6 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
           </div>
           <div class="dropdown-divider"></div>
           <a href="./pages/perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-          <a href="./pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
           <div class="dropdown-divider"></div>
           <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
         <?php else: ?>

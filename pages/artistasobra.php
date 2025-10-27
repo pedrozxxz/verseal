@@ -2,117 +2,123 @@
 session_start();
 $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
 
-$produtos = [
-    1 => [
-        "id" => 1,
-        "img" => "../img/imagem2.png",
-        "nome" => "Obra da Jamile",
-        "artista" => "Jamile Framquilim",
-        "preco" => 199.99,
-        "desc" => "Desenho realizado por Stefani e Daniele, feito digitalmente e manualmente.",
-        "dimensao" => "21 x 29,7cm (Manual) / 390cm x 522cm (Digital)",
-        "tecnica" => "Técnica mista: digital e manual",
-        "ano" => 2024,
-        "material" => "Tinta acrílica e digital",
-        "categoria" => ["manual", "digital", "colorido"]
-    ],
-    2 => [
-        "id" => 2,
-        "img" => "../img/imagem9.png",
-        "nome" => "Obra da Jamile", 
-        "artista" => "Jamile Framquilim",
-        "preco" => 188.99,
-        "desc" => "Desenho realizado com técnica mista.",
-        "dimensao" => "42 x 59,4cm",
-        "tecnica" => "Técnica mista",
-        "ano" => 2024,
-        "material" => "Nanquim e aquarela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    3 => [
-        "id" => 3,
-        "img" => "../img/imagem2.png",
-        "nome" => "Obra Moderna",
-        "artista" => "Jamile Framquilim",
-        "preco" => 250.00,
-        "desc" => "Arte contemporânea com técnicas inovadoras.",
-        "dimensao" => "50 x 70cm",
-        "tecnica" => "Pintura digital",
-        "ano" => 2024,
-        "material" => "Digital - alta resolução",
-        "categoria" => ["digital", "colorido"]
-    ],
-    4 => [
-        "id" => 4,
-        "img" => "../img/imagem2.png",
-        "nome" => "Paisagem Expressionista",
-        "artista" => "Jamile Framquilim", 
-        "preco" => 179.99,
-        "desc" => "Paisagem com cores vibrantes e traços expressionistas",
-        "dimensao" => "60 x 80cm",
-        "tecnica" => "Expressionismo",
-        "ano" => 2024,
-        "material" => "Óleo sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    5 => [
-        "id" => 5,
-        "img" => "../img/imagem2.png",
-        "nome" => "Abstração Colorida",
-        "artista" => "Jamile Framquilim",
-        "preco" => 159.90,
-        "desc" => "Obra abstrata com paleta de cores vibrantes",
-        "dimensao" => "40 x 60cm",
-        "tecnica" => "Abstração",
-        "ano" => 2024,
-        "material" => "Acrílica sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    6 => [
-        "id" => 6,
-        "img" => "../img/imagem2.png",
-        "nome" => "Figura Humana",
-        "artista" => "Jamile Framquilim",
-        "preco" => 220.00,
-        "desc" => "Estudo da figura humana em movimento",
-        "dimensao" => "70 x 100cm",
-        "tecnica" => "Figurativo",
-        "ano" => 2024,
-        "material" => "Carvão e pastel",
-        "categoria" => ["manual", "preto e branco"]
-    ],
-    7 => [
-        "id" => 7,
-        "img" => "../img/imagem2.png",
-        "nome" => "Natureza Morta",
-        "artista" => "Jamile Framquilim",
-        "preco" => 145.50,
-        "desc" => "Natureza morta com elementos clássicos",
-        "dimensao" => "50 x 70cm",
-        "tecnica" => "Realismo",
-        "ano" => 2024,
-        "material" => "Óleo sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    8 => [
-        "id" => 8,
-        "img" => "../img/imagem2.png",
-        "nome" => "Cidade Noturna",
-        "artista" => "Jamile Framquilim",
-        "preco" => 189.99,
-        "desc" => "Panorama urbano noturno",
-        "dimensao" => "80 x 120cm",
-        "tecnica" => "Urban sketching",
-        "ano" => 2024,
-        "material" => "Tinta acrílica",
-        "categoria" => ["manual", "colorido"]
-    ]
-];
+// Inicializar produtos na sessão se não existirem
+if (!isset($_SESSION['produtos'])) {
+    $_SESSION['produtos'] = [
+        1 => [
+            "id" => 1,
+            "img" => "../img/imagem2.png",
+            "nome" => "Obra da Jamile",
+            "artista" => "Jamile Franquilim",
+            "preco" => 199.99,
+            "desc" => "Desenho realizado por Stefani e Daniele, feito digitalmente e manualmente.",
+            "dimensao" => "21 x 29,7cm (Manual) / 390cm x 522cm (Digital)",
+            "tecnica" => "Técnica mista: digital e manual",
+            "ano" => 2024,
+            "material" => "Tinta acrílica e digital",
+            "categoria" => ["manual", "digital", "colorido"]
+        ],
+        2 => [
+            "id" => 2,
+            "img" => "../img/imagem9.png",
+            "nome" => "Obra da Jamile", 
+            "artista" => "Jamile Franquilim",
+            "preco" => 188.99,
+            "desc" => "Desenho realizado com técnica mista.",
+            "dimensao" => "42 x 59,4cm",
+            "tecnica" => "Técnica mista",
+            "ano" => 2024,
+            "material" => "Nanquim e aquarela",
+            "categoria" => ["manual", "colorido"]
+        ],
+        3 => [
+            "id" => 3,
+            "img" => "../img/imagem2.png",
+            "nome" => "Obra Moderna",
+            "artista" => "Jamile Franquilim",
+            "preco" => 250.00,
+            "desc" => "Arte contemporânea com técnicas inovadoras.",
+            "dimensao" => "50 x 70cm",
+            "tecnica" => "Pintura digital",
+            "ano" => 2024,
+            "material" => "Digital - alta resolução",
+            "categoria" => ["digital", "colorido"]
+        ],
+        4 => [
+            "id" => 4,
+            "img" => "../img/imagem2.png",
+            "nome" => "Paisagem Expressionista",
+            "artista" => "Jamile Franquilim", 
+            "preco" => 179.99,
+            "desc" => "Paisagem com cores vibrantes e traços expressionistas",
+            "dimensao" => "60 x 80cm",
+            "tecnica" => "Expressionismo",
+            "ano" => 2024,
+            "material" => "Óleo sobre tela",
+            "categoria" => ["manual", "colorido"]
+        ],
+        5 => [
+            "id" => 5,
+            "img" => "../img/imagem2.png",
+            "nome" => "Abstração Colorida",
+            "artista" => "Jamile Franquilim",
+            "preco" => 159.90,
+            "desc" => "Obra abstrata com paleta de cores vibrantes",
+            "dimensao" => "40 x 60cm",
+            "tecnica" => "Abstração",
+            "ano" => 2024,
+            "material" => "Acrílica sobre tela",
+            "categoria" => ["manual", "colorido"]
+        ],
+        6 => [
+            "id" => 6,
+            "img" => "../img/imagem2.png",
+            "nome" => "Figura Humana",
+            "artista" => "Jamile Franquilim",
+            "preco" => 220.00,
+            "desc" => "Estudo da figura humana em movimento",
+            "dimensao" => "70 x 100cm",
+            "tecnica" => "Figurativo",
+            "ano" => 2024,
+            "material" => "Carvão e pastel",
+            "categoria" => ["manual", "preto e branco"]
+        ],
+        7 => [
+            "id" => 7,
+            "img" => "../img/imagem2.png",
+            "nome" => "Natureza Morta",
+            "artista" => "Jamile Franquilim",
+            "preco" => 145.50,
+            "desc" => "Natureza morta com elementos clássicos",
+            "dimensao" => "50 x 70cm",
+            "tecnica" => "Realismo",
+            "ano" => 2024,
+            "material" => "Óleo sobre tela",
+            "categoria" => ["manual", "colorido"]
+        ],
+        8 => [
+            "id" => 8,
+            "img" => "../img/imagem2.png",
+            "nome" => "Cidade Noturna",
+            "artista" => "Jamile Franquilim",
+            "preco" => 189.99,
+            "desc" => "Panorama urbano noturno",
+            "dimensao" => "80 x 120cm",
+            "tecnica" => "Urban sketching",
+            "ano" => 2024,
+            "material" => "Tinta acrílica",
+            "categoria" => ["manual", "colorido"]
+        ]
+    ];
+}
+
+$produtos = $_SESSION['produtos'];
 
 // Processar filtros se existirem
 $filtroArtista = $_GET['artista'] ?? '';
 $filtroCategoria = $_GET['categoria'] ?? [];
 $ordenacao = $_GET['ordenacao'] ?? 'preco_asc';
+$obraEditada = $_GET['obra_editada'] ?? null;
 
 // Filtrar produtos
 $produtosFiltrados = $produtos;
@@ -136,6 +142,11 @@ if (!empty($filtroCategoria) && is_array($filtroCategoria)) {
     });
 }
 
+// Ordenação - se há obra editada, forçar ordenação por recentes
+if ($obraEditada) {
+    $ordenacao = 'recentes';
+}
+
 // Ordenação
 if ($ordenacao === 'preco_asc') {
     usort($produtosFiltrados, function($a, $b) {
@@ -146,8 +157,12 @@ if ($ordenacao === 'preco_asc') {
         return $b['preco'] <=> $a['preco'];
     });
 } elseif ($ordenacao === 'recentes') {
-    // Ordenar por ID (simulando data)
-    usort($produtosFiltrados, function($a, $b) {
+    // Ordenar por ID (simulando data) - obra editada aparece primeiro
+    usort($produtosFiltrados, function($a, $b) use ($obraEditada) {
+        if ($obraEditada) {
+            if ($a['id'] == $obraEditada) return -1;
+            if ($b['id'] == $obraEditada) return 1;
+        }
         return $b['id'] <=> $a['id'];
     });
 }
@@ -524,6 +539,46 @@ if ($ordenacao === 'preco_asc') {
     .btn-limpar-filtros:hover {
       background: #5a6268;
     }
+    
+    /* Novos estilos para obra editada */
+    .obra-destaque {
+      border: 2px solid #cc624e;
+      box-shadow: 0 4px 15px rgba(204, 98, 78, 0.3);
+      transform: scale(1.02);
+      transition: all 0.3s ease;
+    }
+  .badge-editado {
+    background: #cc624e !important;
+    color: white !important;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin-left: 10px;
+    font-weight: 600;
+    border: none;
+    display: inline-block;
+    text-align: center;
+    line-height: 1;
+}
+
+/* Garantir que o texto fique branco em todos os estados */
+.badge-editado,
+.badge-editado *,
+.badge-editado:hover,
+.badge-editado:focus {
+    color: white !important;
+    text-decoration: none;
+}
+    
+    .mensagem-sucesso {
+      background: #d4edda;
+      color: #155724;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      border: 1px solid #c3e6cb;
+    }
+    
     @media (max-width: 768px) {
       .modal-body {
         grid-template-columns: 1fr;
@@ -558,31 +613,32 @@ if ($ordenacao === 'preco_asc') {
     </div>
 
      <div class="profile-dropdown">
-  <a href="#" class="icon-link" id="profile-icon">
-    <i class="fas fa-user"></i>
-  </a>
-  <div class="dropdown-content" id="profile-dropdown">
-    <?php if (isset($usuario) && !empty($usuario['nome'])): ?>
-      <div class="user-info">
-        <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuario['nome']); ?></span>!</p>
+      <a href="./perfil.php" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
+      <div class="dropdown-content" id="profile-dropdown">
+          <div class="user-info"><p>Seja bem-vindo, <?php echo htmlspecialchars($usuarioLogado); ?>!</p></div>
+          <div class="dropdown-divider"></div>
+          <a href="./artistaperfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+          <div class="dropdown-divider"></div>
+          <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
       </div>
-      <div class="dropdown-divider"></div>
-      <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-      <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
-    <?php else: ?>
-      <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
-      <div class="dropdown-divider"></div>
-      <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-      <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
-    <?php endif; ?>
-  </div>
-</div>
+    </div>
   </nav>
 </header>
 
   <!-- CONTEÚDO -->
   <main class="pagina-obras">
     <h1 class="titulo-pagina">Obras de Arte</h1>
+
+    <!-- Mensagem de obra editada -->
+    <?php if ($obraEditada && isset($produtos[$obraEditada])): ?>
+    <div class="mensagem-sucesso">
+      <i class="fas fa-check-circle"></i> 
+      <strong style="color: #155724;">Obra atualizada com sucesso!</strong>
+      <span style="margin-left: 15px; color: #155724;">
+        A obra "<?php echo htmlspecialchars($produtos[$obraEditada]['nome']); ?>" foi editada e aparece em destaque.
+      </span>
+    </div>
+<?php endif; ?>
 
     <!-- Resultados da busca -->
     <?php if (!empty($filtroArtista) || !empty($filtroCategoria)): ?>
@@ -605,16 +661,25 @@ if ($ordenacao === 'preco_asc') {
     <div class="barra-filtros-topo">
       <div class="ordenacao">
         <span>Ordenação:</span>
-        <a href="?ordenacao=preco_asc<?php echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : ''; ?>" 
-           class="btn-ordenar <?php echo $ordenacao === 'preco_asc' ? 'ativo' : ''; ?>">
+        <a href="?ordenacao=preco_asc<?php 
+          echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : '';
+          echo !empty($filtroCategoria) ? '&' . http_build_query(['categoria' => $filtroCategoria]) : '';
+          echo $obraEditada ? '&obra_editada=' . $obraEditada : '';
+        ?>" class="btn-ordenar <?php echo $ordenacao === 'preco_asc' ? 'ativo' : ''; ?>">
           Menor Preço
         </a>
-        <a href="?ordenacao=preco_desc<?php echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : ''; ?>" 
-           class="btn-ordenar <?php echo $ordenacao === 'preco_desc' ? 'ativo' : ''; ?>">
+        <a href="?ordenacao=preco_desc<?php 
+          echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : '';
+          echo !empty($filtroCategoria) ? '&' . http_build_query(['categoria' => $filtroCategoria]) : '';
+          echo $obraEditada ? '&obra_editada=' . $obraEditada : '';
+        ?>" class="btn-ordenar <?php echo $ordenacao === 'preco_desc' ? 'ativo' : ''; ?>">
           Maior Preço
         </a>
-        <a href="?ordenacao=recentes<?php echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : ''; ?>" 
-           class="btn-ordenar <?php echo $ordenacao === 'recentes' ? 'ativo' : ''; ?>">
+        <a href="?ordenacao=recentes<?php 
+          echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : '';
+          echo !empty($filtroCategoria) ? '&' . http_build_query(['categoria' => $filtroCategoria]) : '';
+          echo $obraEditada ? '&obra_editada=' . $obraEditada : '';
+        ?>" class="btn-ordenar <?php echo $ordenacao === 'recentes' ? 'ativo' : ''; ?>">
           Recentes
         </a>
       </div>
@@ -626,9 +691,12 @@ if ($ordenacao === 'preco_asc') {
         <h3>Filtro</h3>
 
         <form method="GET">
-          <!-- Manter o filtro de artista se existir -->
+          <!-- Manter parâmetros importantes -->
           <?php if (!empty($filtroArtista)): ?>
             <input type="hidden" name="artista" value="<?php echo htmlspecialchars($filtroArtista); ?>">
+          <?php endif; ?>
+          <?php if ($obraEditada): ?>
+            <input type="hidden" name="obra_editada" value="<?php echo $obraEditada; ?>">
           <?php endif; ?>
 
           <div class="filtro-box">
@@ -656,14 +724,11 @@ if ($ordenacao === 'preco_asc') {
           </div>
 
           <button type="submit" class="btn-aplicar-filtros">Aplicar Filtros</button>
-          <?php if (!empty($filtroCategoria)): ?>
-            <a href="?<?php echo !empty($filtroArtista) ? 'artista=' . urlencode($filtroArtista) : ''; ?>" 
-               class="btn-limpar-categorias"></a>
+          <?php if (!empty($filtroCategoria) || !empty($filtroArtista) || $obraEditada): ?>
+            <a href="?<?php echo $obraEditada ? 'obra_editada=' . $obraEditada : ''; ?>" class="btn-limpar-filtros" style="margin-top: 10px; display: inline-block;">
+              Limpar Filtros
+            </a>
           <?php endif; ?>
-
-<button type="button" class="btn-adiconar-obra" onclick="window.location.href='adicionar-obras.php'">
-    Adicionar Obra
-</button>
         </form>
       </aside>
 
@@ -677,9 +742,15 @@ if ($ordenacao === 'preco_asc') {
           </div>
         <?php else: ?>
           <?php foreach ($produtosFiltrados as $produto): ?>
-          <div class="obra-card">
+          <div class="obra-card <?php echo $obraEditada == $produto['id'] ? 'obra-destaque' : ''; ?>" 
+               id="obra-<?php echo $produto['id']; ?>">
             <img src="<?php echo $produto['img']; ?>" alt="<?php echo $produto['nome']; ?>">
-            <h4><?php echo $produto['nome']; ?></h4>
+            <h4>
+              <?php echo $produto['nome']; ?>
+              <?php if ($obraEditada == $produto['id']): ?>
+                <span class="badge-editado">Editada</span>
+              <?php endif; ?>
+            </h4>
             <p>Por <?php echo $produto['artista']; ?></p>
             <span class="preco-obra">R$ <?php echo number_format($produto['preco'], 2, ',', '.'); ?></span>
             <button class="btn-detalhes" onclick="mostrarDetalhes(<?php echo $produto['id']; ?>)">
@@ -688,8 +759,6 @@ if ($ordenacao === 'preco_asc') {
           </div>
           <?php endforeach; ?>
         <?php endif; ?>
-
-        
       </section>
     </div>
   </main>
@@ -720,7 +789,7 @@ if ($ordenacao === 'preco_asc') {
   </footer>
 
   <script>
-    // Dados das obras (poderia vir de um banco de dados)
+    // Dados das obras - usar os dados atualizados da sessão
     const obras = <?php echo json_encode($produtos); ?>;
 
     // Função para mostrar detalhes da obra
@@ -771,10 +840,18 @@ if ($ordenacao === 'preco_asc') {
           <p>${obra.desc}</p>
         </div>
         <div class="modal-actions">
-          <button class="btn-comprar-modal" onclick="adicionarAoCarrinho(${obra.id})">
-            <i class="fas fa-shopping-cart"></i> Adicionar ao Carrinho
-          </button>
-          <a href="editar_obra2.php?id=${obra.id}" class="btn-editar-modal">
+          <a href="editar_obra2.php?id=${obra.id}" class="btn-editar-modal" style="
+            background: #cc624e;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            transition: background 0.3s;
+          ">
             <i class="fas fa-edit"></i> Editar Obra
           </a>
         </div>
@@ -785,95 +862,72 @@ if ($ordenacao === 'preco_asc') {
       document.body.style.overflow = 'hidden';
     }
 
+    // Fechar modal
+    function fecharModal() {
+      const modal = document.getElementById('modalDetalhes');
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
     // Fechar modal ao clicar fora
     document.getElementById('modalDetalhes').addEventListener('click', function(e) {
       if (e.target === this) {
-        this.classList.remove('active');
-        document.body.style.overflow = 'auto';
+        fecharModal();
       }
     });
 
     // Fechar modal com ESC
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
-        const modal = document.getElementById('modalDetalhes');
-        modal.classList.remove('active');
-        document.body.style.overflow = 'auto';
+        fecharModal();
       }
     });
 
-    // Função para adicionar produto ao carrinho
-    function adicionarAoCarrinho(itemId) {
-      const btn = event?.target.closest('button');
-      const originalText = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adicionando...';
-      btn.disabled = true;
-
-      const formData = new FormData();
-      formData.append('acao', 'adicionar');
-      formData.append('item_id', itemId);
-
-      fetch('carrinho.php', {
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-
-        if (data.success) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Obra adicionada!',
-            text: data.message,
-            timer: 2000,
-            showConfirmButton: false,
-            position: 'top-end'
-          });
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Erro',
-            text: data.message || 'Erro ao adicionar obra ao carrinho'
-          });
-        }
-      })
-      .catch(() => {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-        Swal.fire({
-          icon: 'error',
-          title: 'Erro de conexão',
-          text: 'Não foi possível conectar ao servidor'
+    // Dropdown do perfil
+    document.addEventListener('DOMContentLoaded', function () {
+      const profileIcon = document.getElementById('profile-icon');
+      const profileDropdown = document.getElementById('profile-dropdown');
+      if (profileIcon && profileDropdown) {
+        profileIcon.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          profileDropdown.style.display =
+            profileDropdown.style.display === 'block' ? 'none' : 'block';
         });
-      });
-    }
-      // Dropdown do perfil
-  document.addEventListener('DOMContentLoaded', function () {
-    const profileIcon = document.getElementById('profile-icon');
-    const profileDropdown = document.getElementById('profile-dropdown');
-    if (profileIcon && profileDropdown) {
-      profileIcon.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        profileDropdown.style.display =
-          profileDropdown.style.display === 'block' ? 'none' : 'block';
-      });
 
-      document.addEventListener('click', function (e) {
-        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
-          profileDropdown.style.display = 'none';
+        document.addEventListener('click', function (e) {
+          if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
+            profileDropdown.style.display = 'none';
+          }
+        });
+
+        profileDropdown.addEventListener('click', function (e) {
+          e.stopPropagation();
+        });
+      }
+
+      // Mostrar mensagem de sucesso se obra foi editada e fazer scroll
+      <?php if ($obraEditada): ?>
+      setTimeout(() => {
+        const obraEditadaElement = document.getElementById('obra-<?php echo $obraEditada; ?>');
+        if (obraEditadaElement) {
+          obraEditadaElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center',
+            inline: 'nearest'
+          });
+          
+          // Adicionar animação de destaque
+          obraEditadaElement.style.transition = 'all 0.5s ease';
+          obraEditadaElement.style.transform = 'scale(1.05)';
+          
+          setTimeout(() => {
+            obraEditadaElement.style.transform = 'scale(1.02)';
+          }, 500);
         }
-      });
-
-      profileDropdown.addEventListener('click', function (e) {
-        e.stopPropagation();
-      });
-    }
-  });
-</script>
+      }, 800);
+      <?php endif; ?>
+    });
+  </script>
 </body>
-
 </html>

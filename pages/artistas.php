@@ -150,7 +150,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
           <i class="fas fa-pencil-alt"></i>
         </div>
         <div class="artista-info">
-          <h3 class="artista-nome">STEFAN CORREA</h3>
+          <h3 class="artista-nome">STEFANI CORREA</h3>
           <p class="artista-idade">17 anos</p>
           <p class="artista-descricao">
             Artista de 17 anos que busca autonomia no mercado artístico, realizando desenhos manuais para o site Verseal.
