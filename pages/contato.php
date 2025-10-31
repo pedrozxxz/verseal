@@ -1,41 +1,45 @@
 <?php
 session_start();
 
-$usuarioLogado = $_SESSION['usuario'] ?? null;
-$mensagem = "";
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-  $nome = trim($_POST['nome']);
-  $email = trim($_POST['email']);
-  $mensagemContato = trim($_POST['mensagem']);
-
-  if (empty($nome) || empty($email) || empty($mensagemContato)) {
-    $mensagem = "<p class='erro'>Por favor, preencha todos os campos.</p>";
-  } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $mensagem = "<p class='erro'>Digite um e-mail válido.</p>";
-  } else {
-    $mensagem = "<p class='sucesso'>Obrigado por entrar em contato, <strong>$nome</strong>! Responderemos em breve.</p>";
-  }
+// Verificar se usuário está logado de forma compatível
+$usuarioLogado = null;
+if (isset($_SESSION["usuario"])) {
+    // Se for array (nova versão)
+    if (is_array($_SESSION["usuario"])) {
+        $usuarioLogado = $_SESSION["usuario"];
+    } else {
+        // Se for string (versão antiga - manter compatibilidade)
+        $usuarioLogado = $_SESSION["usuario"];
+    }
 }
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contato - Verseal</title>
+  <title>Sobre - Verseal</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+  <link rel="stylesheet" href="../css/sobre.css">
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/contato.css">
-  <!-- SweetAlert2 -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+  <style>
+    .fade-in {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease-out, transform 0.4s ease-out;
+    }
+    .fade-in.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
 <body>
-  <header>
+<header>
   <div class="logo">Verseal</div>
   <nav>
     <a href="../index.php">Início</a>
@@ -54,7 +58,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <div class="dropdown-content" id="profile-dropdown">
         <?php if ($usuarioLogado): ?>
           <div class="user-info">
-            <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
+            <p>Seja bem-vindo, <span id="user-name">
+              <?php 
+              // CORREÇÃO AQUI: Verificar se é array ou string
+              if (is_array($usuarioLogado)) {
+                  echo htmlspecialchars($usuarioLogado['nome']);
+              } else {
+                  echo htmlspecialchars($usuarioLogado);
+              }
+              ?>
+            </span>!</p>
           </div>
           <div class="dropdown-divider"></div>
           <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
@@ -89,50 +102,108 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   </nav>
 </header>
 
-  <main>
-    <div class="container">
-      <h1>Fale Conosco</h1>
-      <?php echo $mensagem; ?>
-      <form method="post" action="">
-        <label for="nome">Nome</label>
-        <input type="text" name="nome" id="nome" placeholder="Digite seu nome" required>
-
-        <label for="email">E-mail</label>
-        <input type="email" name="email" id="email" placeholder="Digite seu e-mail" required>
-
-        <label for="mensagem">Mensagem</label>
-        <textarea name="mensagem" id="mensagem" placeholder="Escreva sua mensagem..." required></textarea>
-
-        <button type="submit">Enviar Mensagem</button>
-      </form>
-      <p class="voltar"><a href="../index.php">⬅ Voltar ao início</a></p>
+<main>
+  <!-- HERO -->
+  <section class="hero-sobre">
+    <div id="particles-sobre"></div>
+    <div class="hero-content">
+      <h1 class="fade-in">Sobre a Verseal</h1>
+      <p class="fade-in">Transformando arte em experiências únicas, físicas e digitais.</p>
     </div>
-  </main>
+  </section>
 
-  <script>
-    document.addEventListener("mousemove", e => {
-      let x = (e.clientX / window.innerWidth - 0.5) * 15;
-      let y = (e.clientY / window.innerHeight - 0.5) * 15;
-      document.querySelectorAll(".layer").forEach((layer, i) => {
-        let depth = (i - 1) * 20;
-        layer.style.transform = `rotateY(${x}deg) rotateX(${-y}deg) translateZ(${depth}px)`;
-      });
-    });
-  </script>
-  <script>
-    // Espera o DOM carregar
-    document.addEventListener('DOMContentLoaded', () => {
-      const mensagem = document.querySelector('.sucesso, .erro');
-      if (mensagem) {
-        setTimeout(() => {
-          mensagem.style.transition = 'opacity 0.8s ease';
-          mensagem.style.opacity = '0';
-          setTimeout(() => mensagem.remove(), 800);
-        }, 4000);
-      }
-    });
+  <!-- QUEM SOMOS -->
+  <section class="quem-somos container fade-in">
+    <h2 class="fade-in">Quem Somos</h2>
+    <div class="cards-container">
+      <div class="card-texto">
+        <p class="fade-in">A Verseal nasceu da paixão por arte e inovação. Unimos técnicas tradicionais e digitais para criar peças únicas que contam histórias e provocam emoções, conectando artistas e colecionadores em uma experiência transformadora.</p>
+      </div>
+    </div>
+  </section>
 
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+  <!-- MISSÃO -->
+  <section class="missao container fade-in">
+    <h2 class="fade-in">Nossa Missão</h2>
+    <div class="cards-missao">
+      <div class="card fade-in">
+        <i class="fas fa-palette icon-card"></i>
+        <h3 class="fade-in">Arte Autêntica</h3>
+        <p class="fade-in">Valorizamos cada detalhe e a autenticidade de cada criação, preservando a essência única de cada artista.</p>
+      </div>
+      <div class="card fade-in">
+        <i class="fas fa-laptop-code icon-card"></i>
+        <h3 class="fade-in">Inovação Digital</h3>
+        <p class="fade-in">Unimos tecnologia e criatividade para criar experiências únicas que transcendem o convencional.</p>
+      </div>
+      <div class="card fade-in">
+        <i class="fas fa-handshake icon-card"></i>
+        <h3 class="fade-in">Conexão</h3>
+        <p class="fade-in">Proporcionar aos clientes uma relação verdadeira e significativa com a arte que adquirem.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALORES -->
+  <section class="valores container fade-in">
+    <h2 class="fade-in">Nossos Valores</h2>
+    <div class="cards-missao fade-in">
+      <div class="card fade-in">
+        <i class="fas fa-gem icon-card"></i>
+        <h3 class="fade-in">Excelência</h3>
+        <p class="fade-in">Buscamos a perfeição em cada detalhe, desde a criação até a entrega final ao colecionador.</p>
+      </div>
+      <div class="card fade-in">
+        <i class="fas fa-heart icon-card"></i>
+        <h3 class="fade-in">Paixão</h3>
+        <p class="fade-in">Amamos o que fazemos e acreditamos no poder transformador da arte na vida das pessoas.</p>
+      </div>
+      <div class="card fade-in">
+        <i class="fas fa-shield-alt icon-card"></i>
+        <h3 class="fade-in">Transparência</h3>
+        <p class="fade-in">Mantemos relações claras e honestas com artistas, colecionadores e parceiros.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJETO VERSEAL -->
+  <section class="projeto container fade-in">
+    <h2>O Projeto Verseal</h2>
+    <div class="cards-container">
+      <div class="card-texto">
+        <p>Nosso projeto busca unir o mundo físico e digital da arte de maneira harmoniosa. Cada obra é cuidadosamente criada, podendo ser apreciada tanto como peça física única quanto como NFT exclusivo. Acreditamos em experiências imersivas e personalizadas que conectam colecionadores e amantes da arte de forma profunda e significativa.</p>
+        <p>Através da Verseal, democratizamos o acesso à arte de qualidade, permitindo que novos talentos sejam descobertos e que colecionadores encontrem peças que realmente conversem com sua essência.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- VÍDEO PITCH -->
+  <section class="video-pitch container fade-in">
+    <h2>Conheça Nossa História</h2>
+    <div class="video-container">
+      <div class="card-video">
+        <div class="video-wrapper">
+          <iframe width="560" height="315" src="https://www.youtube.com/embed/20-niIkV-3M?si=XZy6feS-19UBfQMB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+        <div class="video-info">
+          <h3>Pitch Verseal</h3>
+          <p>Assista ao nosso vídeo pitch e conheça mais sobre nossa missão, visão e os valores que nos movem.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2025 Verseal. Todos os direitos reservados.</p>
+  <div class="social">
+    <a href="#"><i class="fab fa-instagram"></i></a>
+    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+    <a href="#"><i class="fab fa-whatsapp"></i></a>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.waves.min.js"></script>
 <script>
   // Dropdown do perfil
@@ -170,7 +241,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     elementos.forEach(el => observador.observe(el));
   });
 </script>
-
 </body>
-
 </html>

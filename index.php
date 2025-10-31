@@ -1,6 +1,17 @@
 <?php
 session_start();
-$usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
+
+// Verificar se usuário está logado de forma compatível
+$usuarioLogado = null;
+if (isset($_SESSION["usuario"])) {
+    // Se for array (nova versão)
+    if (is_array($_SESSION["usuario"])) {
+        $usuarioLogado = $_SESSION["usuario"];
+    } else {
+        // Se for string (versão antiga - manter compatibilidade)
+        $usuarioLogado = $_SESSION["usuario"];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -50,7 +61,16 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
       <div class="dropdown-content" id="profile-dropdown">
         <?php if ($usuarioLogado): ?>
           <div class="user-info">
-            <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
+            <p>Seja bem-vindo, <span id="user-name">
+              <?php 
+              // CORREÇÃO AQUI: Verificar se é array ou string
+              if (is_array($usuarioLogado)) {
+                  echo htmlspecialchars($usuarioLogado['nome']);
+              } else {
+                  echo htmlspecialchars($usuarioLogado);
+              }
+              ?>
+            </span>!</p>
           </div>
           <div class="dropdown-divider"></div>
           <a href="./pages/perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>

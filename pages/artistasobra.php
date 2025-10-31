@@ -1,6 +1,22 @@
 <?php
 session_start();
+// DEBUG: Verificar a sessão
+error_log("Sessão usuario: " . print_r($_SESSION["usuario"] ?? 'Não definido', true));
+error_log("Tipo: " . gettype($_SESSION["usuario"] ?? 'null'));
+// Verificar se o usuário está logado
+if (!isset($_SESSION["usuario"]) || !is_array($_SESSION["usuario"])) {
+    header("Location: login.php");
+    exit();
+}
 
+$usuarioLogado = $_SESSION["usuario"];
+
+// Verificar se temos o nome do usuário
+if (!isset($usuarioLogado['nome']) || empty($usuarioLogado['nome'])) {
+    die("Erro: Nome do usuário não encontrado na sessão.");
+}
+
+// Conexão com o banco
 $host = "localhost";
 $user = "root";
 $pass = "";
@@ -8,169 +24,72 @@ $db = "verseal";
 
 $conn = new mysqli($host, $user, $pass, $db);
 
-// Verifica se a conexão falhou
 if ($conn->connect_error) {
-    die("Erro na conexão: " . $conn->connect_error);
+    die("Falha na conexão: " . $conn->connect_error);
 }
 
-// Consulta as obras do banco
-$sql = "SELECT * FROM obras";
-$result = $conn->query($sql);
+// Buscar obras do usuário logado
+$sql_obras = "
+    SELECT o.*, GROUP_CONCAT(c.nome) as categorias 
+    FROM obras o 
+    LEFT JOIN obra_categoria oc ON o.id = oc.obra_id 
+    LEFT JOIN categorias c ON oc.categoria_id = c.id 
+    WHERE o.artista = ? 
+    GROUP BY o.id
+    ORDER BY o.data_criacao DESC
+";
 
-// Verifica se a consulta retornou algo
-if (!$result) {
-    die("Erro na consulta SQL: " . $conn->error);
-}
+$stmt_obras = $conn->prepare($sql_obras);
+$nomeArtista = $usuarioLogado['nome'];
+$stmt_obras->bind_param("s", $nomeArtista);
+$stmt_obras->execute();
+$result_obras = $stmt_obras->get_result();
 
 $produtos = [];
-
-while ($row = $result->fetch_assoc()) {
-    $obraId = $row['id'];
-
-    // Busca as categorias relacionadas à obra
-    $catSql = "SELECT c.nome FROM categorias c
-               JOIN obra_categoria oc ON oc.categoria_id = c.id
-               WHERE oc.obra_id = $obraId";
-    $catRes = $conn->query($catSql);
-
-    $categorias = [];
-    while ($cat = $catRes->fetch_assoc()) {
-        $categorias[] = $cat['nome'];
+if ($result_obras) {
+    while ($obra = $result_obras->fetch_assoc()) {
+        // Garantir que categorias seja um array
+        $categorias = [];
+        if (!empty($obra['categorias'])) {
+            $categorias = explode(',', $obra['categorias']);
+        }
+        
+        $produtos[$obra['id']] = [
+            "id" => intval($obra['id']),
+            "img" => $obra['img'] ?? '',
+            "nome" => $obra['nome'] ?? '',
+            "artista" => $obra['artista'] ?? '',
+            "preco" => floatval($obra['preco'] ?? 0),
+            "desc" => $obra['descricao'] ?? '',
+            "dimensao" => $obra['dimensao'] ?? '',
+            "tecnica" => $obra['tecnica'] ?? '',
+            "ano" => intval($obra['ano'] ?? 0),
+            "material" => $obra['material'] ?? '',
+            "categoria" => $categorias,
+            "data_criacao" => $obra['data_criacao'] ?? ''
+        ];
     }
-
-    $row['categoria'] = $categorias;
-    $produtos[$obraId] = $row;
 }
 
-// Adiciona obras fixas (exemplo)
-$produtos += [
-    1 => [
-        "id" => 1,
-        "img" => "../img/imagem2.png",
-        "nome" => "Obra da Jamile",
-        "artista" => "Jamile Franquilim",
-        "preco" => 199.99,
-        "desc" => "Desenho realizado por Stefani e Daniele, feito digitalmente e manualmente.",
-        "dimensao" => "21 x 29,7cm (Manual) / 390cm x 522cm (Digital)",
-        "tecnica" => "Técnica mista: digital e manual",
-        "ano" => 2024,
-        "material" => "Tinta acrílica e digital",
-        "categoria" => ["manual", "digital", "colorido"]
-    ],
-    2 => [
-        "id" => 2,
-        "img" => "../img/imagem9.png",
-        "nome" => "Obra da Jamile", 
-        "artista" => "Jamile Franquilim",
-        "preco" => 188.99,
-        "desc" => "Desenho realizado com técnica mista.",
-        "dimensao" => "42 x 59,4cm",
-        "tecnica" => "Técnica mista",
-        "ano" => 2024,
-        "material" => "Nanquim e aquarela",
-        "categoria" => ["manual", "colorido"]
-    ],
-        3 => [
-            "id" => 3,
-            "img" => "../img/imagem2.png",
-            "nome" => "Obra Moderna",
-            "artista" => "Jamile Franquilim",
-            "preco" => 250.00,
-            "desc" => "Arte contemporânea com técnicas inovadoras.",
-            "dimensao" => "50 x 70cm",
-            "tecnica" => "Pintura digital",
-            "ano" => 2024,
-            "material" => "Digital - alta resolução",
-            "categoria" => ["digital", "colorido"]
-        ],
-        4 => [
-            "id" => 4,
-            "img" => "../img/imagem2.png",
-            "nome" => "Paisagem Expressionista",
-            "artista" => "Jamile Franquilim", 
-            "preco" => 179.99,
-            "desc" => "Paisagem com cores vibrantes e traços expressionistas",
-            "dimensao" => "60 x 80cm",
-            "tecnica" => "Expressionismo",
-            "ano" => 2024,
-            "material" => "Óleo sobre tela",
-            "categoria" => ["manual", "colorido"]
-        ],
-        5 => [
-            "id" => 5,
-            "img" => "../img/imagem2.png",
-            "nome" => "Abstração Colorida",
-            "artista" => "Jamile Franquilim",
-            "preco" => 159.90,
-            "desc" => "Obra abstrata com paleta de cores vibrantes",
-            "dimensao" => "40 x 60cm",
-            "tecnica" => "Abstração",
-            "ano" => 2024,
-            "material" => "Acrílica sobre tela",
-            "categoria" => ["manual", "colorido"]
-        ],
-        6 => [
-            "id" => 6,
-            "img" => "../img/imagem2.png",
-            "nome" => "Figura Humana",
-            "artista" => "Jamile Franquilim",
-            "preco" => 220.00,
-            "desc" => "Estudo da figura humana em movimento",
-            "dimensao" => "70 x 100cm",
-            "tecnica" => "Figurativo",
-            "ano" => 2024,
-            "material" => "Carvão e pastel",
-            "categoria" => ["manual", "preto e branco"]
-        ],
-        7 => [
-            "id" => 7,
-            "img" => "../img/imagem2.png",
-            "nome" => "Natureza Morta",
-            "artista" => "Jamile Franquilim",
-            "preco" => 145.50,
-            "desc" => "Natureza morta com elementos clássicos",
-            "dimensao" => "50 x 70cm",
-            "tecnica" => "Realismo",
-            "ano" => 2024,
-            "material" => "Óleo sobre tela",
-            "categoria" => ["manual", "colorido"]
-        ],
-        8 => [
-            "id" => 8,
-            "img" => "../img/imagem2.png",
-            "nome" => "Cidade Noturna",
-            "artista" => "Jamile Franquilim",
-            "preco" => 189.99,
-            "desc" => "Panorama urbano noturno",
-            "dimensao" => "80 x 120cm",
-            "tecnica" => "Urban sketching",
-            "ano" => 2024,
-            "material" => "Tinta acrílica",
-            "categoria" => ["manual", "colorido"]
-        ]
-    ];
-
-$produtos = $_SESSION['produtos'];
-
-// Processar filtros se existirem
-$filtroArtista = $_GET['artista'] ?? '';
+// Processar filtros
 $filtroCategoria = $_GET['categoria'] ?? [];
-$ordenacao = $_GET['ordenacao'] ?? 'preco_asc';
+$ordenacao = $_GET['ordenacao'] ?? 'recentes';
 $obraEditada = $_GET['obra_editada'] ?? null;
 
-// Filtrar produtos
-$produtosFiltrados = $produtos;
-
-// Filtro por artista
-if (!empty($filtroArtista)) {
-    $produtosFiltrados = array_filter($produtosFiltrados, function($produto) use ($filtroArtista) {
-        return stripos($produto['artista'], $filtroArtista) !== false;
-    });
+// Garantir que $produtos seja um array
+if (!is_array($produtos)) {
+    $produtos = [];
 }
+
+// Filtrar produtos (apenas os do usuário logado)
+$produtosFiltrados = $produtos;
 
 // Filtro por categoria
 if (!empty($filtroCategoria) && is_array($filtroCategoria)) {
     $produtosFiltrados = array_filter($produtosFiltrados, function($produto) use ($filtroCategoria) {
+        if (!isset($produto['categoria']) || !is_array($produto['categoria'])) {
+            return false;
+        }
         foreach ($filtroCategoria as $categoria) {
             if (in_array($categoria, $produto['categoria'])) {
                 return true;
@@ -180,29 +99,33 @@ if (!empty($filtroCategoria) && is_array($filtroCategoria)) {
     });
 }
 
-// Ordenação - se há obra editada, forçar ordenação por recentes
-if ($obraEditada) {
-    $ordenacao = 'recentes';
-}
-
 // Ordenação
 if ($ordenacao === 'preco_asc') {
     usort($produtosFiltrados, function($a, $b) {
-        return $a['preco'] <=> $b['preco'];
+        return ($a['preco'] ?? 0) <=> ($b['preco'] ?? 0);
     });
 } elseif ($ordenacao === 'preco_desc') {
     usort($produtosFiltrados, function($a, $b) {
-        return $b['preco'] <=> $a['preco'];
+        return ($b['preco'] ?? 0) <=> ($a['preco'] ?? 0);
     });
 } elseif ($ordenacao === 'recentes') {
-    // Ordenar por ID (simulando data) - obra editada aparece primeiro
     usort($produtosFiltrados, function($a, $b) use ($obraEditada) {
         if ($obraEditada) {
-            if ($a['id'] == $obraEditada) return -1;
-            if ($b['id'] == $obraEditada) return 1;
+            if (($a['id'] ?? 0) == $obraEditada) return -1;
+            if (($b['id'] ?? 0) == $obraEditada) return 1;
         }
-        return $b['id'] <=> $a['id'];
+        $timeA = isset($a['data_criacao']) ? strtotime($a['data_criacao']) : 0;
+        $timeB = isset($b['data_criacao']) ? strtotime($b['data_criacao']) : 0;
+        return $timeB <=> $timeA;
     });
+}
+$obraNova = $_GET['obra_nova'] ?? null;
+if ($obraNova) {
+    $obraEditada = $obraNova; 
+}
+// Garantir que produtosFiltrados seja array
+if (!is_array($produtosFiltrados)) {
+    $produtosFiltrados = [];
 }
 ?>
 <!DOCTYPE html>
@@ -210,422 +133,222 @@ if ($ordenacao === 'preco_asc') {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verseal - Obras de Arte</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
-    rel="stylesheet">
+  <title>Verseal - Minhas Obras</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/produto.css">
-  <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    .modal-detalhes {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
+    /* Seus estilos CSS existentes aqui */
+    .modal-detalhes { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-detalhes.active { display: flex; }
+    .modal-conteudo { background: white; border-radius: 15px; max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; animation: modalAppear 0.3s ease; }
+    @keyframes modalAppear { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-bottom: 1px solid #eee; }
+    .modal-header h2 { font-family: 'Playfair Display', serif; color: #cc624e; margin: 0; font-size: 1.8rem; }
+    .btn-fechar { background: none; border: none; font-size: 1.5rem; color: #666; cursor: pointer; padding: 5px; transition: color 0.3s; }
+    .btn-fechar:hover { color: #cc624e; }
+    .btn-aplicar-filtros, .btn-adiconar-obra { background: #cc624e; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; margin-top: 15px; transition: background 0.3s; }
+    .btn-aplicar-filtros:hover, .btn-adiconar-obra:hover { background: #e07b67; }
+    .btn-adiconar-obra { font-weight: bold; font-size: 0.9rem; padding: 13px 25px; margin-top: 0; }
+    .modal-body { padding: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+    .modal-imagem { text-align: center; }
+    .modal-imagem img { max-width: 100%; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
+    .modal-info { display: flex; flex-direction: column; gap: 15px; }
+    .info-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+    .info-item:last-child { border-bottom: none; }
+    .info-label { font-weight: 600; color: #333; }
+    .info-value { color: #666; text-align: right; }
+    .preco-destaque { font-size: 1.5rem; font-weight: bold; color: #cc624e; }
+    .descricao-completa { grid-column: 1 / -1; background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 10px; }
+    .modal-actions { grid-column: 1 / -1; display: flex; gap: 15px; margin-top: 20px; }
+     .nenhuma-obra {
+        text-align: center;
+        padding: 60px 40px;
+        background: #f8f9fa;
+        border-radius: 15px;
+        border: 2px dashed #dee2e6;
+        margin: 20px 0;
     }
-    .modal-detalhes.active {
-      display: flex;
+
+    .nenhuma-obra i.fa-search {
+        font-size: 4rem;
+        color: #ced4da;
+        margin-bottom: 20px;
     }
-    .modal-conteudo {
-      background: white;
-      border-radius: 15px;
-      max-width: 800px;
-      width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
-      position: relative;
-      animation: modalAppear 0.3s ease;
+
+    .nenhuma-obra h3 {
+        color: #6c757d;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
     }
-    @keyframes modalAppear {
-      from {
-        opacity: 0;
-        transform: scale(0.8);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+
+    .nenhuma-obra p {
+        color: #868e96;
+        margin-bottom: 30px;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
     }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 25px;
-      border-bottom: 1px solid #eee;
+
+    .btn-adicionar-primeira {
+        background: linear-gradient(135deg, #cc624e, #e07b67);
+        color: white;
+        border: none;
+        padding: 15px 35px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(204, 98, 78, 0.3);
+        margin-top: 10px;
     }
-    .modal-header h2 {
-      font-family: 'Playfair Display', serif;
-      color: #cc624e;
-      margin: 0;
-      font-size: 1.8rem;
+
+    .btn-adicionar-primeira:hover {
+        background: linear-gradient(135deg, #e07b67, #cc624e);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(204, 98, 78, 0.4);
+        text-decoration: none;
+        color: white;
     }
-    .btn-fechar {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      color: #666;
-      cursor: pointer;
-      padding: 5px;
-      transition: color 0.3s;
+
+    .btn-adicionar-primeira i {
+        font-size: 1.1rem;
     }
-    .btn-fechar:hover {
-      color: #cc624e;
+
+    /* Efeito de animação suave */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
     }
-    .btn-aplicar-filtros{
-      background: #cc624e;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-      margin-top: 15px;
-      transition: background 0.3s;
+
+    .btn-adicionar-primeira {
+        animation: pulse 2s infinite;
     }
-    .btn-aplicar-filtros:hover {
-      background: #e07b67;
+
+    .btn-adicionar-primeira:hover {
+        animation: none;
     }
-    .btn-adiconar-obra{
-      background: #cc624e;
-      color: white;
-      font-weight: bold;
-      font-size: 0,6rem;
-      border: none;
-      padding: 13px 50px;
-      border-radius: 20px;
-      cursor: pointer;
-      margin-top: 50px;
-      transition: background 0.3s;
+
+    /* Para telas menores */
+    @media (max-width: 768px) {
+        .nenhuma-obra {
+            padding: 40px 20px;
+            margin: 15px 0;
+        }
+
+        .nenhuma-obra i.fa-search {
+            font-size: 3rem;
+        }
+
+        .nenhuma-obra h3 {
+            font-size: 1.3rem;
+        }
+
+        .nenhuma-obra p {
+            font-size: 1rem;
+        }
+
+        .btn-adicionar-primeira {
+            padding: 12px 25px;
+            font-size: 0.95rem;
+        }
     }
+       .info-usuario {
+        background: #e7f3ff;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        border-left: 4px solid #007bff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .info-usuario-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex: 1;
+    }
+    
+    .info-usuario i {
+        color: #e4e2e2ff;
+        font-size: 1.2rem;
+    }
+    
+    .info-usuario strong {
+        color: #0056b3;
+        font-size: 1rem;
+    }
+    
+    .info-usuario span {
+        color: #666;
+        font-size: 0.95rem;
+    }
+    
+    .btn-adiconar-obra {
+        background: #cc624e;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 0.9rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+    
     .btn-adiconar-obra:hover {
-      background: #e07b67;
-    }
-    .modal-body {
-      padding: 25px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 30px;
-    }
-    .modal-imagem {
-      text-align: center;
-    }
-    .modal-imagem img {
-      max-width: 100%;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-    .modal-info {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .info-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 12px 0;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .info-item:last-child {
-      border-bottom: none;
-    }
-    .info-label {
-      font-weight: 600;
-      color: #333;
-    }
-    .info-value {
-      color: #666;
-      text-align: right;
-    }
-    .preco-destaque {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #cc624e;
-    }
-    .descricao-completa {
-      grid-column: 1 / -1;
-      background: #f8f9fa;
-      padding: 20px;
-      border-radius: 8px;
-      margin-top: 10px;
-    }
-    .modal-actions {
-      grid-column: 1 / -1;
-      display: flex;
-      gap: 15px;
-      margin-top: 20px;
-    }
-    button {
-  font-family: 'Open Sans', sans-serif;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-/* Botão Comprar (Card da obra) */
-.btn-comprar {
-  background: linear-gradient(135deg, #cc624e, #e07b67);
-  border: none;
-  color: white;
-  padding: 12px 20px;
-  border-radius: 30px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 10px rgba(204, 98, 78, 0.4);
-}
-
-.btn-comprar:hover {
-  background: linear-gradient(135deg, #e07b67, #cc624e);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(204, 98, 78, 0.5);
-}
-
-/* Botão Ver Detalhes */
-.btn-detalhes {
-  background: transparent;
-  border: 2px solid #cc624e;
-  color: #cc624e;
-  padding: 10px 20px;
-  border-radius: 30px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.3s ease;
-}
-
-.btn-detalhes:hover {
-  background: #cc624e;
-  color: white;
-  transform: translateY(-2px);
-}
-
-/* Botão Buscar (Barra de busca) */
-.busca-artista button {
-  background: linear-gradient(135deg, #cc624e, #e07b67);
-  color: white;
-  border-radius: 12px;
-  padding: 10px 18px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.3s ease;
-}
-
-.busca-artista button:hover {
-  background: linear-gradient(135deg, #e07b67, #cc624e);
-  transform: translateY(-1px);
-}
-
-/* Botão Aplicar Filtros */
-.btn-aplicar-filtros {
-  background: #cc624e;
-  color: white;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 25px;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.3s ease;
-}
-
-.btn-aplicar-filtros:hover {
-  background: #e07b67;
-  transform: translateY(-2px);
-}
-
-/* Botão Limpar Filtros */
-.btn-limpar-filtros {
-  background: #6c757d;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 25px;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.3s ease;
-}
-
-.btn-limpar-filtros:hover {
-  background: #5a6268;
-  transform: translateY(-1px);
-}
-
-/* Botões do Modal */
-.btn-comprar-modal {
-  background: linear-gradient(135deg, #cc624e, #e07b67);
-  color: white;
-  border-radius: 12px;
-  padding: 12px 25px;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  transition: all 0.3s ease;
-}
-
-.btn-comprar-modal:hover {
-  background: linear-gradient(135deg, #e07b67, #cc624e);
-  transform: translateY(-2px);
-}
-
-.btn-fechar-modal {
-  background: #6c757d;
-  color: white;
-  border-radius: 12px;
-  padding: 12px 25px;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  transition: all 0.3s ease;
-}
-
-.btn-fechar-modal:hover {
-  background: #5a6268;
-  transform: translateY(-2px);
-}
-
-/* Botões Ordenação */
-.btn-ordenar {
-  padding: 8px 18px;
-  border: 2px solid #cc624e;
-  border-radius: 30px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-ordenar:hover,
-.btn-ordenar.ativo {
-  background: #cc624e;
-  color: white;
-  transform: translateY(-1px);
-}
-    .btn-comprar-modal {
-      background: #cc624e;
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      flex: 1;
-      transition: background 0.3s;
-    }
-    .btn-comprar-modal:hover {
-      background: #e07b67;
-    }
-    .btn-fechar-modal {
-      background: #6c757d;
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      flex: 1;
-      transition: background 0.3s;
-    }
-    .btn-fechar-modal:hover {
-      background: #5a6268;
-    }
-    .filtro-ativo {
-      background: #cc624e !important;
-      color: white !important;
-    }
-    .resultados-busca {
-      margin-bottom: 20px;
-      padding: 15px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      border-left: 4px solid #cc624e;
-    }
-    .btn-limpar-filtros {
-      background: #6c757d;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-left: 10px;
-    }
-    .btn-limpar-filtros:hover {
-      background: #5a6268;
+        background: #e07b67;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(204, 98, 78, 0.3);
+        text-decoration: none;
+        color: white;
     }
     
-    /* Novos estilos para obra editada */
-    .obra-destaque {
-      border: 2px solid #cc624e;
-      box-shadow: 0 4px 15px rgba(204, 98, 78, 0.3);
-      transform: scale(1.02);
-      transition: all 0.3s ease;
+    /* Para telas menores */
+    @media (max-width: 768px) {
+        .info-usuario {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .info-usuario-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .btn-adiconar-obra {
+            align-self: stretch;
+            text-align: center;
+            justify-content: center;
+        }
     }
-  .badge-editado {
-    background: #cc624e !important;
-    color: white !important;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    margin-left: 10px;
-    font-weight: 600;
-    border: none;
-    display: inline-block;
-    text-align: center;
-    line-height: 1;
-}
-
-/* Garantir que o texto fique branco em todos os estados */
-.badge-editado,
-.badge-editado *,
-.badge-editado:hover,
-.badge-editado:focus {
-    color: white !important;
-    text-decoration: none;
-}
-    
-    .mensagem-sucesso {
-      background: #d4edda;
-      color: #155724;
-      padding: 15px;
-      border-radius: 5px;
-      margin-bottom: 20px;
-      border: 1px solid #c3e6cb;
-    }
+    .obra-destaque { border: 2px solid #cc624e; box-shadow: 0 4px 15px rgba(204, 98, 78, 0.3); transform: scale(1.02); transition: all 0.3s ease; }
+    .badge-editado { background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; }
+    .mensagem-sucesso { background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #c3e6cb; }
     
     @media (max-width: 768px) {
-      .modal-body {
-        grid-template-columns: 1fr;
-        gap: 20px;
-      }
-      .modal-conteudo {
-        width: 95%;
-        margin: 20px;
-      }
+      .modal-body { grid-template-columns: 1fr; gap: 20px; }
+      .modal-conteudo { width: 95%; margin: 20px; }
     }
   </style>
 </head>
@@ -651,70 +374,76 @@ if ($ordenacao === 'preco_asc') {
     </div>
 
      <div class="profile-dropdown">
-      <a href="./perfil.php" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
-      <div class="dropdown-content" id="profile-dropdown">
-          <div class="user-info"><p>Seja bem-vindo, <?php echo htmlspecialchars($usuarioLogado); ?>!</p></div>
-          <div class="dropdown-divider"></div>
-          <a href="./artistaperfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-          <div class="dropdown-divider"></div>
-          <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+  <a href="#" class="icon-link" id="profile-icon">
+    <i class="fas fa-user"></i>
+  </a>
+  <div class="dropdown-content" id="profile-dropdown">
+    <?php if (isset($usuarioLogado) && !empty($usuarioLogado['nome'])): ?>
+      <div class="user-info">
+        <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado['nome']); ?></span>!</p>
       </div>
-    </div>
+      <div class="dropdown-divider"></div>
+      <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+      <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+    <?php else: ?>
+      <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+      <div class="dropdown-divider"></div>
+      <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+      <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+    <?php endif; ?>
+  </div>
+</div>
   </nav>
 </header>
 
   <!-- CONTEÚDO -->
   <main class="pagina-obras">
-    <h1 class="titulo-pagina">Obras de Arte</h1>
+    <h1 class="titulo-pagina">Minhas Obras de Arte</h1>
+
+    <!-- Informação do usuário -->
+    <div class="info-usuario">
+    <div class="info-usuario-content">
+        <i class="fas fa-info-circle"></i>
+        <div>
+            <strong>Visualizando apenas suas obras</strong>
+            <span style="display: block; margin-top: 5px;">
+                Você está vendo <?php echo count($produtos); ?> obra(s) cadastrada(s) em sua conta.
+            </span>
+        </div>
+    </div>
+    <a href="adicionar-obras.php" class="btn-adiconar-obra">
+        <i class="fas fa-plus"></i> Adicionar Nova Obra
+    </a>
+</div>
 
     <!-- Mensagem de obra editada -->
     <?php if ($obraEditada && isset($produtos[$obraEditada])): ?>
     <div class="mensagem-sucesso">
       <i class="fas fa-check-circle"></i> 
-      <strong style="color: #155724;">Obra atualizada com sucesso!</strong>
-      <span style="margin-left: 15px; color: #155724;">
+      <strong>Obra atualizada com sucesso!</strong>
+      <span style="margin-left: 15px;">
         A obra "<?php echo htmlspecialchars($produtos[$obraEditada]['nome']); ?>" foi editada e aparece em destaque.
-      </span>
-    </div>
-<?php endif; ?>
-
-    <!-- Resultados da busca -->
-    <?php if (!empty($filtroArtista) || !empty($filtroCategoria)): ?>
-    <div class="resultados-busca">
-      <strong>Filtros ativos:</strong>
-      <?php if (!empty($filtroArtista)): ?>
-        <span class="badge">Artista: <?php echo htmlspecialchars($filtroArtista); ?></span>
-      <?php endif; ?>
-      <?php if (!empty($filtroCategoria)): ?>
-        <span class="badge">Categorias: <?php echo implode(', ', $filtroCategoria); ?></span>
-      <?php endif; ?>
-      <a href="?" class="btn-limpar-filtros">Limpar Filtros</a>
-      <span style="margin-left: 15px; color: #666;">
-        <?php echo count($produtosFiltrados); ?> obra(s) encontrada(s)
       </span>
     </div>
     <?php endif; ?>
 
-    <!-- Barra de Ordenação e Busca -->
+    <!-- Barra de Ordenação -->
     <div class="barra-filtros-topo">
       <div class="ordenacao">
         <span>Ordenação:</span>
         <a href="?ordenacao=preco_asc<?php 
-          echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : '';
           echo !empty($filtroCategoria) ? '&' . http_build_query(['categoria' => $filtroCategoria]) : '';
           echo $obraEditada ? '&obra_editada=' . $obraEditada : '';
         ?>" class="btn-ordenar <?php echo $ordenacao === 'preco_asc' ? 'ativo' : ''; ?>">
           Menor Preço
         </a>
         <a href="?ordenacao=preco_desc<?php 
-          echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : '';
           echo !empty($filtroCategoria) ? '&' . http_build_query(['categoria' => $filtroCategoria]) : '';
           echo $obraEditada ? '&obra_editada=' . $obraEditada : '';
         ?>" class="btn-ordenar <?php echo $ordenacao === 'preco_desc' ? 'ativo' : ''; ?>">
           Maior Preço
         </a>
         <a href="?ordenacao=recentes<?php 
-          echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : '';
           echo !empty($filtroCategoria) ? '&' . http_build_query(['categoria' => $filtroCategoria]) : '';
           echo $obraEditada ? '&obra_editada=' . $obraEditada : '';
         ?>" class="btn-ordenar <?php echo $ordenacao === 'recentes' ? 'ativo' : ''; ?>">
@@ -730,9 +459,6 @@ if ($ordenacao === 'preco_asc') {
 
         <form method="GET">
           <!-- Manter parâmetros importantes -->
-          <?php if (!empty($filtroArtista)): ?>
-            <input type="hidden" name="artista" value="<?php echo htmlspecialchars($filtroArtista); ?>">
-          <?php endif; ?>
           <?php if ($obraEditada): ?>
             <input type="hidden" name="obra_editada" value="<?php echo $obraEditada; ?>">
           <?php endif; ?>
@@ -762,7 +488,7 @@ if ($ordenacao === 'preco_asc') {
           </div>
 
           <button type="submit" class="btn-aplicar-filtros">Aplicar Filtros</button>
-          <?php if (!empty($filtroCategoria) || !empty($filtroArtista) || $obraEditada): ?>
+          <?php if (!empty($filtroCategoria) || $obraEditada): ?>
             <a href="?<?php echo $obraEditada ? 'obra_editada=' . $obraEditada : ''; ?>" class="btn-limpar-filtros" style="margin-top: 10px; display: inline-block;">
               Limpar Filtros
             </a>
@@ -776,7 +502,10 @@ if ($ordenacao === 'preco_asc') {
           <div class="nenhuma-obra">
             <i class="fas fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
             <h3>Nenhuma obra encontrada</h3>
-            <p>Tente ajustar os filtros ou buscar por outro artista.</p>
+            <p>Você ainda não possui obras cadastradas ou nenhuma obra corresponde aos filtros aplicados.</p>
+<a href="adicionar-obras.php" class="btn-adiconar-obra">              
+  <i class="fas fa-plus"></i> Adicionar Primeira Obra
+            </a>
           </div>
         <?php else: ?>
           <?php foreach ($produtosFiltrados as $produto): ?>
@@ -826,8 +555,8 @@ if ($ordenacao === 'preco_asc') {
     </div>
   </footer>
 
-  <script>
-    // Dados das obras - usar os dados atualizados da sessão
+<script>
+    // Dados das obras
     const obras = <?php echo json_encode($produtos); ?>;
 
     // Função para mostrar detalhes da obra
@@ -892,6 +621,21 @@ if ($ordenacao === 'preco_asc') {
           ">
             <i class="fas fa-edit"></i> Editar Obra
           </a>
+          <button class="btn-excluir-modal" onclick="confirmarExclusaoModal(${obra.id})" style="
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            transition: background 0.3s;
+          ">
+            <i class="fas fa-trash"></i> Excluir Obra
+          </button>
         </div>
       `;
 
@@ -900,6 +644,82 @@ if ($ordenacao === 'preco_asc') {
       document.body.style.overflow = 'hidden';
     }
 
+    // Função para confirmar exclusão no modal
+function confirmarExclusaoModal(obraId) {
+    const obra = obras[obraId];
+    if (!obra) {
+        console.error('Obra não encontrada:', obraId);
+        return;
+    }
+
+    console.log('Preparando exclusão da obra:', obraId, obra.nome);
+
+    Swal.fire({
+        title: 'Tem certeza?',
+        html: `Você está prestes a excluir a obra:<br><strong>"${obra.nome}"</strong><br><br>Esta ação não pode ser desfeita!`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            console.log('Enviando requisição para excluirobra.php');
+            
+            // Criar os dados para enviar
+            const dados = new URLSearchParams();
+            dados.append('acao', 'excluir');
+            dados.append('obra_id', obraId);
+
+            return fetch('excluirobra.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: dados
+            })
+            .then(response => {
+                console.log('Status da resposta:', response.status, response.statusText);
+                if (!response.ok) {
+                    // Se a resposta não for OK, tentar ler o texto do erro
+                    return response.text().then(text => {
+                        throw new Error(`Erro ${response.status}: ${response.statusText}\nResposta: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Resposta JSON:', data);
+                if (!data.success) {
+                    throw new Error(data.message || 'Erro desconhecido do servidor');
+                }
+                return data;
+            })
+            .catch(error => {
+                console.error('Erro completo:', error);
+                Swal.showValidationMessage(`
+                    Falha na comunicação com o servidor:<br>
+                    ${error.message}
+                `);
+            });
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            console.log('Exclusão confirmada com sucesso');
+            Swal.fire({
+                title: 'Excluída!',
+                text: 'A obra foi excluída com sucesso.',
+                icon: 'success',
+                confirmButtonColor: '#cc624e'
+            }).then(() => {
+                fecharModal();
+                // Recarregar a página para atualizar a lista
+                window.location.reload();
+            });
+        }
+    });
+}
     // Fechar modal
     function fecharModal() {
       const modal = document.getElementById('modalDetalhes');
@@ -944,28 +764,19 @@ if ($ordenacao === 'preco_asc') {
         });
       }
 
-      // Mostrar mensagem de sucesso se obra foi editada e fazer scroll
+      // Mostrar mensagem de sucesso se obra foi editada
       <?php if ($obraEditada): ?>
       setTimeout(() => {
         const obraEditadaElement = document.getElementById('obra-<?php echo $obraEditada; ?>');
         if (obraEditadaElement) {
           obraEditadaElement.scrollIntoView({ 
             behavior: 'smooth', 
-            block: 'center',
-            inline: 'nearest'
+            block: 'center'
           });
-          
-          // Adicionar animação de destaque
-          obraEditadaElement.style.transition = 'all 0.5s ease';
-          obraEditadaElement.style.transform = 'scale(1.05)';
-          
-          setTimeout(() => {
-            obraEditadaElement.style.transform = 'scale(1.02)';
-          }, 500);
         }
       }, 800);
       <?php endif; ?>
     });
-  </script>
+</script>
 </body>
 </html>

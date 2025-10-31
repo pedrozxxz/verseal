@@ -37,7 +37,8 @@ foreach ($columns_to_check as $column) {
 }
 
 // Buscar dados do usuário
-$usuario_nome = $_SESSION["usuario"];
+$usuario_nome = $_SESSION["usuario"]['nome']; // Acessar a chave 'nome' do array
+
 $sql = "SELECT * FROM usuarios WHERE nome = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $usuario_nome);
@@ -45,6 +46,16 @@ $stmt->execute();
 $result = $stmt->get_result();
 $usuario = $result->fetch_assoc();
 
+// Se não encontrou pelo nome, tentar pelo ID (mais seguro)
+if (!$usuario) {
+    $usuario_id = $_SESSION["usuario"]['id'];
+    $sql = "SELECT * FROM usuarios WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $usuario_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $usuario = $result->fetch_assoc();
+}
 // Processar atualização do perfil
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["atualizar_perfil"])) {
     $nome = $_POST["nome"];

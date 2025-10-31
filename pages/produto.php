@@ -1,166 +1,81 @@
 <?php
 session_start();
-$usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
 
-// Lista de produtos disponíveis (COMPATÍVEL com carrinho.php)
-$produtos = [
-    1 => [
-        "id" => 1,
-        "img" => "../img/imagem2.png",
-        "nome" => "Obra da Daniele",
-        "artista" => "Daniele Oliveira",
-        "preco" => 199.99,
-        "desc" => "Desenho realizado por Stefani e Daniele, feito digitalmente e manualmente.",
-        "dimensao" => "21 x 29,7cm (Manual) / 390cm x 522cm (Digital)",
-        "tecnica" => "Técnica mista: digital e manual",
-        "ano" => 2024,
-        "material" => "Tinta acrílica e digital",
-        "categoria" => ["manual", "digital", "colorido"]
-    ],
-    2 => [
-        "id" => 2,
-        "img" => "../img/imagem9.png",
-        "nome" => "Obra da Stefani", 
-        "artista" => "Stefani Correa",
-        "preco" => 188.99,
-        "desc" => "Desenho realizado com técnica mista.",
-        "dimensao" => "42 x 59,4cm",
-        "tecnica" => "Técnica mista",
-        "ano" => 2024,
-        "material" => "Nanquim e aquarela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    3 => [
-        "id" => 3,
-        "img" => "../img/imagem2.png",
-        "nome" => "Obra Moderna",
-        "artista" => "Daniele Oliveira",
-        "preco" => 250.00,
-        "desc" => "Arte contemporânea com técnicas inovadoras.",
-        "dimensao" => "50 x 70cm",
-        "tecnica" => "Pintura digital",
-        "ano" => 2024,
-        "material" => "Digital - alta resolução",
-        "categoria" => ["digital", "colorido"]
-    ],
-    4 => [
-        "id" => 4,
-        "img" => "../img/imagem2.png",
-        "nome" => "Paisagem Expressionista",
-        "artista" => "Stefani Correa", 
-        "preco" => 179.99,
-        "desc" => "Paisagem com cores vibrantes e traços expressionistas",
-        "dimensao" => "60 x 80cm",
-        "tecnica" => "Expressionismo",
-        "ano" => 2024,
-        "material" => "Óleo sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    5 => [
-        "id" => 5,
-        "img" => "../img/imagem2.png",
-        "nome" => "Abstração Colorida",
-        "artista" => "Lucas Andrade",
-        "preco" => 159.90,
-        "desc" => "Obra abstrata com paleta de cores vibrantes",
-        "dimensao" => "40 x 60cm",
-        "tecnica" => "Abstração",
-        "ano" => 2024,
-        "material" => "Acrílica sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    6 => [
-        "id" => 6,
-        "img" => "../img/imagem2.png",
-        "nome" => "Figura Humana",
-        "artista" => "Mariana Santos",
-        "preco" => 220.00,
-        "desc" => "Estudo da figura humana em movimento",
-        "dimensao" => "70 x 100cm",
-        "tecnica" => "Figurativo",
-        "ano" => 2024,
-        "material" => "Carvão e pastel",
-        "categoria" => ["manual", "preto e branco"]
-    ],
-    7 => [
-        "id" => 7,
-        "img" => "../img/imagem2.png",
-        "nome" => "Natureza Morta",
-        "artista" => "Rafael Costa",
-        "preco" => 145.50,
-        "desc" => "Natureza morta com elementos clássicos",
-        "dimensao" => "50 x 70cm",
-        "tecnica" => "Realismo",
-        "ano" => 2024,
-        "material" => "Óleo sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    8 => [
-        "id" => 8,
-        "img" => "../img/imagem2.png",
-        "nome" => "Cidade Noturna",
-        "artista" => "Camila Rocha",
-        "preco" => 189.99,
-        "desc" => "Panorama urbano noturno",
-        "dimensao" => "80 x 120cm",
-        "tecnica" => "Urban sketching",
-        "ano" => 2024,
-        "material" => "Tinta acrílica",
-        "categoria" => ["manual", "colorido"]
-    ],
-    9 => [
-        "id" => 9,
-        "img" => "../img/imagem2.png",
-        "nome" => "Abstração Minimalista",
-        "artista" => "João Almeida",
-        "preco" => 249.00,
-        "desc" => "Obra minimalista com formas puras",
-        "dimensao" => "60 x 60cm",
-        "tecnica" => "Minimalismo",
-        "ano" => 2024,
-        "material" => "Acrílica sobre MDF",
-        "categoria" => ["manual", "colorido"]
-    ],
-    10 => [
-        "id" => 10,
-        "img" => "../img/imagem2.png",
-        "nome" => "Flores Silvestres",
-        "artista" => "Bianca Freitas",
-        "preco" => 120.00,
-        "desc" => "Composição floral com cores suaves",
-        "dimensao" => "40 x 50cm",
-        "tecnica" => "Aquarela",
-        "ano" => 2024,
-        "material" => "Aquarela sobre papel",
-        "categoria" => ["manual", "colorido"]
-    ],
-    11 => [
-        "id" => 11,
-        "img" => "../img/imagem2.png",
-        "nome" => "Mar em Movimento",
-        "artista" => "Felipe Duarte",
-        "preco" => 199.90,
-        "desc" => "Representação do movimento das ondas",
-        "dimensao" => "90 x 120cm",
-        "tecnica" => "Abstração lírica",
-        "ano" => 2024,
-        "material" => "Óleo sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    12 => [
-        "id" => 12,
-        "img" => "../img/imagem2.png",
-        "nome" => "Retrato em Preto e Branco",
-        "artista" => "Ana Clara",
-        "preco" => 134.99,
-        "desc" => "Retrato clássico em técnica monocromática",
-        "dimensao" => "50 x 70cm",
-        "tecnica" => "Realismo",
-        "ano" => 2024,
-        "material" => "Grafite e carvão",
-        "categoria" => ["manual", "preto e branco"]
-    ]
-];
+// Verificar se usuário está logado de forma compatível
+$usuarioLogado = null;
+if (isset($_SESSION["usuario"])) {
+    if (is_array($_SESSION["usuario"])) {
+        $usuarioLogado = $_SESSION["usuario"];
+    } else {
+        $usuarioLogado = $_SESSION["usuario"];
+    }
+}
+
+// Conexão com o banco
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db = "verseal";
+
+$conn = new mysqli($host, $user, $pass, $db);
+
+if ($conn->connect_error) {
+    die("Falha na conexão: " . $conn->connect_error);
+}
+
+// Buscar obras do banco de dados
+$sql_obras = "
+    SELECT o.*, GROUP_CONCAT(c.nome) as categorias 
+    FROM obras o 
+    LEFT JOIN obra_categoria oc ON o.id = oc.obra_id 
+    LEFT JOIN categorias c ON oc.categoria_id = c.id 
+    GROUP BY o.id
+    ORDER BY o.data_criacao DESC
+";
+
+$result_obras = $conn->query($sql_obras);
+$produtos = [];
+
+if ($result_obras && $result_obras->num_rows > 0) {
+    while ($obra = $result_obras->fetch_assoc()) {
+        $categorias = [];
+        if (!empty($obra['categorias'])) {
+            $categorias = explode(',', $obra['categorias']);
+        }
+        
+        $produtos[$obra['id']] = [
+            "id" => intval($obra['id']),
+            "img" => $obra['img'] ?? '../img/imagem2.png',
+            "nome" => $obra['nome'] ?? 'Obra sem nome',
+            "artista" => $obra['artista'] ?? 'Artista desconhecido',
+            "preco" => floatval($obra['preco'] ?? 0),
+            "desc" => $obra['descricao'] ?? '',
+            "dimensao" => $obra['dimensao'] ?? '',
+            "tecnica" => $obra['tecnica'] ?? '',
+            "ano" => intval($obra['ano'] ?? 2024),
+            "material" => $obra['material'] ?? '',
+            "categoria" => $categorias
+        ];
+    }
+} else {
+    // Fallback para dados estáticos se o banco estiver vazio
+    $produtos = [
+        1 => [
+            "id" => 1,
+            "img" => "../img/imagem2.png",
+            "nome" => "Obra da Daniele",
+            "artista" => "Daniele Oliveira",
+            "preco" => 199.99,
+            "desc" => "Desenho realizado por Stefani e Daniele, feito digitalmente e manualmente.",
+            "dimensao" => "21 x 29,7cm (Manual) / 390cm x 522cm (Digital)",
+            "tecnica" => "Técnica mista: digital e manual",
+            "ano" => 2024,
+            "material" => "Tinta acrílica e digital",
+            "categoria" => ["manual", "digital", "colorido"]
+        ],
+        // ... outros produtos do array estático
+    ];
+}
 
 // Processar filtros se existirem
 $filtroArtista = $_GET['artista'] ?? '';
@@ -451,28 +366,35 @@ if ($ordenacao === 'preco_asc') {
     
     <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
     
-    <!-- Dropdown Perfil -->
-    <div class="profile-dropdown">
-      <a href="perfil.php" class="icon-link" id="profile-icon">
+   <div class="profile-dropdown">
+    <a href="perfil.php" class="icon-link" id="profile-icon">
         <i class="fas fa-user"></i>
-      </a>
-      <div class="dropdown-content" id="profile-dropdown">
+    </a>
+    <div class="dropdown-content" id="profile-dropdown">
         <?php if ($usuarioLogado): ?>
-          <div class="user-info">
-            <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
-          </div>
-          <div class="dropdown-divider"></div>
-          <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-          <div class="dropdown-divider"></div>
-          <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+            <div class="user-info">
+                <p>Seja bem-vindo, <span id="user-name">
+                    <?php 
+                    if (is_array($usuarioLogado)) {
+                        echo htmlspecialchars($usuarioLogado['nome']);
+                    } else {
+                        echo htmlspecialchars($usuarioLogado);
+                    }
+                    ?>
+                </span>!</p>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+            <div class="dropdown-divider"></div>
+            <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
         <?php else: ?>
-          <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
-          <div class="dropdown-divider"></div>
-          <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-          <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+            <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+            <div class="dropdown-divider"></div>
+            <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+            <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
         <?php endif; ?>
-      </div>
     </div>
+</div>
 
     <!-- Menu Hamburguer Flutuante -->
     <div class="hamburger-menu-desktop">

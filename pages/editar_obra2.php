@@ -1,45 +1,89 @@
 <?php
 session_start();
 
-// Verificar se os produtos estão na sessão, se não, inicializar
-if (!isset($_SESSION['produtos'])) {
-    // Redirecionar para artistasobra.php para inicializar os produtos
-    header('Location: artistasobra.php');
-    exit;
+// Verificar se o usuário está logado
+if (!isset($_SESSION["usuario"]) || !is_array($_SESSION["usuario"])) {
+    header("Location: login.php");
+    exit();
 }
 
-$produtos = $_SESSION['produtos'];
+$usuarioLogado = $_SESSION["usuario"];
+
+// Conexão com o banco
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db = "verseal";
+
+$conn = new mysqli($host, $user, $pass, $db);
+
+if ($conn->connect_error) {
+    die("Falha na conexão: " . $conn->connect_error);
+}
 
 // Obter ID da obra da URL
 $obraId = isset($_GET['id']) ? intval($_GET['id']) : 0;
-$obra = isset($produtos[$obraId]) ? $produtos[$obraId] : null;
+
+// Buscar obra do banco de dados
+$sql = "SELECT * FROM obras WHERE id = ? AND artista = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("is", $obraId, $usuarioLogado['nome']);
+$stmt->execute();
+$result = $stmt->get_result();
+$obra = $result->fetch_assoc();
 
 if (!$obra) {
-    header('Location: artistasobra.php');
-    exit;
+    die("Obra não encontrada ou você não tem permissão para editá-la.");
 }
 
 // Processar o formulário de atualização
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['salvar_obra'])) {
-    // Atualizar os dados da obra
-    $produtos[$obraId]['nome'] = $_POST['nome_obra'];
-    $produtos[$obraId]['preco'] = floatval($_POST['preco']);
-    $produtos[$obraId]['tecnica'] = $_POST['tecnica'];
-    $produtos[$obraId]['dimensao'] = $_POST['dimensao'];
-    $produtos[$obraId]['ano'] = intval($_POST['ano']);
-    $produtos[$obraId]['material'] = $_POST['material'];
-    $produtos[$obraId]['desc'] = $_POST['descricao'];
+    // Coletar dados do formulário
+    $nome = $_POST['nome_obra'];
+    $preco = floatval($_POST['preco']);
+    $tecnica = $_POST['tecnica'];
+    $dimensao = $_POST['dimensao'];
+    $ano = intval($_POST['ano']);
+    $material = $_POST['material'];
+    $descricao = $_POST['descricao'];
     
-    // Atualizar na sessão
-    $_SESSION['produtos'] = $produtos;
+        // Atualizar no banco de dados
+    $sql_update = "UPDATE obras SET nome = ?, preco = ?, descricao = ?, dimensao = ?, tecnica = ?, ano = ?, material = ? WHERE id = ? AND artista = ?";
+    $stmt_update = $conn->prepare($sql_update);
     
-    // Redirecionar para a página de obras com parâmetro para mostrar a obra editada
-    header('Location: artistasobra.php?obra_editada=' . $obraId . '&ordenacao=recentes');
-    exit;
+    // CORREÇÃO: String de tipos com 9 caracteres para 9 parâmetros
+    $stmt_update->bind_param("sdsssisis", $nome, $preco, $descricao, $dimensao, $tecnica, $ano, $material, $obraId, $usuarioLogado['nome']);
+    
+    if ($stmt_update->execute()) {
+        // Redirecionar para a página de obras com parâmetro para mostrar a obra editada
+        header('Location: artistasobra.php?obra_editada=' . $obraId . '&ordenacao=recentes');
+        exit();
+    } else {
+        $erro = "Erro ao atualizar a obra no banco de dados: " . $stmt_update->error;
+    }
 }
 
-// Atualizar a variável $obra com os dados mais recentes
-$obra = $produtos[$obraId];
+// Buscar todas as obras do artista para o select
+$sql_obras = "SELECT id, nome FROM obras WHERE artista = ? ORDER BY nome";
+$stmt_obras = $conn->prepare($sql_obras);
+$stmt_obras->bind_param("s", $usuarioLogado['nome']);
+$stmt_obras->execute();
+$result_obras = $stmt_obras->get_result();
+$todasObras = [];
+while ($row = $result_obras->fetch_assoc()) {
+    $todasObras[$row['id']] = $row;
+}
+
+// Buscar todas as obras do artista para o select
+$sql_obras = "SELECT id, nome FROM obras WHERE artista = ? ORDER BY nome";
+$stmt_obras = $conn->prepare($sql_obras);
+$stmt_obras->bind_param("s", $usuarioLogado['nome']);
+$stmt_obras->execute();
+$result_obras = $stmt_obras->get_result();
+$todasObras = [];
+while ($row = $result_obras->fetch_assoc()) {
+    $todasObras[$row['id']] = $row;
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -68,7 +112,7 @@ $obra = $produtos[$obraId];
       transition: background 0.3s;
     }
     .btn-salvar:hover {
-      background: #cc624e;
+      background: #e07b67;
     }
     .btn-excluir {
       background: #dc3545;
@@ -108,6 +152,14 @@ $obra = $produtos[$obraId];
       justify-content: center;
       margin-top: 30px;
     }
+    .mensagem-erro {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #f5c6cb;
+    }
   </style>
 </head>
 <body>
@@ -124,12 +176,21 @@ $obra = $produtos[$obraId];
       <div class="profile-dropdown">
         <a href="#" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
         <div class="dropdown-content" id="profile-dropdown">
-          <div class="user-info">
-            <p>Faça login para acessar seu perfil</p>
-          </div>
-          <div class="dropdown-divider"></div>
-          <a href="#" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-          <a href="#" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+          <?php if (isset($usuarioLogado) && !empty($usuarioLogado['nome'])): ?>
+            <div class="user-info">
+              <p>Seja bem-vindo, <?php echo htmlspecialchars($usuarioLogado['nome']); ?>!</p>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+            <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+          <?php else: ?>
+            <div class="user-info">
+              <p>Faça login para acessar seu perfil</p>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+            <a href="#" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+          <?php endif; ?>
         </div>
       </div>
     </nav>
@@ -139,6 +200,12 @@ $obra = $produtos[$obraId];
   <section class="adicionar-obras">
   <div class="container">
     <h1>EDITAR OBRAS</h1>
+
+    <?php if (isset($erro)): ?>
+      <div class="mensagem-erro">
+        <i class="fas fa-exclamation-triangle"></i> <?php echo $erro; ?>
+      </div>
+    <?php endif; ?>
 
     <form class="form-obras" id="form-obras" method="POST" enctype="multipart/form-data">
       <input type="hidden" name="salvar_obra" value="1">
@@ -150,9 +217,9 @@ $obra = $produtos[$obraId];
           <div class="form-group">
             <label for="select-obra">Selecione a Obra</label>
             <select id="select-obra" name="obra_id" onchange="carregarObra(this.value)">
-              <?php foreach ($produtos as $id => $prod): ?>
+              <?php foreach ($todasObras as $id => $obra_item): ?>
               <option value="<?php echo $id; ?>" <?php echo $id == $obraId ? 'selected' : ''; ?>>
-                <?php echo htmlspecialchars($prod['nome']); ?>
+                <?php echo htmlspecialchars($obra_item['nome']); ?>
               </option>
               <?php endforeach; ?>
             </select>
@@ -171,12 +238,6 @@ $obra = $produtos[$obraId];
           <div class="form-group">
             <label for="tecnica">Técnica/Estilo</label>
             <select id="tecnica" name="tecnica" required>
-              <option value="manual" <?php echo $obra['tecnica'] == 'manual' ? 'selected' : ''; ?>>Manual</option>
-              <option value="nft" <?php echo $obra['tecnica'] == 'nft' ? 'selected' : ''; ?>>NFT</option>
-              <option value="mesa-digital" <?php echo $obra['tecnica'] == 'mesa-digital' ? 'selected' : ''; ?>>Mesa Digital</option>
-              <option value="pintura" <?php echo $obra['tecnica'] == 'pintura' ? 'selected' : ''; ?>>Pintura</option>
-              <option value="escultura" <?php echo $obra['tecnica'] == 'escultura' ? 'selected' : ''; ?>>Escultura</option>
-              <option value="fotografia" <?php echo $obra['tecnica'] == 'fotografia' ? 'selected' : ''; ?>>Fotografia</option>
               <option value="Técnica mista" <?php echo $obra['tecnica'] == 'Técnica mista' ? 'selected' : ''; ?>>Técnica mista</option>
               <option value="Pintura digital" <?php echo $obra['tecnica'] == 'Pintura digital' ? 'selected' : ''; ?>>Pintura digital</option>
               <option value="Expressionismo" <?php echo $obra['tecnica'] == 'Expressionismo' ? 'selected' : ''; ?>>Expressionismo</option>
@@ -184,6 +245,12 @@ $obra = $produtos[$obraId];
               <option value="Figurativo" <?php echo $obra['tecnica'] == 'Figurativo' ? 'selected' : ''; ?>>Figurativo</option>
               <option value="Realismo" <?php echo $obra['tecnica'] == 'Realismo' ? 'selected' : ''; ?>>Realismo</option>
               <option value="Urban sketching" <?php echo $obra['tecnica'] == 'Urban sketching' ? 'selected' : ''; ?>>Urban sketching</option>
+              <option value="Manual" <?php echo $obra['tecnica'] == 'Manual' ? 'selected' : ''; ?>>Manual</option>
+              <option value="NFT" <?php echo $obra['tecnica'] == 'NFT' ? 'selected' : ''; ?>>NFT</option>
+              <option value="Mesa Digital" <?php echo $obra['tecnica'] == 'Mesa Digital' ? 'selected' : ''; ?>>Mesa Digital</option>
+              <option value="Pintura" <?php echo $obra['tecnica'] == 'Pintura' ? 'selected' : ''; ?>>Pintura</option>
+              <option value="Escultura" <?php echo $obra['tecnica'] == 'Escultura' ? 'selected' : ''; ?>>Escultura</option>
+              <option value="Fotografia" <?php echo $obra['tecnica'] == 'Fotografia' ? 'selected' : ''; ?>>Fotografia</option>
             </select>
           </div>
 
@@ -204,7 +271,7 @@ $obra = $produtos[$obraId];
 
           <div class="form-group">
             <label for="descricao">Descrição da Obra</label>
-            <textarea id="descricao" name="descricao" placeholder="Descreva a obra..." rows="4" required><?php echo htmlspecialchars($obra['desc']); ?></textarea>
+            <textarea id="descricao" name="descricao" placeholder="Descreva a obra..." rows="4" required><?php echo htmlspecialchars($obra['descricao']); ?></textarea>
           </div>
         </div>
 
@@ -253,9 +320,6 @@ $obra = $produtos[$obraId];
   </footer>
 
   <script>
-    // Dados das obras para JavaScript
-    const obras = <?php echo json_encode($produtos); ?>;
-
     function carregarObra(obraId) {
       // Redirecionar para a página de edição da obra selecionada
       window.location.href = 'editar_obra.php?id=' + obraId;
@@ -284,13 +348,39 @@ $obra = $produtos[$obraId];
         cancelButtonText: 'Cancelar'
       }).then((result) => {
         if (result.isConfirmed) {
-          // Em um sistema real, aqui faria uma requisição para excluir do banco
-          Swal.fire(
-            'Excluída!',
-            'A obra foi excluída com sucesso.',
-            'success'
-          ).then(() => {
-            window.location.href = 'artistasobra.php';
+          // Fazer requisição para excluir do banco
+          const formData = new FormData();
+          formData.append('acao', 'excluir');
+          formData.append('obra_id', obraId);
+
+          fetch('excluir_obra.php', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire(
+                'Excluída!',
+                'A obra foi excluída com sucesso.',
+                'success'
+              ).then(() => {
+                window.location.href = 'artistasobra.php';
+              });
+            } else {
+              Swal.fire(
+                'Erro!',
+                data.message || 'Erro ao excluir a obra.',
+                'error'
+              );
+            }
+          })
+          .catch(error => {
+            Swal.fire(
+              'Erro!',
+              'Erro de conexão.',
+              'error'
+            );
           });
         }
       });
