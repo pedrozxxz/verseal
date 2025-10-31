@@ -121,21 +121,7 @@ $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
     </div>
   </section>
 
-  <!-- SOBRE COM PARTÍCULAS -->
-  <section class="sobre" id="sobre">
-    <div id="particles-sobre"></div>
-    <div class="conteudo-sobre">
-      <h2 class="fade-in">Sobre a Verseal</h2>
-      <p class="fade-in">
-        Unindo o digital ao artesanal, a <strong>Verseal</strong> é o elo entre o <em>futuro</em> e o <em>feito à
-          mão</em>. Aqui, artistas expressam sua alma em NFTs e criações únicas, para colecionadores que buscam mais do
-        que uma obra: uma <span class="destaque">conexão real</span>.
-      </p>
-      <p class="fade-in">
-        Somos mais do que um marketplace. Somos uma galeria viva de expressão, movimento e autenticidade.
-      </p>
-    </div>
-  </section>
+  
 
   <!-- RODAPÉ -->
   <footer>

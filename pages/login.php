@@ -26,6 +26,17 @@ if (isset($_POST["cadastro"])) {
 
     if ($senha !== $confirmar) {
         // SweetAlert de senha não coincidente
+        echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon:'error',
+                    title:'Senhas não coincidem!',
+                    timer:1500,
+                    showConfirmButton:false
+                });
+            });
+        </script>";
     } else {
         // Verificar se e-mail já existe
         $sql_check = "SELECT id FROM usuarios WHERE email = ?";
@@ -48,14 +59,17 @@ if (isset($_POST["cadastro"])) {
                 });
             </script>";
         } else {
-            // Inserir usuário
+            // Inserir usuário (sempre como usuário comum)
             $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-            $sql = "INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)";
+            $sql = "INSERT INTO usuarios (nome, email, senha, tipo) VALUES (?, ?, ?, 'usuario')";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("sss", $nome, $email, $senhaHash);
 
             if ($stmt->execute()) {
                 $_SESSION["usuario"] = $nome;
+                $_SESSION["usuario_id"] = $stmt->insert_id;
+                $_SESSION["tipo_usuario"] = 'usuario';
+                
                 echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
                 echo "<script>
                     document.addEventListener('DOMContentLoaded', function() {
@@ -64,7 +78,9 @@ if (isset($_POST["cadastro"])) {
                             text: 'Você foi cadastrado e logado com sucesso.',
                             icon: 'success',
                             confirmButtonText: 'OK'
-                        }).then(() => { window.location.href = '../index.php'; });
+                        }).then(() => { 
+                            " . ($fromCheckout ? "window.location.href = 'checkout.php';" : "window.location.href = '../index.php';") . "
+                        });
                     });
                 </script>";
             } else {
@@ -88,7 +104,8 @@ if (isset($_POST["cadastro"])) {
     $email = $_POST["email"];
     $senha = $_POST["senha"];
 
-    $sql = "SELECT * FROM usuarios WHERE email = ?";
+    // Buscar usuário incluindo o tipo
+    $sql = "SELECT id, nome, email, senha, tipo FROM usuarios WHERE email = ? AND ativo = 1";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -96,16 +113,26 @@ if (isset($_POST["cadastro"])) {
 
     if ($row = $result->fetch_assoc()) {
       if (password_verify($senha, $row["senha"])) {
+        // Login bem sucedido - salvar dados na sessão
         $_SESSION["usuario"] = $row["nome"];
+        $_SESSION["usuario_id"] = $row["id"];
+        $_SESSION["tipo_usuario"] = $row["tipo"];
+        
         echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
         echo "<script>
                 document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire({
                         title: 'Login bem sucedido!',
+                        text: 'Bem-vindo, " . $row["nome"] . "!',
                         icon: 'success',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        " . ($fromCheckout ? "window.location.href = 'checkout.php';" : "window.location.href = '../index.php';") . "
+                        // Redirecionar conforme o tipo de usuário
+                        if ('" . $row["tipo"] . "' === 'admin') {
+                            window.location.href = 'admhome.php';
+                        } else {
+                            " . ($fromCheckout ? "window.location.href = 'checkout.php';" : "window.location.href = '../index.php';") . "
+                        }
                     });
                 });
             </script>";
@@ -134,7 +161,6 @@ if (isset($_POST["cadastro"])) {
                     });
                 });
             </script>";
-      ;
     }
   }
 }
@@ -183,6 +209,11 @@ if (isset($_POST["cadastro"])) {
         <label for="loginSenha">Senha</label>
       </div>
       <button type="submit" name="login" class="botao-estilizado">Entrar</button>
+      
+      <!-- Acesso Admin (opcional) -->
+      <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 0.9rem;">
+        <small style="color: #666;">Acesso administrativo: admin@verseal.com</small>
+      </div>
     </form>
 
     <!-- Formulário de Cadastro -->

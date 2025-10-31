@@ -1,3 +1,43 @@
+<?php
+session_start();
+require_once '../config/database.php';
+require_once '../config/auth.php';
+requireAdmin();
+
+// Buscar estatísticas do banco de dados
+try {
+    // Total de clientes
+    $stmt = $pdo->query("SELECT COUNT(*) as total FROM usuarios WHERE tipo = 'usuario' AND ativo = 1");
+    $totalClientes = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+    // Total de artistas
+    $stmt = $pdo->query("SELECT COUNT(*) as total FROM artistas WHERE ativo = 1");
+    $totalArtistas = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+    // Total de obras
+    $stmt = $pdo->query("SELECT COUNT(*) as total FROM produtos WHERE ativo = 1");
+    $totalObras = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+    // Total de vendas (soma de todos os pedidos pagos)
+    $stmt = $pdo->query("SELECT COALESCE(SUM(valor_total), 0) as total FROM pedidos WHERE status = 'pago'");
+    $totalVendas = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+    // Dados para o gráfico (vendas mensais)
+    $stmt = $pdo->query("SELECT mes, valor_total FROM vendas WHERE ano = 2025 ORDER BY FIELD(mes, 'Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez')");
+    $vendasMensais = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Últimos clientes cadastrados
+    $stmt = $pdo->query("SELECT nome, email, criado_em FROM usuarios WHERE tipo = 'usuario' ORDER BY criado_em DESC LIMIT 5");
+    $ultimosClientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Últimas obras cadastradas
+    $stmt = $pdo->query("SELECT nome, artista, preco, data_cadastro FROM produtos WHERE ativo = 1 ORDER BY data_cadastro DESC LIMIT 5");
+    $ultimasObras = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (PDOException $e) {
+    die("Erro ao carregar dados: " . $e->getMessage());
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -49,28 +89,28 @@
     <main class="dashboard">
         <header class="topbar">
             <h1>Painel Administrativo</h1>
-            <span class="welcome">BEM-VINDO, ADM!</span>
+            <span class="welcome">BEM-VINDO, <?php echo strtoupper($_SESSION["usuario"] ?? 'ADM'); ?>!</span>
         </header>
 
         <section class="stats">
             <div class="card">
                 <img class="icon" src="../img/icon_user.png" alt="Ícone de Clientes">
-                <h3>100</h3>
+                <h3><?php echo $totalClientes; ?></h3>
                 <p>Clientes</p>
             </div>
             <div class="card">
                 <img class="icon" src="../img/artistas.png" alt="Ícone de Artistas">
-                <h3>245</h3>
+                <h3><?php echo $totalArtistas; ?></h3>
                 <p>Artistas</p>
             </div>
             <div class="card">
                 <img class="icon" src="../img/paleta_tintas.png" alt="Ícone de Obras">
-                <h3>360</h3>
+                <h3><?php echo $totalObras; ?></h3>
                 <p>Obras</p>
             </div>
             <div class="card">
                 <img class="icon" src="../img/vendas.png" alt="Ícone de Vendas">
-                <h3>R$ 12.500</h3>
+                <h3>R$ <?php echo number_format($totalVendas, 2, ',', '.'); ?></h3>
                 <p>Vendas</p>
             </div>
         </section>
@@ -83,6 +123,41 @@
             <div class="chart-container">
                 <canvas id="monthlySalesChart"></canvas>
             </div>
+
+            <!-- Últimas Atividades -->
+            <div class="activities">
+                <div class="activity-section">
+                    <h3>Últimos Clientes</h3>
+                    <div class="activity-list">
+                        <?php foreach ($ultimosClientes as $cliente): ?>
+                        <div class="activity-item">
+                            <i class="fas fa-user-plus"></i>
+                            <div class="activity-info">
+                                <strong><?php echo htmlspecialchars($cliente['nome']); ?></strong>
+                                <span><?php echo htmlspecialchars($cliente['email']); ?></span>
+                                <small><?php echo date('d/m/Y', strtotime($cliente['criado_em'])); ?></small>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <div class="activity-section">
+                    <h3>Últimas Obras</h3>
+                    <div class="activity-list">
+                        <?php foreach ($ultimasObras as $obra): ?>
+                        <div class="activity-item">
+                            <i class="fas fa-palette"></i>
+                            <div class="activity-info">
+                                <strong><?php echo htmlspecialchars($obra['nome']); ?></strong>
+                                <span><?php echo htmlspecialchars($obra['artista']); ?></span>
+                                <small>R$ <?php echo number_format($obra['preco'], 2, ',', '.'); ?></small>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
         </section>
     </main>
 
@@ -93,10 +168,10 @@
     const monthlySalesChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+            labels: [<?php echo '"' . implode('","', array_column($vendasMensais, 'mes')) . '"'; ?>],
             datasets: [{
                 label: 'Vendas (R$)',
-                data: [1200,1500,1000,1800,2200,2000,2400,2600,2100,2300,2500,2700],
+                data: [<?php echo implode(',', array_column($vendasMensais, 'valor_total')); ?>],
                 backgroundColor: '#db6d56',
                 borderRadius: 8
             }]
@@ -155,44 +230,59 @@
     .card p { font-size:1rem; color:#555; }
 
     /* ===== OVERVIEW ===== */
-    .overview { background:#fff; padding:25px 30px; border-radius:20px; box-shadow:0 6px 20px rgba(0,0,0,0.08); transition:
-        0.3s; }
-.overview:hover { box-shadow:0 10px 25px rgba(219,109,86,0.25); }
-.overview h2 { color:#db6d56; margin-bottom:15px; }
-.overview p { font-size:1rem; color:#555; line-height:1.6; }
-/* ===== CHART ===== */
-.chart-container { width:100%; max-width:900px; margin:20px auto 0 auto; }
+    .overview { background:#fff; padding:25px 30px; border-radius:20px; box-shadow:0 6px 20px rgba(0,0,0,0.08); transition:0.3s; }
+    .overview:hover { box-shadow:0 10px 25px rgba(219,109,86,0.25); }
+    .overview h2 { color:#db6d56; margin-bottom:15px; }
+    .overview p { font-size:1rem; color:#555; line-height:1.6; }
 
-/* ===== HAMBURGUER MENU ===== */
-.hamburger-menu-desktop { position:absolute; top:15px; right:30px; z-index:999; }
-.hamburger-desktop { display:flex; align-items:center; gap:8px; background:linear-gradient(135deg,#e07b67,#cc624e); color:white; padding:10px 18px; border-radius:40px; cursor:pointer; box-shadow:0 4px 10px rgba(204,98,78,0.4); transition:0.3s; }
-.hamburger-desktop:hover { background:linear-gradient(135deg,#cc624e,#e07b67); transform:translateY(-2px); }
-.hamburger-desktop i { font-size:1.1rem; }
-#menu-toggle-desktop { display:none; }
-.menu-content-desktop { display:none; position:absolute; top:60px; right:0; background:#fff; border-radius:10px; box-shadow:0 4px 20px rgba(0,0,0,0.15); padding:15px 20px; width:180px; }
-#menu-toggle-desktop:checked + .hamburger-desktop + .menu-content-desktop { display:block; }
-.menu-content-desktop .menu-item { display:flex; align-items:center; gap:10px; color:#5b4a42; padding:8px 0; text-decoration:none; transition:0.3s; }
-.menu-content-desktop .menu-item:hover { color:#cc624e; font-weight:600; }
-.menu-item.active { color:#cc624e; font-weight:bold; }
-.menu-section { display:flex; flex-direction:column; gap:10px; }
+    /* ===== CHART ===== */
+    .chart-container { width:100%; max-width:900px; margin:20px auto 0 auto; }
 
-/* ===== RESPONSIVIDADE ===== */
-@media (max-width:950px) {
-    body { flex-direction:column; }
-    .sidebar { width:100%; flex-direction:row; justify-content:space-around; padding:15px; height:auto; }
-    .menu { flex-direction:row; flex-wrap:wrap; justify-content:center; }
-    .menu a { margin:5px; padding:8px 12px; font-size:0.9rem; }
-    .dashboard { padding:20px; }
-    .stats { flex-direction:column; align-items:center; }
-}
-</style>
+    /* ===== ACTIVITIES ===== */
+    .activities { display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:30px; }
+    .activity-section h3 { color:#db6d56; margin-bottom:15px; font-size:1.2rem; }
+    .activity-list { background:#f8f4f2; border-radius:10px; padding:15px; }
+    .activity-item { display:flex; align-items:center; gap:15px; padding:12px; border-bottom:1px solid #e0d6d2; }
+    .activity-item:last-child { border-bottom:none; }
+    .activity-item i { color:#db6d56; font-size:1.2rem; }
+    .activity-info { flex:1; }
+    .activity-info strong { display:block; color:#333; font-size:0.9rem; }
+    .activity-info span { display:block; color:#666; font-size:0.8rem; }
+    .activity-info small { color:#999; font-size:0.7rem; }
 
-<!-- JS Hamburguinho -->
-<script>
-document.addEventListener('click', function(e) {
-    const toggle = document.getElementById('menu-toggle-desktop');
-    if(!e.target.closest('.hamburger-menu-desktop')) {
-        toggle.checked = false;
+    /* ===== HAMBURGUER MENU ===== */
+    .hamburger-menu-desktop { position:absolute; top:15px; right:30px; z-index:999; }
+    .hamburger-desktop { display:flex; align-items:center; gap:8px; background:linear-gradient(135deg,#e07b67,#cc624e); color:white; padding:10px 18px; border-radius:40px; cursor:pointer; box-shadow:0 4px 10px rgba(204,98,78,0.4); transition:0.3s; }
+    .hamburger-desktop:hover { background:linear-gradient(135deg,#cc624e,#e07b67); transform:translateY(-2px); }
+    .hamburger-desktop i { font-size:1.1rem; }
+    #menu-toggle-desktop { display:none; }
+    .menu-content-desktop { display:none; position:absolute; top:60px; right:0; background:#fff; border-radius:10px; box-shadow:0 4px 20px rgba(0,0,0,0.15); padding:15px 20px; width:180px; }
+    #menu-toggle-desktop:checked + .hamburger-desktop + .menu-content-desktop { display:block; }
+    .menu-content-desktop .menu-item { display:flex; align-items:center; gap:10px; color:#5b4a42; padding:8px 0; text-decoration:none; transition:0.3s; }
+    .menu-content-desktop .menu-item:hover { color:#cc624e; font-weight:600; }
+    .menu-item.active { color:#cc624e; font-weight:bold; }
+    .menu-section { display:flex; flex-direction:column; gap:10px; }
+
+    /* ===== RESPONSIVIDADE ===== */
+    @media (max-width:950px) {
+        body { flex-direction:column; }
+        .sidebar { width:100%; flex-direction:row; justify-content:space-around; padding:15px; height:auto; }
+        .menu { flex-direction:row; flex-wrap:wrap; justify-content:center; }
+        .menu a { margin:5px; padding:8px 12px; font-size:0.9rem; }
+        .dashboard { padding:20px; }
+        .stats { flex-direction:column; align-items:center; }
+        .activities { grid-template-columns:1fr; }
     }
-});
-</script>
+    </style>
+
+    <!-- JS Hamburguinho -->
+    <script>
+    document.addEventListener('click', function(e) {
+        const toggle = document.getElementById('menu-toggle-desktop');
+        if(!e.target.closest('.hamburger-menu-desktop')) {
+            toggle.checked = false;
+        }
+    });
+    </script>
+</body>
+</html>

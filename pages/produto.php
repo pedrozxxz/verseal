@@ -1,166 +1,189 @@
 <?php
 session_start();
+require_once '../config/database.php'; // Adicione esta linha
+
 $usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
 
-// Lista de produtos disponíveis (COMPATÍVEL com carrinho.php)
-$produtos = [
-    1 => [
-        "id" => 1,
-        "img" => "../img/imagem2.png",
-        "nome" => "Obra da Daniele",
-        "artista" => "Daniele Oliveira",
-        "preco" => 199.99,
-        "desc" => "Desenho realizado por Stefani e Daniele, feito digitalmente e manualmente.",
-        "dimensao" => "21 x 29,7cm (Manual) / 390cm x 522cm (Digital)",
-        "tecnica" => "Técnica mista: digital e manual",
-        "ano" => 2024,
-        "material" => "Tinta acrílica e digital",
-        "categoria" => ["manual", "digital", "colorido"]
-    ],
-    2 => [
-        "id" => 2,
-        "img" => "../img/imagem9.png",
-        "nome" => "Obra da Stefani", 
-        "artista" => "Stefani Correa",
-        "preco" => 188.99,
-        "desc" => "Desenho realizado com técnica mista.",
-        "dimensao" => "42 x 59,4cm",
-        "tecnica" => "Técnica mista",
-        "ano" => 2024,
-        "material" => "Nanquim e aquarela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    3 => [
-        "id" => 3,
-        "img" => "../img/imagem2.png",
-        "nome" => "Obra Moderna",
-        "artista" => "Daniele Oliveira",
-        "preco" => 250.00,
-        "desc" => "Arte contemporânea com técnicas inovadoras.",
-        "dimensao" => "50 x 70cm",
-        "tecnica" => "Pintura digital",
-        "ano" => 2024,
-        "material" => "Digital - alta resolução",
-        "categoria" => ["digital", "colorido"]
-    ],
-    4 => [
-        "id" => 4,
-        "img" => "../img/imagem2.png",
-        "nome" => "Paisagem Expressionista",
-        "artista" => "Stefani Correa", 
-        "preco" => 179.99,
-        "desc" => "Paisagem com cores vibrantes e traços expressionistas",
-        "dimensao" => "60 x 80cm",
-        "tecnica" => "Expressionismo",
-        "ano" => 2024,
-        "material" => "Óleo sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    5 => [
-        "id" => 5,
-        "img" => "../img/imagem2.png",
-        "nome" => "Abstração Colorida",
-        "artista" => "Lucas Andrade",
-        "preco" => 159.90,
-        "desc" => "Obra abstrata com paleta de cores vibrantes",
-        "dimensao" => "40 x 60cm",
-        "tecnica" => "Abstração",
-        "ano" => 2024,
-        "material" => "Acrílica sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    6 => [
-        "id" => 6,
-        "img" => "../img/imagem2.png",
-        "nome" => "Figura Humana",
-        "artista" => "Mariana Santos",
-        "preco" => 220.00,
-        "desc" => "Estudo da figura humana em movimento",
-        "dimensao" => "70 x 100cm",
-        "tecnica" => "Figurativo",
-        "ano" => 2024,
-        "material" => "Carvão e pastel",
-        "categoria" => ["manual", "preto e branco"]
-    ],
-    7 => [
-        "id" => 7,
-        "img" => "../img/imagem2.png",
-        "nome" => "Natureza Morta",
-        "artista" => "Rafael Costa",
-        "preco" => 145.50,
-        "desc" => "Natureza morta com elementos clássicos",
-        "dimensao" => "50 x 70cm",
-        "tecnica" => "Realismo",
-        "ano" => 2024,
-        "material" => "Óleo sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    8 => [
-        "id" => 8,
-        "img" => "../img/imagem2.png",
-        "nome" => "Cidade Noturna",
-        "artista" => "Camila Rocha",
-        "preco" => 189.99,
-        "desc" => "Panorama urbano noturno",
-        "dimensao" => "80 x 120cm",
-        "tecnica" => "Urban sketching",
-        "ano" => 2024,
-        "material" => "Tinta acrílica",
-        "categoria" => ["manual", "colorido"]
-    ],
-    9 => [
-        "id" => 9,
-        "img" => "../img/imagem2.png",
-        "nome" => "Abstração Minimalista",
-        "artista" => "João Almeida",
-        "preco" => 249.00,
-        "desc" => "Obra minimalista com formas puras",
-        "dimensao" => "60 x 60cm",
-        "tecnica" => "Minimalismo",
-        "ano" => 2024,
-        "material" => "Acrílica sobre MDF",
-        "categoria" => ["manual", "colorido"]
-    ],
-    10 => [
-        "id" => 10,
-        "img" => "../img/imagem2.png",
-        "nome" => "Flores Silvestres",
-        "artista" => "Bianca Freitas",
-        "preco" => 120.00,
-        "desc" => "Composição floral com cores suaves",
-        "dimensao" => "40 x 50cm",
-        "tecnica" => "Aquarela",
-        "ano" => 2024,
-        "material" => "Aquarela sobre papel",
-        "categoria" => ["manual", "colorido"]
-    ],
-    11 => [
-        "id" => 11,
-        "img" => "../img/imagem2.png",
-        "nome" => "Mar em Movimento",
-        "artista" => "Felipe Duarte",
-        "preco" => 199.90,
-        "desc" => "Representação do movimento das ondas",
-        "dimensao" => "90 x 120cm",
-        "tecnica" => "Abstração lírica",
-        "ano" => 2024,
-        "material" => "Óleo sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    12 => [
-        "id" => 12,
-        "img" => "../img/imagem2.png",
-        "nome" => "Retrato em Preto e Branco",
-        "artista" => "Ana Clara",
-        "preco" => 134.99,
-        "desc" => "Retrato clássico em técnica monocromática",
-        "dimensao" => "50 x 70cm",
-        "tecnica" => "Realismo",
-        "ano" => 2024,
-        "material" => "Grafite e carvão",
-        "categoria" => ["manual", "preto e branco"]
-    ]
-];
+// Buscar produtos do banco de dados
+try {
+    $stmt = $pdo->query("SELECT * FROM produtos WHERE ativo = 1");
+    $produtos = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $produtos[$row['id']] = [
+            "id" => $row['id'],
+            "img" => $row['imagem_url'],
+            "nome" => $row['nome'],
+            "artista" => $row['artista'],
+            "preco" => $row['preco'],
+            "desc" => $row['descricao'],
+            "dimensao" => $row['dimensoes'],
+            "tecnica" => $row['tecnica'],
+            "ano" => $row['ano'],
+            "material" => $row['material'],
+            "categoria" => json_decode($row['categorias'], true) ?? []
+        ];
+    }
+} catch (PDOException $e) {
+    // Fallback para array local em caso de erro
+    $produtos = [
+        1 => [
+            "id" => 1,
+            "img" => "../img/imagem2.png",
+            "nome" => "Obra da Daniele",
+            "artista" => "Daniele Oliveira",
+            "preco" => 199.99,
+            "desc" => "Desenho realizado por Stefani e Daniele, feito digitalmente e manualmente.",
+            "dimensao" => "21 x 29,7cm (Manual) / 390cm x 522cm (Digital)",
+            "tecnica" => "Técnica mista: digital e manual",
+            "ano" => 2024,
+            "material" => "Tinta acrílica e digital",
+            "categoria" => ["manual", "digital", "colorido"]
+        ],
+        2 => [
+            "id" => 2,
+            "img" => "../img/imagem9.png",
+            "nome" => "Obra da Stefani", 
+            "artista" => "Stefani Correa",
+            "preco" => 188.99,
+            "desc" => "Desenho realizado com técnica mista.",
+            "dimensao" => "42 x 59,4cm",
+            "tecnica" => "Técnica mista",
+            "ano" => 2024,
+            "material" => "Nanquim e aquarela",
+            "categoria" => ["manual", "colorido"]
+        ],
+        3 => [
+            "id" => 3,
+            "img" => "../img/imagem2.png",
+            "nome" => "Obra Moderna",
+            "artista" => "Daniele Oliveira",
+            "preco" => 250.00,
+            "desc" => "Arte contemporânea com técnicas inovadoras.",
+            "dimensao" => "50 x 70cm",
+            "tecnica" => "Pintura digital",
+            "ano" => 2024,
+            "material" => "Digital - alta resolução",
+            "categoria" => ["digital", "colorido"]
+        ],
+        4 => [
+            "id" => 4,
+            "img" => "../img/imagem2.png",
+            "nome" => "Paisagem Expressionista",
+            "artista" => "Stefani Correa", 
+            "preco" => 179.99,
+            "desc" => "Paisagem com cores vibrantes e traços expressionistas",
+            "dimensao" => "60 x 80cm",
+            "tecnica" => "Expressionismo",
+            "ano" => 2024,
+            "material" => "Óleo sobre tela",
+            "categoria" => ["manual", "colorido"]
+        ],
+        5 => [
+            "id" => 5,
+            "img" => "../img/imagem2.png",
+            "nome" => "Abstração Colorida",
+            "artista" => "Lucas Andrade",
+            "preco" => 159.90,
+            "desc" => "Obra abstrata com paleta de cores vibrantes",
+            "dimensao" => "40 x 60cm",
+            "tecnica" => "Abstração",
+            "ano" => 2024,
+            "material" => "Acrílica sobre tela",
+            "categoria" => ["manual", "colorido"]
+        ],
+        6 => [
+            "id" => 6,
+            "img" => "../img/imagem2.png",
+            "nome" => "Figura Humana",
+            "artista" => "Mariana Santos",
+            "preco" => 220.00,
+            "desc" => "Estudo da figura humana em movimento",
+            "dimensao" => "70 x 100cm",
+            "tecnica" => "Figurativo",
+            "ano" => 2024,
+            "material" => "Carvão e pastel",
+            "categoria" => ["manual", "preto e branco"]
+        ],
+        7 => [
+            "id" => 7,
+            "img" => "../img/imagem2.png",
+            "nome" => "Natureza Morta",
+            "artista" => "Rafael Costa",
+            "preco" => 145.50,
+            "desc" => "Natureza morta com elementos clássicos",
+            "dimensao" => "50 x 70cm",
+            "tecnica" => "Realismo",
+            "ano" => 2024,
+            "material" => "Óleo sobre tela",
+            "categoria" => ["manual", "colorido"]
+        ],
+        8 => [
+            "id" => 8,
+            "img" => "../img/imagem2.png",
+            "nome" => "Cidade Noturna",
+            "artista" => "Camila Rocha",
+            "preco" => 189.99,
+            "desc" => "Panorama urbano noturno",
+            "dimensao" => "80 x 120cm",
+            "tecnica" => "Urban sketching",
+            "ano" => 2024,
+            "material" => "Tinta acrílica",
+            "categoria" => ["manual", "colorido"]
+        ],
+        9 => [
+            "id" => 9,
+            "img" => "../img/imagem2.png",
+            "nome" => "Abstração Minimalista",
+            "artista" => "João Almeida",
+            "preco" => 249.00,
+            "desc" => "Obra minimalista com formas puras",
+            "dimensao" => "60 x 60cm",
+            "tecnica" => "Minimalismo",
+            "ano" => 2024,
+            "material" => "Acrílica sobre MDF",
+            "categoria" => ["manual", "colorido"]
+        ],
+        10 => [
+            "id" => 10,
+            "img" => "../img/imagem2.png",
+            "nome" => "Flores Silvestres",
+            "artista" => "Bianca Freitas",
+            "preco" => 120.00,
+            "desc" => "Composição floral com cores suaves",
+            "dimensao" => "40 x 50cm",
+            "tecnica" => "Aquarela",
+            "ano" => 2024,
+            "material" => "Aquarela sobre papel",
+            "categoria" => ["manual", "colorido"]
+        ],
+        11 => [
+            "id" => 11,
+            "img" => "../img/imagem2.png",
+            "nome" => "Mar em Movimento",
+            "artista" => "Felipe Duarte",
+            "preco" => 199.90,
+            "desc" => "Representação do movimento das ondas",
+            "dimensao" => "90 x 120cm",
+            "tecnica" => "Abstração lírica",
+            "ano" => 2024,
+            "material" => "Óleo sobre tela",
+            "categoria" => ["manual", "colorido"]
+        ],
+        12 => [
+            "id" => 12,
+            "img" => "../img/imagem2.png",
+            "nome" => "Retrato em Preto e Branco",
+            "artista" => "Ana Clara",
+            "preco" => 134.99,
+            "desc" => "Retrato clássico em técnica monocromática",
+            "dimensao" => "50 x 70cm",
+            "tecnica" => "Realismo",
+            "ano" => 2024,
+            "material" => "Grafite e carvão",
+            "categoria" => ["manual", "preto e branco"]
+        ]
+    ];
+}
 
 // Processar filtros se existirem
 $filtroArtista = $_GET['artista'] ?? '';
@@ -227,6 +250,7 @@ if ($ordenacao === 'preco_asc') {
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
+    /* Modal Detalhes da Obra */
     .modal-detalhes {
       display: none;
       position: fixed;
@@ -239,9 +263,11 @@ if ($ordenacao === 'preco_asc') {
       justify-content: center;
       align-items: center;
     }
+
     .modal-detalhes.active {
       display: flex;
     }
+
     .modal-conteudo {
       background: white;
       border-radius: 15px;
@@ -252,6 +278,7 @@ if ($ordenacao === 'preco_asc') {
       position: relative;
       animation: modalAppear 0.3s ease;
     }
+
     @keyframes modalAppear {
       from {
         opacity: 0;
@@ -262,6 +289,7 @@ if ($ordenacao === 'preco_asc') {
         transform: scale(1);
       }
     }
+
     .modal-header {
       display: flex;
       justify-content: space-between;
@@ -269,12 +297,14 @@ if ($ordenacao === 'preco_asc') {
       padding: 20px 25px;
       border-bottom: 1px solid #eee;
     }
+
     .modal-header h2 {
       font-family: 'Playfair Display', serif;
       color: #cc624e;
       margin: 0;
       font-size: 1.8rem;
     }
+
     .btn-fechar {
       background: none;
       border: none;
@@ -284,22 +314,11 @@ if ($ordenacao === 'preco_asc') {
       padding: 5px;
       transition: color 0.3s;
     }
+
     .btn-fechar:hover {
       color: #cc624e;
     }
-    .btn-aplicar-filtros{
-      background: #cc624e;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-      margin-top: 15px;
-      transition: background 0.3s;
-    }
-    .btn-aplicar-filtros:hover {
-      background: #e07b67;
-    }
+
     .modal-body {
       padding: 25px;
       display: grid;
@@ -440,60 +459,44 @@ if ($ordenacao === 'preco_asc') {
 </head>
 
 <body>
-<header>
-  <div class="logo">Verseal</div>
-  <nav>
-    <a href="../index.php">Início</a>
-    <a href="./produto.php">Obras</a>
-    <a href="./sobre.php">Sobre</a>
-    <a href="./artistas.php">Artistas</a>
-    <a href="./contato.php">Contato</a>
-    
-    <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
-    
-    <!-- Dropdown Perfil -->
-    <div class="profile-dropdown">
-      <a href="perfil.php" class="icon-link" id="profile-icon">
-        <i class="fas fa-user"></i>
-      </a>
-      <div class="dropdown-content" id="profile-dropdown">
-        <?php if ($usuarioLogado): ?>
-          <div class="user-info">
-            <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
-          </div>
-          <div class="dropdown-divider"></div>
-          <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-          <div class="dropdown-divider"></div>
-          <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
-        <?php else: ?>
-          <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
-          <div class="dropdown-divider"></div>
-          <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-          <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
-        <?php endif; ?>
-      </div>
-    </div>
 
-    <!-- Menu Hamburguer Flutuante -->
-    <div class="hamburger-menu-desktop">
-      <input type="checkbox" id="menu-toggle-desktop">
-      <label for="menu-toggle-desktop" class="hamburger-desktop">
-        <i class="fas fa-bars"></i>
-        <span>ACESSO</span>
-      </label>
-      <div class="menu-content-desktop">
-        <div class="menu-section">
-          <a href="../index.php" class="menu-item" onclick="document.getElementById('menu-toggle-desktop').checked = false;">
-            <i class="fas fa-user"></i> <span>Cliente</span>
-          </a>
-          <a href="./admhome.php" class="menu-item"><i class="fas fa-user-shield"></i> <span>ADM</span></a>
-          <a href="./artistahome.php" class="menu-item"><i class="fas fa-palette"></i> <span>Artista</span></a>
+  <!-- HEADER reaproveitado -->
+  <header>
+    <div class="logo">Verseal</div>
+    <nav>
+      <a href="../index.php">Início</a>
+      <a href="./produto.php">Obras</a>
+      <a href="./sobre.php">Sobre</a>
+      <a href="./artistas.php">Artistas</a>
+      <a href="./contato.php">Contato</a>
+      <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+      <div class="profile-dropdown">
+        <a href="./perfil.php" class="icon-link" id="profile-icon">
+          <i class="fas fa-user"></i>
+        </a>
+        <div class="dropdown-content" id="profile-dropdown">
+          <?php if ($usuarioLogado): ?>
+            <div class="user-info">
+              <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+            <a href="./minhas-compras.php" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Minhas Compras</a>
+            <a href="./favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+            <div class="dropdown-divider"></div>
+            <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+          <?php else: ?>
+            <div class="user-info">
+              <p>Faça login para acessar seu perfil</p>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+            <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+          <?php endif; ?>
         </div>
       </div>
-    </div>
-  </nav>
-</header>
-  <!-- HEADER reaproveitado -->
+    </nav>
+  </header>
 
   <!-- CONTEÚDO -->
   <main class="pagina-obras">
@@ -578,7 +581,7 @@ if ($ordenacao === 'preco_asc') {
           <button type="submit" class="btn-aplicar-filtros">Aplicar Filtros</button>
           <?php if (!empty($filtroCategoria)): ?>
             <a href="?<?php echo !empty($filtroArtista) ? 'artista=' . urlencode($filtroArtista) : ''; ?>" 
-               class="btn-limpar-categorias"></a>
+               class="btn-limpar-categorias">Limpar Categorias</a>
           <?php endif; ?>
         </form>
       </aside>
@@ -590,6 +593,7 @@ if ($ordenacao === 'preco_asc') {
             <i class="fas fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
             <h3>Nenhuma obra encontrada</h3>
             <p>Tente ajustar os filtros ou buscar por outro artista.</p>
+            <a href="?" class="btn-limpar-filtros">Limpar Todos os Filtros</a>
           </div>
         <?php else: ?>
           <?php foreach ($produtosFiltrados as $produto): ?>
@@ -786,16 +790,21 @@ if ($ordenacao === 'preco_asc') {
       });
     }
 
-    // Dropdown perfil
-document.addEventListener('DOMContentLoaded', function () {
-    const profileIcon = document.getElementById('profile-icon');
-    const profileDropdown = document.getElementById('profile-dropdown');
-    if(profileIcon && profileDropdown){
-        profileIcon.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); profileDropdown.style.display=(profileDropdown.style.display==='block'?'none':'block'); });
-        document.addEventListener('click', e=>{ if(!profileDropdown.contains(e.target) && e.target!==profileIcon) profileDropdown.style.display='none'; });
-        profileDropdown.addEventListener('click', e=>{ e.stopPropagation(); });
+    // Dropdown Perfil
+    const profileIcon = document.getElementById("profile-icon");
+    const profileDropdown = document.getElementById("profile-dropdown");
+    if (profileIcon && profileDropdown) {
+      profileIcon.addEventListener("click", (e) => {
+        e.preventDefault();
+        profileDropdown.style.display =
+          profileDropdown.style.display === "block" ? "none" : "block";
+      });
+      document.addEventListener("click", (e) => {
+        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
+          profileDropdown.style.display = "none";
+        }
+      });
     }
-});
   </script>
 </body>
 
