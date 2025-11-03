@@ -1,245 +1,367 @@
 <?php
 session_start();
 
-// Verificar se usuário está logado de forma compatível
-$usuarioLogado = null;
-if (isset($_SESSION["usuario"])) {
-    // Se for array (nova versão)
-    if (is_array($_SESSION["usuario"])) {
-        $usuarioLogado = $_SESSION["usuario"];
+// Conexão com o banco
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db = "verseal";
+
+$conn = new mysqli($host, $user, $pass, $db);
+
+if ($conn->connect_error) {
+    die("Falha na conexão: " . $conn->connect_error);
+}
+
+// Criar tabela de mensagens se não existir
+$sql_create_table = "
+CREATE TABLE IF NOT EXISTS mensagens_contato (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    mensagem TEXT NOT NULL,
+    data_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    lida TINYINT(1) DEFAULT 0
+)";
+
+if (!$conn->query($sql_create_table)) {
+    error_log("Erro ao criar tabela: " . $conn->error);
+}
+
+$usuarioLogado = $_SESSION['usuario'] ?? null;
+$mensagem = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $nome = trim($_POST['nome']);
+    $email = trim($_POST['email']);
+    $mensagemContato = trim($_POST['mensagem']);
+
+    if (empty($nome) || empty($email) || empty($mensagemContato)) {
+        $mensagem = "<p class='erro'>Por favor, preencha todos os campos.</p>";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $mensagem = "<p class='erro'>Digite um e-mail válido.</p>";
     } else {
-        // Se for string (versão antiga - manter compatibilidade)
-        $usuarioLogado = $_SESSION["usuario"];
+        // Salvar no banco de dados
+        $sql = "INSERT INTO mensagens_contato (nome, email, mensagem) VALUES (?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sss", $nome, $email, $mensagemContato);
+        
+        if ($stmt->execute()) {
+            $mensagem = "<p class='sucesso'>Obrigado por entrar em contato, <strong>$nome</strong>! Responderemos em breve.</p>";
+        } else {
+            $mensagem = "<p class='erro'>Erro ao enviar mensagem. Tente novamente.</p>";
+            error_log("Erro ao salvar mensagem: " . $stmt->error);
+        }
+        $stmt->close();
     }
 }
+
+$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sobre - Verseal</title>
+  <title>Contato - Verseal</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
-  <link rel="stylesheet" href="../css/sobre.css">
   <link rel="stylesheet" href="../css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+  <link rel="stylesheet" href="../css/contato.css">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    .fade-in {
-      opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 0.8s ease-out, transform 0.4s ease-out;
+    /* Estilos para mensagens */
+    .sucesso {
+      background: #d4edda;
+      color: #155724;
+      padding: 15px;
+      border-radius: 5px;
+      border: 1px solid #c3e6cb;
+      margin-bottom: 20px;
     }
-    .fade-in.show {
-      opacity: 1;
-      transform: translateY(0);
+    
+    .erro {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 5px;
+      border: 1px solid #f5c6cb;
+      margin-bottom: 20px;
+    }
+    
+    /* Estilos do formulário */
+    .container {
+      max-width: 600px;
+      margin: 100px auto 40px;
+      padding: 40px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    
+    .container h1 {
+      text-align: center;
+      color: #cc624e;
+      margin-bottom: 30px;
+      font-family: 'Playfair Display', serif;
+    }
+    
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    label {
+      font-weight: 600;
+      color: #333;
+    }
+    
+    input, textarea {
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+      font-family: 'Open Sans', sans-serif;
+    }
+    
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #cc624e;
+    }
+    
+    textarea {
+      height: 150px;
+      resize: vertical;
+    }
+    
+    button {
+      background: #cc624e;
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-family: 'Open Sans', sans-serif;
+    }
+    
+    button:hover {
+      background: #e07b67;
+    }
+    
+    .voltar {
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    .voltar a {
+      color: #666;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    
+    .voltar a:hover {
+      color: #cc624e;
+    }
+
+    /* Informações de contato */
+    .info-contato {
+      background: #f8f9fa;
+      padding: 25px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      border-left: 4px solid #cc624e;
+    }
+
+    .info-contato h3 {
+      color: #cc624e;
+      margin-bottom: 15px;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    .info-item i {
+      color: #cc624e;
+      width: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 80px 20px 40px;
+        padding: 25px;
+      }
     }
   </style>
 </head>
+
 <body>
-<header>
-  <div class="logo">Verseal</div>
-  <nav>
-    <a href="../index.php">Início</a>
-    <a href="./produto.php">Obras</a>
-    <a href="./sobre.php">Sobre</a>
-    <a href="./artistas.php">Artistas</a>
-    <a href="./contato.php">Contato</a>
-    
-    <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
-    
-    <!-- Dropdown Perfil -->
-    <div class="profile-dropdown">
-      <a href="perfil.php" class="icon-link" id="profile-icon">
-        <i class="fas fa-user"></i>
-      </a>
-      <div class="dropdown-content" id="profile-dropdown">
-        <?php if ($usuarioLogado): ?>
-          <div class="user-info">
-            <p>Seja bem-vindo, <span id="user-name">
-              <?php 
-              // CORREÇÃO AQUI: Verificar se é array ou string
-              if (is_array($usuarioLogado)) {
-                  echo htmlspecialchars($usuarioLogado['nome']);
-              } else {
-                  echo htmlspecialchars($usuarioLogado);
-              }
-              ?>
-            </span>!</p>
+  <header>
+    <div class="logo">Verseal</div>
+    <nav>
+      <a href="../index.php">Início</a>
+      <a href="./produto.php">Obras</a>
+      <a href="./sobre.php">Sobre</a>
+      <a href="./artistas.php">Artistas</a>
+      <a href="./contato.php">Contato</a>
+      
+      <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+      
+      <!-- Dropdown Perfil -->
+      <div class="profile-dropdown">
+        <a href="perfil.php" class="icon-link" id="profile-icon">
+          <i class="fas fa-user"></i>
+        </a>
+        <div class="dropdown-content" id="profile-dropdown">
+          <?php if ($usuarioLogado): ?>
+            <div class="user-info">
+              <p>Seja bem-vindo, 
+                <span id="user-name">
+                  <?php 
+                  if (is_array($usuarioLogado)) {
+                      echo htmlspecialchars($usuarioLogado['nome'] ?? 'Usuário');
+                  } else {
+                      echo htmlspecialchars($usuarioLogado);
+                  }
+                  ?>
+                </span>!
+              </p>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+            <div class="dropdown-divider"></div>
+            <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+          <?php else: ?>
+            <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+            <div class="dropdown-divider"></div>
+            <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+            <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+          <?php endif; ?>
+        </div>
+      </div>
+
+      <!-- Menu Hamburguer Flutuante -->
+      <div class="hamburger-menu-desktop">
+        <input type="checkbox" id="menu-toggle-desktop">
+        <label for="menu-toggle-desktop" class="hamburger-desktop">
+          <i class="fas fa-bars"></i>
+          <span>ACESSO</span>
+        </label>
+        <div class="menu-content-desktop">
+          <div class="menu-section">
+            <a href="../index.php" class="menu-item" onclick="document.getElementById('menu-toggle-desktop').checked = false;">
+              <i class="fas fa-user"></i> <span>Cliente</span>
+            </a>
+            <a href="./admhome.php" class="menu-item"><i class="fas fa-user-shield"></i> <span>ADM</span></a>
+            <a href="./artistahome.php" class="menu-item"><i class="fas fa-palette"></i> <span>Artista</span></a>
           </div>
-          <div class="dropdown-divider"></div>
-          <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-          <div class="dropdown-divider"></div>
-          <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
-        <?php else: ?>
-          <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
-          <div class="dropdown-divider"></div>
-          <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-          <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
-        <?php endif; ?>
-      </div>
-    </div>
-
-    <!-- Menu Hamburguer Flutuante -->
-    <div class="hamburger-menu-desktop">
-      <input type="checkbox" id="menu-toggle-desktop">
-      <label for="menu-toggle-desktop" class="hamburger-desktop">
-        <i class="fas fa-bars"></i>
-        <span>ACESSO</span>
-      </label>
-      <div class="menu-content-desktop">
-        <div class="menu-section">
-          <a href="../index.php" class="menu-item" onclick="document.getElementById('menu-toggle-desktop').checked = false;">
-            <i class="fas fa-user"></i> <span>Cliente</span>
-          </a>
-          <a href="./admhome.php" class="menu-item"><i class="fas fa-user-shield"></i> <span>ADM</span></a>
-          <a href="./artistahome.php" class="menu-item"><i class="fas fa-palette"></i> <span>Artista</span></a>
         </div>
       </div>
-    </div>
-  </nav>
-</header>
+    </nav>
+  </header>
 
-<main>
-  <!-- HERO -->
-  <section class="hero-sobre">
-    <div id="particles-sobre"></div>
-    <div class="hero-content">
-      <h1 class="fade-in">Sobre a Verseal</h1>
-      <p class="fade-in">Transformando arte em experiências únicas, físicas e digitais.</p>
-    </div>
-  </section>
-
-  <!-- QUEM SOMOS -->
-  <section class="quem-somos container fade-in">
-    <h2 class="fade-in">Quem Somos</h2>
-    <div class="cards-container">
-      <div class="card-texto">
-        <p class="fade-in">A Verseal nasceu da paixão por arte e inovação. Unimos técnicas tradicionais e digitais para criar peças únicas que contam histórias e provocam emoções, conectando artistas e colecionadores em uma experiência transformadora.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- MISSÃO -->
-  <section class="missao container fade-in">
-    <h2 class="fade-in">Nossa Missão</h2>
-    <div class="cards-missao">
-      <div class="card fade-in">
-        <i class="fas fa-palette icon-card"></i>
-        <h3 class="fade-in">Arte Autêntica</h3>
-        <p class="fade-in">Valorizamos cada detalhe e a autenticidade de cada criação, preservando a essência única de cada artista.</p>
-      </div>
-      <div class="card fade-in">
-        <i class="fas fa-laptop-code icon-card"></i>
-        <h3 class="fade-in">Inovação Digital</h3>
-        <p class="fade-in">Unimos tecnologia e criatividade para criar experiências únicas que transcendem o convencional.</p>
-      </div>
-      <div class="card fade-in">
-        <i class="fas fa-handshake icon-card"></i>
-        <h3 class="fade-in">Conexão</h3>
-        <p class="fade-in">Proporcionar aos clientes uma relação verdadeira e significativa com a arte que adquirem.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- VALORES -->
-  <section class="valores container fade-in">
-    <h2 class="fade-in">Nossos Valores</h2>
-    <div class="cards-missao fade-in">
-      <div class="card fade-in">
-        <i class="fas fa-gem icon-card"></i>
-        <h3 class="fade-in">Excelência</h3>
-        <p class="fade-in">Buscamos a perfeição em cada detalhe, desde a criação até a entrega final ao colecionador.</p>
-      </div>
-      <div class="card fade-in">
-        <i class="fas fa-heart icon-card"></i>
-        <h3 class="fade-in">Paixão</h3>
-        <p class="fade-in">Amamos o que fazemos e acreditamos no poder transformador da arte na vida das pessoas.</p>
-      </div>
-      <div class="card fade-in">
-        <i class="fas fa-shield-alt icon-card"></i>
-        <h3 class="fade-in">Transparência</h3>
-        <p class="fade-in">Mantemos relações claras e honestas com artistas, colecionadores e parceiros.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- PROJETO VERSEAL -->
-  <section class="projeto container fade-in">
-    <h2>O Projeto Verseal</h2>
-    <div class="cards-container">
-      <div class="card-texto">
-        <p>Nosso projeto busca unir o mundo físico e digital da arte de maneira harmoniosa. Cada obra é cuidadosamente criada, podendo ser apreciada tanto como peça física única quanto como NFT exclusivo. Acreditamos em experiências imersivas e personalizadas que conectam colecionadores e amantes da arte de forma profunda e significativa.</p>
-        <p>Através da Verseal, democratizamos o acesso à arte de qualidade, permitindo que novos talentos sejam descobertos e que colecionadores encontrem peças que realmente conversem com sua essência.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- VÍDEO PITCH -->
-  <section class="video-pitch container fade-in">
-    <h2>Conheça Nossa História</h2>
-    <div class="video-container">
-      <div class="card-video">
-        <div class="video-wrapper">
-          <iframe width="560" height="315" src="https://www.youtube.com/embed/20-niIkV-3M?si=XZy6feS-19UBfQMB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+  <main>
+    <div class="container">
+      <h1>Fale Conosco</h1>
+      
+      <div class="info-contato">
+        <h3>Informações de Contato</h3>
+        <div class="info-item">
+          <i class="fas fa-envelope"></i>
+          <span>contato@verseal.com</span>
         </div>
-        <div class="video-info">
-          <h3>Pitch Verseal</h3>
-          <p>Assista ao nosso vídeo pitch e conheça mais sobre nossa missão, visão e os valores que nos movem.</p>
+        <div class="info-item">
+          <i class="fas fa-phone"></i>
+          <span>(11) 99999-9999</span>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-clock"></i>
+          <span>Segunda a Sexta, 9h às 18h</span>
         </div>
       </div>
+
+      <?php echo $mensagem; ?>
+      
+      <form method="post" action="">
+        <label for="nome">Nome Completo</label>
+        <input type="text" name="nome" id="nome" placeholder="Digite seu nome completo" required value="<?php echo isset($_POST['nome']) ? htmlspecialchars($_POST['nome']) : ''; ?>">
+
+        <label for="email">E-mail</label>
+        <input type="email" name="email" id="email" placeholder="Digite seu e-mail" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
+
+        <label for="mensagem">Mensagem</label>
+        <textarea name="mensagem" id="mensagem" placeholder="Escreva sua mensagem..." required><?php echo isset($_POST['mensagem']) ? htmlspecialchars($_POST['mensagem']) : ''; ?></textarea>
+
+        <button type="submit">
+          <i class="fas fa-paper-plane"></i> Enviar Mensagem
+        </button>
+      </form>
+      
+      <p class="voltar"><a href="../index.php">⬅ Voltar ao início</a></p>
     </div>
-  </section>
-</main>
+  </main>
 
-<footer>
-  <p>&copy; 2025 Verseal. Todos os direitos reservados.</p>
-  <div class="social">
-    <a href="#"><i class="fab fa-instagram"></i></a>
-    <a href="#"><i class="fab fa-linkedin-in"></i></a>
-    <a href="#"><i class="fab fa-whatsapp"></i></a>
-  </div>
-</footer>
+  <script>
+    // Dropdown do perfil
+    document.addEventListener('DOMContentLoaded', function () {
+      const profileIcon = document.getElementById('profile-icon');
+      const profileDropdown = document.getElementById('profile-dropdown');
+      if (profileIcon && profileDropdown) {
+        profileIcon.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+        });
+        document.addEventListener('click', function (e) {
+          if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
+            profileDropdown.style.display = 'none';
+          }
+        });
+        profileDropdown.addEventListener('click', function (e) {
+          e.stopPropagation();
+        });
+      }
+    });
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.waves.min.js"></script>
-<script>
-  // Dropdown do perfil
-  document.addEventListener('DOMContentLoaded', function () {
-    const profileIcon = document.getElementById('profile-icon');
-    const profileDropdown = document.getElementById('profile-dropdown');
-    if (profileIcon && profileDropdown) {
-      profileIcon.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
-      });
-      document.addEventListener('click', function (e) {
-        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
-          profileDropdown.style.display = 'none';
-        }
-      });
-      profileDropdown.addEventListener('click', function (e) {
-        e.stopPropagation();
-      });
-    }
-  });
+    // Fade das mensagens
+    document.addEventListener('DOMContentLoaded', () => {
+      const mensagem = document.querySelector('.sucesso, .erro');
+      if (mensagem) {
+        setTimeout(() => {
+          mensagem.style.transition = 'opacity 0.8s ease';
+          mensagem.style.opacity = '0';
+          setTimeout(() => {
+            if (mensagem.parentNode) {
+              mensagem.remove();
+            }
+          }, 800);
+        }, 5000);
+      }
+    });
 
-  // Fade-in on scroll
-  document.addEventListener('DOMContentLoaded', () => {
-    const elementos = document.querySelectorAll('.fade-in');
-    const observador = new IntersectionObserver((entradas) => {
-      entradas.forEach(entrada => {
-        if (entrada.isIntersecting) {
-          entrada.target.classList.add('show');
-          observador.unobserve(entrada.target);
-        }
-      });
-    }, { threshold: 0.2 });
-    elementos.forEach(el => observador.observe(el));
-  });
-</script>
+    // Manter valores do formulário em caso de erro
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.querySelector('form');
+      if (form) {
+        // Os valores já são preenchidos pelo PHP
+        console.log('Formulário carregado com valores mantidos');
+      }
+    });
+  </script>
+
 </body>
+
 </html>

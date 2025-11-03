@@ -1,31 +1,31 @@
 <?php
 session_start();
+require_once '../config/database.php'; // Arquivo de conexão com o banco
+
 $usuarioLogado = $_SESSION["usuario"] ?? null;
 
-// Caminho do arquivo JSON
-$arquivo = 'dados_artista.json';
+// Buscar dados do artista logado do banco de dados
+$artista = null;
+if ($usuarioLogado && isset($usuarioLogado['nome'])) {
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM artistas WHERE nome = ? AND ativo = 1");
+        $stmt->execute([$usuarioLogado['nome']]);
+        $artista = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Erro ao buscar artista: " . $e->getMessage());
+    }
+}
 
-// Dados padrão (caso o JSON não exista ou esteja incompleto)
-$artistaPadrao = [
-    "nome" => "Jamile Franquilim",
-    "descricao" => "Artista de 16 anos que busca autonomia no mercado artístico, expondo seus desenhos manuais e digitais para Verseal.",
-    "telefone" => "123456-7890",
-    "email" => "jamyfranquilim@gmail.com",
-    "instagram" => "@oliveirzz.a",
-    "foto" => "../img/jamile.jpg"
-];
-
-// Se o arquivo não existir, cria um novo com os dados padrão
-if (!file_exists($arquivo)) {
-    file_put_contents($arquivo, json_encode($artistaPadrao, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-    $artista = $artistaPadrao;
-} else {
-    // Lê o conteúdo atual do JSON
-    $conteudo = file_get_contents($arquivo);
-    $dados = json_decode($conteudo, true);
-
-    // Garante que todas as chaves existam (evita warnings)
-    $artista = array_merge($artistaPadrao, $dados ?? []);
+// Se não encontrou no banco, usar dados padrão
+if (!$artista) {
+    $artista = [
+        "nome" => $usuarioLogado['nome'] ?? "Artista",
+        "descricao" => "Artista que busca autonomia no mercado artístico, expondo seus desenhos manuais e digitais para Verseal.",
+        "telefone" => "",
+        "email" => "",
+        "instagram" => "",
+        "foto_perfil" => "../img/jamile.jpg"
+    ];
 }
 ?>
 
@@ -129,6 +129,19 @@ if (!file_exists($arquivo)) {
     .bio-item {
       margin-bottom: 15px;
     }
+
+    @media (max-width: 768px) {
+      section {
+        flex-direction: column;
+        padding: 40px 25px;
+        gap: 30px;
+      }
+      
+      section img {
+        width: 100%;
+        height: 300px;
+      }
+    }
   </style>
 </head>
 
@@ -155,7 +168,7 @@ if (!file_exists($arquivo)) {
     <div class="profile-dropdown">
       <a href="./perfil.php" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
       <div class="dropdown-content" id="profile-dropdown">
-          <div class="user-info"><p>Seja bem-vindo, <?php echo htmlspecialchars($usuarioLogado); ?>!</p></div>
+          <div class="user-info"><p>Seja bem-vindo, <?php echo htmlspecialchars($usuarioLogado['nome'] ?? 'Artista'); ?>!</p></div>
           <div class="dropdown-divider"></div>
           <a href="./artistaperfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
           <div class="dropdown-divider"></div>
@@ -167,12 +180,13 @@ if (!file_exists($arquivo)) {
 
   <!-- SEÇÃO BIOGRAFIA -->
   <section>
-    <img src="<?php echo $artista['foto']; ?>" alt="<?php echo $artista['nome']; ?>">
+    <img src="<?php echo !empty($artista['foto_perfil']) ? $artista['foto_perfil'] : '../img/jamile.jpg'; ?>" 
+         alt="<?php echo htmlspecialchars($artista['nome']); ?>">
     <div class="bio-texto">
       <h1>SOBRE</h1>
-      <h2><?php echo $artista['nome']; ?></h2>
+      <h2><?php echo htmlspecialchars($artista['nome']); ?></h2>
       <div class="bio-item">
-        <p><?php echo $artista['descricao']; ?></p>
+        <p><?php echo htmlspecialchars($artista['descricao']); ?></p>
         <?php if (!empty($usuarioLogado)): ?>
           <a class="btn-editar" href="editarbiografia.php?campo=descricao">Editar Descrição</a>
         <?php endif; ?>
@@ -180,49 +194,50 @@ if (!file_exists($arquivo)) {
 
       <h3>Contato</h3>
       <div class="bio-item">
-        <p>Telefone: <?php echo $artista['telefone']; ?></p>
+        <p>Telefone: <?php echo !empty($artista['telefone']) ? htmlspecialchars($artista['telefone']) : 'Não informado'; ?></p>
         <?php if (!empty($usuarioLogado)): ?>
           <a class="btn-editar" href="editarbiografia.php?campo=telefone">Editar Telefone</a>
         <?php endif; ?>
       </div>
       <div class="bio-item">
-        <p>Email: <?php echo $artista['email']; ?></p>
+        <p>Email: <?php echo !empty($artista['email']) ? htmlspecialchars($artista['email']) : 'Não informado'; ?></p>
         <?php if (!empty($usuarioLogado)): ?>
           <a class="btn-editar" href="editarbiografia.php?campo=email">Editar Email</a>
         <?php endif; ?>
       </div>
       <div class="bio-item">
-        <p>Instagram: <?php echo $artista['instagram']; ?></p>
+        <p>Instagram: <?php echo !empty($artista['instagram']) ? htmlspecialchars($artista['instagram']) : 'Não informado'; ?></p>
         <?php if (!empty($usuarioLogado)): ?>
           <a class="btn-editar" href="editarbiografia.php?campo=instagram">Editar Instagram</a>
         <?php endif; ?>
       </div>
     </div>
-    <script>
-      // Dropdown do perfil
-  document.addEventListener('DOMContentLoaded', function () {
-    const profileIcon = document.getElementById('profile-icon');
-    const profileDropdown = document.getElementById('profile-dropdown');
-    if (profileIcon && profileDropdown) {
-      profileIcon.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        profileDropdown.style.display =
-          profileDropdown.style.display === 'block' ? 'none' : 'block';
-      });
-
-      document.addEventListener('click', function (e) {
-        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
-          profileDropdown.style.display = 'none';
-        }
-      });
-
-      profileDropdown.addEventListener('click', function (e) {
-        e.stopPropagation();
-      });
-    }
-  });
-    </script>
   </section>
+
+  <script>
+    // Dropdown do perfil
+    document.addEventListener('DOMContentLoaded', function () {
+      const profileIcon = document.getElementById('profile-icon');
+      const profileDropdown = document.getElementById('profile-dropdown');
+      if (profileIcon && profileDropdown) {
+        profileIcon.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          profileDropdown.style.display =
+            profileDropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.addEventListener('click', function (e) {
+          if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
+            profileDropdown.style.display = 'none';
+          }
+        });
+
+        profileDropdown.addEventListener('click', function (e) {
+          e.stopPropagation();
+        });
+      }
+    });
+  </script>
 </body>
 </html>
