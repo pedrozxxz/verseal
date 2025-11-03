@@ -45,7 +45,7 @@ if (isset($_SESSION["usuario"])) {
 <header>
   <div class="logo">Verseal</div>
   <nav>
-    <a href="../index.php">Início</a>
+    <a href="index.php">Início</a>
     <a href="./pages/produto.php">Obras</a>
     <a href="./pages/sobre.php">Sobre</a>
     <a href="./pages/artistas.php">Artistas</a>
@@ -140,7 +140,6 @@ if (isset($_SESSION["usuario"])) {
       </div>
     </div>
   </section>
-
   <!-- RODAPÉ -->
   <footer>
     <p>&copy; 2025 Verseal. Todos os direitos reservados.</p>

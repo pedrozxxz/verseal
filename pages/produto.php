@@ -23,7 +23,7 @@ if ($conn->connect_error) {
     die("Falha na conexão: " . $conn->connect_error);
 }
 
-// Buscar obras do banco de dados
+// Buscar TODAS as obras do banco de dados
 $sql_obras = "
     SELECT o.*, GROUP_CONCAT(c.nome) as categorias 
     FROM obras o 
@@ -43,9 +43,10 @@ if ($result_obras && $result_obras->num_rows > 0) {
             $categorias = explode(',', $obra['categorias']);
         }
         
-        $produtos[$obra['id']] = [
+        // Criar array indexado numericamente para facilitar o loop
+        $produtos[] = [
             "id" => intval($obra['id']),
-            "img" => $obra['img'] ?? '../img/imagem2.png',
+            "img" => !empty($obra['img']) ? $obra['img'] : '../img/imagem2.png',
             "nome" => $obra['nome'] ?? 'Obra sem nome',
             "artista" => $obra['artista'] ?? 'Artista desconhecido',
             "preco" => floatval($obra['preco'] ?? 0),
@@ -58,29 +59,17 @@ if ($result_obras && $result_obras->num_rows > 0) {
         ];
     }
 } else {
-    // Fallback para dados estáticos se o banco estiver vazio
-    $produtos = [
-        1 => [
-            "id" => 1,
-            "img" => "../img/imagem2.png",
-            "nome" => "Obra da Daniele",
-            "artista" => "Daniele Oliveira",
-            "preco" => 199.99,
-            "desc" => "Desenho realizado por Stefani e Daniele, feito digitalmente e manualmente.",
-            "dimensao" => "21 x 29,7cm (Manual) / 390cm x 522cm (Digital)",
-            "tecnica" => "Técnica mista: digital e manual",
-            "ano" => 2024,
-            "material" => "Tinta acrílica e digital",
-            "categoria" => ["manual", "digital", "colorido"]
-        ],
-        // ... outros produtos do array estático
-    ];
+    // Se não encontrar obras no banco, usar array vazio
+    $produtos = [];
 }
 
 // Processar filtros se existirem
 $filtroArtista = $_GET['artista'] ?? '';
 $filtroCategoria = $_GET['categoria'] ?? [];
-$ordenacao = $_GET['ordenacao'] ?? 'preco_asc';
+if (!is_array($filtroCategoria)) {
+    $filtroCategoria = [];
+}
+$ordenacao = $_GET['ordenacao'] ?? 'recentes';
 
 // Se vier por POST (do formulário de busca)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buscar_artista'])) {
@@ -127,6 +116,7 @@ if ($ordenacao === 'preco_asc') {
     });
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -142,6 +132,7 @@ if ($ordenacao === 'preco_asc') {
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
+    /* Modal Detalhes da Obra */
     .modal-detalhes {
       display: none;
       position: fixed;
@@ -154,9 +145,11 @@ if ($ordenacao === 'preco_asc') {
       justify-content: center;
       align-items: center;
     }
+
     .modal-detalhes.active {
       display: flex;
     }
+
     .modal-conteudo {
       background: white;
       border-radius: 15px;
@@ -167,6 +160,7 @@ if ($ordenacao === 'preco_asc') {
       position: relative;
       animation: modalAppear 0.3s ease;
     }
+
     @keyframes modalAppear {
       from {
         opacity: 0;
@@ -177,6 +171,7 @@ if ($ordenacao === 'preco_asc') {
         transform: scale(1);
       }
     }
+
     .modal-header {
       display: flex;
       justify-content: space-between;
@@ -184,12 +179,14 @@ if ($ordenacao === 'preco_asc') {
       padding: 20px 25px;
       border-bottom: 1px solid #eee;
     }
+
     .modal-header h2 {
       font-family: 'Playfair Display', serif;
       color: #cc624e;
       margin: 0;
       font-size: 1.8rem;
     }
+
     .btn-fechar {
       background: none;
       border: none;
@@ -199,22 +196,11 @@ if ($ordenacao === 'preco_asc') {
       padding: 5px;
       transition: color 0.3s;
     }
+
     .btn-fechar:hover {
       color: #cc624e;
     }
-    .btn-aplicar-filtros{
-      background: #cc624e;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-      margin-top: 15px;
-      transition: background 0.3s;
-    }
-    .btn-aplicar-filtros:hover {
-      background: #e07b67;
-    }
+
     .modal-body {
       padding: 25px;
       display: grid;
@@ -340,6 +326,38 @@ if ($ordenacao === 'preco_asc') {
       background: #5a6268;
     }
 
+    .nenhuma-obra {
+      text-align: center;
+      padding: 60px 40px;
+      background: #f8f9fa;
+      border-radius: 15px;
+      border: 2px dashed #dee2e6;
+      margin: 20px 0;
+      grid-column: 1 / -1;
+    }
+
+    .nenhuma-obra i.fa-search {
+      font-size: 4rem;
+      color: #ced4da;
+      margin-bottom: 20px;
+    }
+
+    .nenhuma-obra h3 {
+      color: #6c757d;
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+
+    .nenhuma-obra p {
+      color: #868e96;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
     @media (max-width: 768px) {
       .modal-body {
         grid-template-columns: 1fr;
@@ -350,51 +368,70 @@ if ($ordenacao === 'preco_asc') {
         width: 95%;
         margin: 20px;
       }
+      
+      .nenhuma-obra {
+        padding: 40px 20px;
+        margin: 15px 0;
+      }
+
+      .nenhuma-obra i.fa-search {
+        font-size: 3rem;
+      }
+
+      .nenhuma-obra h3 {
+        font-size: 1.3rem;
+      }
+
+      .nenhuma-obra p {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
-
 <body>
+<!-- HEADER -->
 <header>
   <div class="logo">Verseal</div>
   <nav>
     <a href="../index.php">Início</a>
-    <a href="./produto.php">Obras</a>
-    <a href="./sobre.php">Sobre</a>
-    <a href="./artistas.php">Artistas</a>
-    <a href="./contato.php">Contato</a>
+    <a href="../pages/produto.php">Obras</a>
+    <a href="../pages/sobre.php">Sobre</a>
+    <a href="../pages/artistas.php">Artistas</a>
+    <a href="../pages/contato.php">Contato</a>
     
-    <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+    <a href="./pages/carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
     
-   <div class="profile-dropdown">
-    <a href="perfil.php" class="icon-link" id="profile-icon">
+    <!-- Dropdown Perfil -->
+    <div class="profile-dropdown">
+      <a href="perfil.php" class="icon-link" id="profile-icon">
         <i class="fas fa-user"></i>
-    </a>
-    <div class="dropdown-content" id="profile-dropdown">
+      </a>
+      <div class="dropdown-content" id="profile-dropdown">
         <?php if ($usuarioLogado): ?>
-            <div class="user-info">
-                <p>Seja bem-vindo, <span id="user-name">
-                    <?php 
-                    if (is_array($usuarioLogado)) {
-                        echo htmlspecialchars($usuarioLogado['nome']);
-                    } else {
-                        echo htmlspecialchars($usuarioLogado);
-                    }
-                    ?>
-                </span>!</p>
-            </div>
-            <div class="dropdown-divider"></div>
-            <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-            <div class="dropdown-divider"></div>
-            <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+          <div class="user-info">
+            <p>Seja bem-vindo, <span id="user-name">
+              <?php 
+              // CORREÇÃO AQUI: Verificar se é array ou string
+              if (is_array($usuarioLogado)) {
+                  echo htmlspecialchars($usuarioLogado['nome']);
+              } else {
+                  echo htmlspecialchars($usuarioLogado);
+              }
+              ?>
+            </span>!</p>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a href="./pages/perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+          <div class="dropdown-divider"></div>
+          <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
         <?php else: ?>
-            <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
-            <div class="dropdown-divider"></div>
-            <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-            <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+          <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+          <div class="dropdown-divider"></div>
+          <a href="./pages/login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+          <a href="./pages/login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
         <?php endif; ?>
+      </div>
     </div>
-</div>
 
     <!-- Menu Hamburguer Flutuante -->
     <div class="hamburger-menu-desktop">
@@ -408,14 +445,13 @@ if ($ordenacao === 'preco_asc') {
           <a href="../index.php" class="menu-item" onclick="document.getElementById('menu-toggle-desktop').checked = false;">
             <i class="fas fa-user"></i> <span>Cliente</span>
           </a>
-          <a href="./admhome.php" class="menu-item"><i class="fas fa-user-shield"></i> <span>ADM</span></a>
-          <a href="./artistahome.php" class="menu-item"><i class="fas fa-palette"></i> <span>Artista</span></a>
+          <a href="./pages/admhome.php" class="menu-item"><i class="fas fa-user-shield"></i> <span>ADM</span></a>
+          <a href="./pages/artistahome.php" class="menu-item"><i class="fas fa-palette"></i> <span>Artista</span></a>
         </div>
       </div>
     </div>
   </nav>
 </header>
-  <!-- HEADER reaproveitado -->
 
   <!-- CONTEÚDO -->
   <main class="pagina-obras">
@@ -442,15 +478,15 @@ if ($ordenacao === 'preco_asc') {
     <div class="barra-filtros-topo">
       <div class="ordenacao">
         <span>Ordenação:</span>
-        <a href="?ordenacao=preco_asc<?php echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : ''; ?>" 
+        <a href="?ordenacao=preco_asc<?php echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : ''; echo !empty($filtroCategoria) ? '&' . http_build_query(['categoria' => $filtroCategoria]) : ''; ?>" 
            class="btn-ordenar <?php echo $ordenacao === 'preco_asc' ? 'ativo' : ''; ?>">
           Menor Preço
         </a>
-        <a href="?ordenacao=preco_desc<?php echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : ''; ?>" 
+        <a href="?ordenacao=preco_desc<?php echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : ''; echo !empty($filtroCategoria) ? '&' . http_build_query(['categoria' => $filtroCategoria]) : ''; ?>" 
            class="btn-ordenar <?php echo $ordenacao === 'preco_desc' ? 'ativo' : ''; ?>">
           Maior Preço
         </a>
-        <a href="?ordenacao=recentes<?php echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : ''; ?>" 
+        <a href="?ordenacao=recentes<?php echo !empty($filtroArtista) ? '&artista=' . urlencode($filtroArtista) : ''; echo !empty($filtroCategoria) ? '&' . http_build_query(['categoria' => $filtroCategoria]) : ''; ?>" 
            class="btn-ordenar <?php echo $ordenacao === 'recentes' ? 'ativo' : ''; ?>">
           Recentes
         </a>
@@ -500,7 +536,7 @@ if ($ordenacao === 'preco_asc') {
           <button type="submit" class="btn-aplicar-filtros">Aplicar Filtros</button>
           <?php if (!empty($filtroCategoria)): ?>
             <a href="?<?php echo !empty($filtroArtista) ? 'artista=' . urlencode($filtroArtista) : ''; ?>" 
-               class="btn-limpar-categorias"></a>
+               class="btn-limpar-categorias">Limpar Categorias</a>
           <?php endif; ?>
         </form>
       </aside>
@@ -512,6 +548,7 @@ if ($ordenacao === 'preco_asc') {
             <i class="fas fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
             <h3>Nenhuma obra encontrada</h3>
             <p>Tente ajustar os filtros ou buscar por outro artista.</p>
+            <a href="?" class="btn-limpar-filtros">Limpar Todos os Filtros</a>
           </div>
         <?php else: ?>
           <?php foreach ($produtosFiltrados as $produto): ?>
@@ -529,8 +566,6 @@ if ($ordenacao === 'preco_asc') {
           </div>
           <?php endforeach; ?>
         <?php endif; ?>
-
-        
       </section>
     </div>
   </main>
@@ -561,12 +596,12 @@ if ($ordenacao === 'preco_asc') {
   </footer>
 
   <script>
-    // Dados das obras (poderia vir de um banco de dados)
+    // Dados das obras
     const obras = <?php echo json_encode($produtos); ?>;
 
     // Função para mostrar detalhes da obra
     function mostrarDetalhes(obraId) {
-      const obra = obras[obraId];
+      const obra = obras.find(o => o.id === obraId);
       if (!obra) return;
 
       const modal = document.getElementById('modalDetalhes');
@@ -708,17 +743,21 @@ if ($ordenacao === 'preco_asc') {
       });
     }
 
-    // Dropdown perfil
-document.addEventListener('DOMContentLoaded', function () {
-    const profileIcon = document.getElementById('profile-icon');
-    const profileDropdown = document.getElementById('profile-dropdown');
-    if(profileIcon && profileDropdown){
-        profileIcon.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); profileDropdown.style.display=(profileDropdown.style.display==='block'?'none':'block'); });
-        document.addEventListener('click', e=>{ if(!profileDropdown.contains(e.target) && e.target!==profileIcon) profileDropdown.style.display='none'; });
-        profileDropdown.addEventListener('click', e=>{ e.stopPropagation(); });
+    // Dropdown Perfil
+    const profileIcon = document.getElementById("profile-icon");
+    const profileDropdown = document.getElementById("profile-dropdown");
+    if (profileIcon && profileDropdown) {
+      profileIcon.addEventListener("click", (e) => {
+        e.preventDefault();
+        profileDropdown.style.display =
+          profileDropdown.style.display === "block" ? "none" : "block";
+      });
+      document.addEventListener("click", (e) => {
+        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
+          profileDropdown.style.display = "none";
+        }
+      });
     }
-});
   </script>
 </body>
-
 </html>

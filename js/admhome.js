@@ -10,18 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-document.addEventListener("click", e => {
-    if (e.target.classList.contains("delete")) {
-        alert("Item excluído com sucesso!");
-    }
-    if (e.target.classList.contains("edit")) {
-        alert("Função de edição será adicionada futuramente!");
-    }
-    if (e.target.classList.contains("refresh")) {
-        alert("Tabela atualizada!");
-    }
-});
-
 document.querySelector(".toggle-btn").addEventListener("click", () => {
     document.querySelector(".sidebar").classList.toggle("collapsed");
 });
