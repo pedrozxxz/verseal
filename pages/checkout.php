@@ -15,7 +15,7 @@ if (!$usuarioLogado) {
 }
 
 $carrinho = $_SESSION['carrinho'];
-$total = array_sum(array_map(fn($item) => $item["preco"] * $item["qtd"], $carrinho));
+$total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
 ?>
 
 <!DOCTYPE html>

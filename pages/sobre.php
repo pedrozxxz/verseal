@@ -30,6 +30,9 @@ elseif (isset($_SESSION["artistas"])) {
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
+    .icon-card{
+      align-self: center;
+    }
     .fade-in {
       opacity: 0;
       transform: translateY(40px);
@@ -39,13 +42,10 @@ elseif (isset($_SESSION["artistas"])) {
       opacity: 1;
       transform: translateY(0);
     }
-    
-    /* Estilos para o dropdown corrigido */
     .profile-dropdown {
       position: relative;
       display: inline-block;
     }
-    
     .dropdown-content {
       display: none;
       position: absolute;
@@ -57,22 +57,18 @@ elseif (isset($_SESSION["artistas"])) {
       z-index: 1000;
       padding: 10px 0;
     }
-    
     .dropdown-content.show {
       display: block;
     }
-    
     .user-info {
       padding: 10px 15px;
       border-bottom: 1px solid #eee;
     }
-    
     .user-info p {
       margin: 0;
       font-size: 0.9rem;
       color: #333;
     }
-    
     .dropdown-item {
       display: flex;
       align-items: center;
@@ -81,27 +77,22 @@ elseif (isset($_SESSION["artistas"])) {
       color: #333;
       transition: background 0.3s;
     }
-    
     .dropdown-item:hover {
       background: #f8f9fa;
     }
-    
     .dropdown-item i {
       margin-right: 10px;
       width: 16px;
       text-align: center;
     }
-    
     .dropdown-divider {
       height: 1px;
       background: #eee;
       margin: 5px 0;
     }
-    
     .logout-btn {
       color: #dc3545;
     }
-    
     .logout-btn:hover {
       background: #f8d7da;
     }
