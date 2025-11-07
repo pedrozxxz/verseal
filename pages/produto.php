@@ -410,7 +410,7 @@ $conn->close();
 <header>
   <div class="logo">Verseal</div>
   <nav>
-    <a href="index.php">Início</a>
+    <a href="../index.php">Início</a>
     <a href="../pages/produto.php">Obras</a>
     <a href="../pages/sobre.php">Sobre</a>
     <a href="../pages/artistas.php">Artistas</a>
@@ -559,10 +559,6 @@ $conn->close();
           </div>
 
           <button type="submit" class="btn-aplicar-filtros">Aplicar Filtros</button>
-          <?php if (!empty($filtroCategoria)): ?>
-            <a href="?<?php echo !empty($filtroArtista) ? 'artista=' . urlencode($filtroArtista) : ''; ?>" 
-               class="btn-limpar-categorias">Limpar Categorias</a>
-          <?php endif; ?>
         </form>
       </aside>
 

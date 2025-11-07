@@ -39,12 +39,12 @@ elseif (isset($_SESSION["artista"])) {
     $usuarioLogado = $_SESSION["artista"];
     $tipoUsuario = "artista";
 }
-// 🔹 Busca as obras cadastradas no banco
+// Busca as obras cadastradas no banco
 $sql = "SELECT id, nome, artista, preco, descricao AS desc_obra, dimensao, tecnica, ano, material, imagem, categoria 
         FROM obras";
 $result = $conn->query($sql);
 
-// 🔹 Cria array com as obras
+// Cria array com as obras
 $produtos = [];
 if ($result && $result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
