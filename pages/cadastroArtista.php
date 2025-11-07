@@ -155,7 +155,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-  <a href="../index.php" class="btn-voltar">← Voltar</a>
 
   <div id="particles-js"></div>
 

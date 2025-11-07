@@ -274,8 +274,6 @@ $conn->close();
 </head>
 
 <body>
-  <!-- Botão Voltar Inteligente -->
-  <a href="<?php echo $voltarUrl; ?>" class="btn-voltar">← Voltar</a>
 
   <!-- Partículas no fundo -->
   <div id="particles-js"></div>

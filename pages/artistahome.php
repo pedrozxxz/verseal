@@ -1,6 +1,20 @@
 <?php
 session_start();
-$usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
+
+// Verificar se usuário está logado (cliente ou artista)
+$usuarioLogado = null;
+$tipoUsuario = null;
+
+// Verifica se há sessão de cliente
+if (isset($_SESSION["cliente"])) {
+    $usuarioLogado = $_SESSION["cliente"];
+    $tipoUsuario = "cliente";
+}
+// Verifica se há sessão de artista
+elseif (isset($_SESSION["artista"])) {
+    $usuarioLogado = $_SESSION["artista"];
+    $tipoUsuario = "artista";
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
