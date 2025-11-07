@@ -17,15 +17,16 @@ if ($conn->connect_error) {
 $usuarioLogado = null;
 $tipoUsuario = null;
 
-if (isset($_SESSION["cliente"])) {
-    $usuarioLogado = $_SESSION["cliente"];
+// Corrigido para usar as sessões corretas
+if (isset($_SESSION["clientes"])) {
+    $usuarioLogado = $_SESSION["clientes"];
     $tipoUsuario = "cliente";
-} elseif (isset($_SESSION["artista"])) {
-    $usuarioLogado = $_SESSION["artista"];
+} elseif (isset($_SESSION["artistas"])) {
+    $usuarioLogado = $_SESSION["artistas"];
     $tipoUsuario = "artista";
 }
 
-// Buscar artistas ativos do banco de dados
+// CORREÇÃO: Buscar artistas da tabela ARTISTAS (no plural)
 $sql_artistas = "SELECT * FROM artistas WHERE ativo = 1 ORDER BY nome ASC";
 $result_artistas = $conn->query($sql_artistas);
 $artistas = [];
@@ -37,16 +38,20 @@ if ($result_artistas && $result_artistas->num_rows > 0) {
             'nome' => $artista['nome'],
             'idade' => $artista['idade'] ?? '',
             'descricao' => $artista['descricao'] ?? '',
-            'biografia' => $artista['biografia'] ?? '', // agora pega do banco corretamente
+            'biografia' => $artista['descricao'] ?? '', // usando descricao como biografia
             'telefone' => $artista['telefone'] ?? '',
             'email' => $artista['email'] ?? '',
             'instagram' => $artista['instagram'] ?? '',
             'cor_gradiente' => $artista['cor_gradiente'] ?? 'linear-gradient(135deg, #e07b67, #cc624e)',
             'icone' => $artista['icone'] ?? 'fas fa-paint-brush',
-            'foto_perfil' => $artista['foto_perfil'] ?? ''
+            'foto_perfil' => $artista['imagem_perfil'] ?? '', // CORREÇÃO: imagem_perfil no banco
+            'total_obras' => $artista['total_obras'] ?? 0
         ];
     }
 }
+
+// Debug para verificar se os artistas estão sendo carregados
+error_log("Artistas carregados: " . count($artistas));
 
 $conn->close();
 ?>
@@ -65,7 +70,7 @@ $conn->close();
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    .btn-mensagem-artista {
+   .btn-mensagem-artista {
       display: inline-block;
       margin-top: 12px;
       background: linear-gradient(135deg, #28a745, #20c997);
@@ -250,6 +255,72 @@ $conn->close();
       background: #6c757d;
       cursor: not-allowed;
     }
+
+    /* Estilos para o dropdown corrigido */
+    .profile-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background: white;
+      min-width: 220px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      z-index: 1000;
+      padding: 10px 0;
+    }
+    
+    .dropdown-content.show {
+      display: block;
+    }
+    
+    .user-info {
+      padding: 10px 15px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .user-info p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #333;
+    }
+    
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 15px;
+      text-decoration: none;
+      color: #333;
+      transition: background 0.3s;
+    }
+    
+    .dropdown-item:hover {
+      background: #f8f9fa;
+    }
+    
+    .dropdown-item i {
+      margin-right: 10px;
+      width: 16px;
+      text-align: center;
+    }
+    
+    .dropdown-divider {
+      height: 1px;
+      background: #eee;
+      margin: 5px 0;
+    }
+    
+    .logout-btn {
+      color: #dc3545;
+    }
+    
+    .logout-btn:hover {
+      background: #f8d7da;
+    }
   </style>
 </head>
 
@@ -259,12 +330,12 @@ $conn->close();
     <div class="logo">Verseal</div>
     <nav>
       <a href="../index.php">Início</a>
-      <a href="../pages/produto.php">Obras</a>
-      <a href="../pages/sobre.php">Sobre</a>
-      <a href="../pages/artistas.php">Artistas</a>
-      <a href="../pages/contato.php">Contato</a>
+      <a href="./produto.php">Obras</a>
+      <a href="./sobre.php">Sobre</a>
+      <a href="./artistas.php">Artistas</a>
+      <a href="./contato.php">Contato</a>
       
-      <a href="./pages/carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+      <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
       
       <!-- Dropdown Perfil -->
       <div class="profile-dropdown">
@@ -279,9 +350,9 @@ $conn->close();
                 <span id="user-name">
                   <?php 
                   if ($tipoUsuario === "cliente") {
-                    echo htmlspecialchars($usuarioLogado['nome']);
+                    echo htmlspecialchars(is_array($usuarioLogado) ? $usuarioLogado['nome'] : $usuarioLogado);
                   } elseif ($tipoUsuario === "artista") {
-                    echo htmlspecialchars($usuarioLogado['nome_artistico']);
+                    echo htmlspecialchars(is_array($usuarioLogado) ? ($usuarioLogado['nome_artistico'] ?? $usuarioLogado['nome']) : $usuarioLogado);
                   }
                   ?>
                 </span>!
@@ -290,43 +361,28 @@ $conn->close();
             <div class="dropdown-divider"></div>
 
             <?php if ($tipoUsuario === "cliente"): ?>
-              <a href="../pages/perfilCliente.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
-              <a href="../pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+              <a href="./perfilCliente.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
+              <a href="./favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+            <?php elseif ($tipoUsuario === "artista"): ?>
+              <a href="./artistahome.php" class="dropdown-item"><i class="fas fa-palette"></i> Meu Perfil</a>
             <?php endif; ?>
 
             <div class="dropdown-divider"></div>
-            <a href="../pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+            <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
 
           <?php else: ?>
-            <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+            <div class="user-info">
+              <p>Faça login para acessar seu perfil</p>
+            </div>
             <div class="dropdown-divider"></div>
-            <a href="../pages/login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-            <a href="../pages/login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+            <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+            <a href="./cadastro.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
           <?php endif; ?>
-        </div>
-      </div>
-
-      <!-- Menu Hamburguer Flutuante -->
-      <div class="hamburger-menu-desktop">
-        <input type="checkbox" id="menu-toggle-desktop">
-        <label for="menu-toggle-desktop" class="hamburger-desktop">
-          <i class="fas fa-bars"></i>
-          <span>ACESSO</span>
-        </label>
-        <div class="menu-content-desktop">
-          <div class="menu-section">
-            <a href="../index.php" class="menu-item" onclick="document.getElementById('menu-toggle-desktop').checked = false;">
-              <i class="fas fa-user"></i> <span>Cliente</span>
-            </a>
-            <a href="../pages/admhome.php" class="menu-item"><i class="fas fa-user-shield"></i> <span>ADM</span></a>
-            <a href="../pages/artistahome.php" class="menu-item"><i class="fas fa-palette"></i> <span>Artista</span></a>
-          </div>
         </div>
       </div>
     </nav>
   </header>
 
-  <!-- HERO ARTISTAS -->
   <section class="hero-artistas">
     <div class="hero-artistas-content">
       <h1>Nossos Artistas</h1>
@@ -339,242 +395,127 @@ $conn->close();
   </section>
 
   <!-- SEÇÃO ARTISTAS -->
-  <section class="artistas" id="artistas">
-    <h2>Conheça Nossos Talentos</h2>
-    <p class="artistas-subtitle">
-      Artistas independentes que buscam autonomia no mercado artístico através da Verseal
-    </p>
-    
-    <div class="galeria-artistas">
-      <?php if (empty($artistas)): ?>
-        <div class="nenhum-artista">
-          <i class="fas fa-palette" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
-          <h3>Nenhum artista cadastrado</h3>
-          <p>Em breve teremos artistas incríveis para apresentar!</p>
-        </div>
-      <?php else: ?>
-        <?php foreach ($artistas as $artista): ?>
-          <div class="card-artista fade-in">
-            <div class="artista-imagem" style="background: <?php echo $artista['cor_gradiente']; ?>;">
-              <?php if (!empty($artista['foto_perfil'])): ?>
-                <img src="<?php echo $artista['foto_perfil']; ?>" 
-                     alt="<?php echo htmlspecialchars($artista['nome']); ?>" 
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <div class="icone-fallback" style="display: none;">
-                  <i class="<?php echo $artista['icone']; ?>"></i>
-                </div>
-              <?php else: ?>
-                <div class="icone-fallback">
-                  <i class="<?php echo $artista['icone']; ?>"></i>
-                </div>
-              <?php endif; ?>
-            </div>
-
-            <div class="artista-info">
-              <h3 class="artista-nome"><?php echo htmlspecialchars($artista['nome']); ?></h3>
-              <?php if (!empty($artista['idade'])): ?>
-                <p class="artista-idade"><?php echo $artista['idade']; ?> anos</p>
-              <?php endif; ?>
-              
-              <!-- Descrição curta -->
-              <p class="artista-descricao">
-                <?php echo htmlspecialchars($artista['descricao']); ?>
-              </p>
-
-              <!-- Biografia completa -->
-              <?php if (!empty($artista['biografia'])): ?>
-                <div class="artista-biografia">
-                  <div class="biografia-titulo">
-                    <i class="fas fa-book-open"></i>
-                    <span>Biografia</span>
-                  </div>
-                  <p class="biografia-texto">
-                    <?php echo htmlspecialchars($artista['biografia']); ?>
-                  </p>
-                </div>
-              <?php endif; ?>
-
-              <div class="artista-contatos">
-                <?php if (!empty($artista['telefone'])): ?>
-                  <div class="contato-item">
-                    <i class="fas fa-phone"></i>
-                    <span>Telefone: <?php echo htmlspecialchars($artista['telefone']); ?></span>
-                  </div>
-                <?php endif; ?>
-
-                <?php if (!empty($artista['email'])): ?>
-                  <div class="contato-item">
-                    <i class="fas fa-envelope"></i>
-                    <span>Email: <?php echo htmlspecialchars($artista['email']); ?></span>
-                  </div>
-                <?php endif; ?>
-
-                <?php if (!empty($artista['instagram'])): ?>
-                  <div class="contato-item">
-                    <i class="fab fa-instagram"></i>
-                    <span>Instagram: <?php echo htmlspecialchars($artista['instagram']); ?></span>
-                  </div>
-                <?php endif; ?>
-              </div>
-
-              <div class="artista-actions">
-                <?php if ($usuarioLogado && is_array($usuarioLogado) && ($usuarioLogado['nome'] === $artista['nome'])): ?>
-                
-                <?php elseif ($usuarioLogado): ?>
-                  <button class="btn-mensagem-artista" onclick="abrirModalMensagem(<?php echo $artista['id']; ?>, '<?php echo htmlspecialchars($artista['nome']); ?>')">
-                    <i class="fas fa-paper-plane"></i> Enviar Mensagem
-                  </button>
-                <?php else: ?>
-                  <a href="login.php" class="btn-mensagem-artista">
-                    <i class="fas fa-paper-plane"></i> Enviar Mensagem
-                  </a>
-                <?php endif; ?>
-              </div>
-            </div>
+  <section class="artistas" id="artistas" style="padding: 60px 20px;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+      <h2 style="text-align: center; font-family: 'Playfair Display', serif; color: #333; margin-bottom: 20px;">Conheça Nossos Talentos</h2>
+      <p style="text-align: center; color: #666; font-size: 1.1rem; margin-bottom: 40px;">
+        Artistas independentes que buscam autonomia no mercado artístico através da Verseal
+      </p>
+      
+      <div class="galeria-artistas">
+        <?php if (empty($artistas)): ?>
+          <div class="nenhum-artista">
+            <i class="fas fa-palette" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
+            <h3>Nenhum artista cadastrado</h3>
+            <p>Em breve teremos artistas incríveis para apresentar!</p>
           </div>
-        <?php endforeach; ?>
-      <?php endif; ?>
+        <?php else: ?>
+          <?php foreach ($artistas as $artista): ?>
+            <div class="card-artista">
+              <div class="artista-imagem" style="background: <?php echo $artista['cor_gradiente']; ?>;">
+                <?php if (!empty($artista['foto_perfil'])): ?>
+                  <img src="<?php echo $artista['foto_perfil']; ?>" 
+                       alt="<?php echo htmlspecialchars($artista['nome']); ?>">
+                <?php else: ?>
+                  <div class="icone-fallback">
+                    <i class="<?php echo $artista['icone']; ?>"></i>
+                  </div>
+                <?php endif; ?>
+              </div>
+
+              <div class="artista-info">
+                <h3 class="artista-nome"><?php echo htmlspecialchars($artista['nome']); ?></h3>
+                
+                <?php if (!empty($artista['idade'])): ?>
+                  <p class="artista-idade"><?php echo $artista['idade']; ?> anos</p>
+                <?php endif; ?>
+
+                <?php if (!empty($artista['total_obras'])): ?>
+                  <div class="total-obras">
+                    <i class="fas fa-palette"></i> <?php echo $artista['total_obras']; ?> obras
+                  </div>
+                <?php endif; ?>
+                
+                <!-- Descrição curta -->
+                <?php if (!empty($artista['descricao'])): ?>
+                  <p class="artista-descricao">
+                    <?php echo htmlspecialchars($artista['descricao']); ?>
+                  </p>
+                <?php endif; ?>
+
+                <div class="artista-contatos">
+                  <?php if (!empty($artista['email'])): ?>
+                    <div class="contato-item">
+                      <i class="fas fa-envelope"></i>
+                      <span><?php echo htmlspecialchars($artista['email']); ?></span>
+                    </div>
+                  <?php endif; ?>
+
+                  <?php if (!empty($artista['instagram'])): ?>
+                    <div class="contato-item">
+                      <i class="fab fa-instagram"></i>
+                      <span><?php echo htmlspecialchars($artista['instagram']); ?></span>
+                    </div>
+                  <?php endif; ?>
+
+                  <?php if (!empty($artista['telefone'])): ?>
+                    <div class="contato-item">
+                      <i class="fas fa-phone"></i>
+                      <span><?php echo htmlspecialchars($artista['telefone']); ?></span>
+                    </div>
+                  <?php endif; ?>
+                </div>
+
+                <div class="artista-actions">
+                  <?php if ($usuarioLogado): ?>
+                    <button class="btn-mensagem-artista" onclick="abrirModalMensagem(<?php echo $artista['id']; ?>, '<?php echo htmlspecialchars($artista['nome']); ?>')">
+                      <i class="fas fa-paper-plane"></i> Enviar Mensagem
+                    </button>
+                  <?php else: ?>
+                    <a href="login.php" class="btn-mensagem-artista">
+                      <i class="fas fa-paper-plane"></i> Enviar Mensagem
+                    </a>
+                  <?php endif; ?>
+                </div>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </div>
     </div>
   </section>
 
-  <!-- MODAL ENVIAR MENSAGEM -->
-  <div id="modalMensagem" class="modal-mensagem">
-    <div class="modal-conteudo-mensagem">
-      <div class="modal-header-mensagem">
-        <h2 id="modalTituloMensagem">Enviar Mensagem</h2>
-        <button class="btn-fechar-modal" onclick="fecharModalMensagem()">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="modal-body-mensagem">
-        <form id="formMensagem" class="form-mensagem" onsubmit="enviarMensagem(event)">
-          <input type="hidden" id="artistaId" name="artista_id">
-          <input type="hidden" id="artistaNome" name="artista_nome">
-          
-          <div>
-            <label for="assuntoMensagem">Assunto:</label>
-            <input type="text" id="assuntoMensagem" name="assunto" placeholder="Assunto da mensagem" required>
-          </div>
-          
-          <div>
-            <label for="mensagemTexto">Mensagem:</label>
-            <textarea id="mensagemTexto" name="mensagem" placeholder="Escreva sua mensagem para o artista..." required></textarea>
-          </div>
-          
-          <button type="submit" class="btn-enviar-mensagem" id="btnEnviarMensagem">
-            <i class="fas fa-paper-plane"></i> Enviar Mensagem
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
   <script>
-    let artistaAtual = null;
-
-    function abrirModalMensagem(artistaId, artistaNome) {
-      console.log('Abrindo modal para:', artistaNome, 'ID:', artistaId);
-      artistaAtual = { id: artistaId, nome: artistaNome };
-      document.getElementById('artistaId').value = artistaId;
-      document.getElementById('artistaNome').value = artistaNome;
-      document.getElementById('modalTituloMensagem').textContent = `Enviar mensagem para ${artistaNome}`;
-      document.getElementById('modalMensagem').classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function fecharModalMensagem() {
-      console.log('Fechando modal');
-      document.getElementById('modalMensagem').classList.remove('active');
-      document.body.style.overflow = 'auto';
-      document.getElementById('formMensagem').reset();
-      artistaAtual = null;
-    }
-
-    async function enviarMensagem(event) {
-      event.preventDefault();
-      console.log('Enviando mensagem...');
-      
-      const form = event.target;
-      const formData = new FormData(form);
-      const btnEnviar = document.getElementById('btnEnviarMensagem');
-      
-      // Desabilitar botão
-      btnEnviar.disabled = true;
-      btnEnviar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-      
-      try {
-        const response = await fetch('enviar_mensagem.php', {
-          method: 'POST',
-          body: formData
-        });
-        
-        const data = await response.json();
-        console.log('Resposta do servidor:', data);
-        
-        if (data.success) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Mensagem enviada!',
-            text: 'Sua mensagem foi enviada com sucesso para o artista.',
-            confirmButtonColor: '#28a745'
-          });
-          fecharModalMensagem();
-        } else {
-          throw new Error(data.message || 'Erro ao enviar mensagem');
-        }
-      } catch (error) {
-        console.error('Erro:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Erro',
-          text: error.message || 'Erro ao enviar mensagem. Tente novamente.',
-          confirmButtonColor: '#dc3545'
-        });
-      } finally {
-        // Reabilitar botão
-        btnEnviar.disabled = false;
-        btnEnviar.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Mensagem';
-      }
-    }
-
-    // Fechar modal ao clicar fora
-    document.getElementById('modalMensagem').addEventListener('click', function(e) {
-      if (e.target === this) {
-        fecharModalMensagem();
-      }
-    });
-
-    // Fechar modal com ESC
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        fecharModalMensagem();
-      }
-    });
-
     // Dropdown do perfil
     document.addEventListener('DOMContentLoaded', function () {
       const profileIcon = document.getElementById('profile-icon');
       const profileDropdown = document.getElementById('profile-dropdown');
+      
       if (profileIcon && profileDropdown) {
         profileIcon.addEventListener('click', function (e) {
           e.preventDefault();
           e.stopPropagation();
-          profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+          profileDropdown.classList.toggle('show');
         });
+
+        // Fechar dropdown ao clicar fora
         document.addEventListener('click', function (e) {
-          if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
-            profileDropdown.style.display = 'none';
+          if (!profileIcon.contains(e.target) && !profileDropdown.contains(e.target)) {
+            profileDropdown.classList.remove('show');
           }
         });
+
+        // Prevenir fechamento ao clicar dentro do dropdown
         profileDropdown.addEventListener('click', function (e) {
           e.stopPropagation();
         });
       }
-
-      // Debug: verificar se elementos do modal existem
-      console.log('Modal elemento:', document.getElementById('modalMensagem'));
-      console.log('Form elemento:', document.getElementById('formMensagem'));
     });
+
+    function abrirModalMensagem(artistaId, artistaNome) {
+      alert('Funcionalidade de mensagem para: ' + artistaNome);
+      // Aqui você pode implementar o modal de mensagem
+    }
   </script>
 </body>
 </html>

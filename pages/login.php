@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       </script>";
     } else {
       // Verificar se e-mail já existe
-      $sql_check = "SELECT id FROM clientes WHERE email = ?";
+      $sql_check = "SELECT id FROM usuarios WHERE email = ?";
       $stmt_check = $conn->prepare($sql_check);
       $stmt_check->bind_param("s", $email);
       $stmt_check->execute();
@@ -74,18 +74,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->execute()) {
           // Buscar dados do novo usuário
           $user_id = $stmt->insert_id;
-          $sql_user = "SELECT * FROM clientes WHERE id = ?";
+          $sql_user = "SELECT * FROM usuarios WHERE id = ?";
           $stmt_user = $conn->prepare($sql_user);
           $stmt_user->bind_param("i", $user_id);
           $stmt_user->execute();
           $new_user = $stmt_user->get_result()->fetch_assoc();
 
+          $_SESSION["usuario"] = $new_user;
+          $_SESSION["usuario_id"] = $new_user['id'];
+          
+          // CORREÇÃO: Usar sessão compatível com outras páginas
           $_SESSION["clientes"] = $new_user;
           $_SESSION["clientes_id"] = $new_user['id'];
-$_SESSION["cliente"] = [
-    "id" => $id,
-    "nome" => $nome
-];
+
           // Verificar se é artista
           $sql_artista = "SELECT id FROM artistas WHERE email = ? AND ativo = 1";
           $stmt_artista = $conn->prepare($sql_artista);
@@ -142,7 +143,8 @@ $_SESSION["cliente"] = [
     $email = $_POST["email"];
     $senha = $_POST["senha"];
 
-    $sql = "SELECT * FROM clientes WHERE email = ?";
+    // CORREÇÃO: Buscar da tabela usuarios em vez de clientes
+    $sql = "SELECT * FROM usuarios WHERE email = ? AND ativo = 1";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -150,8 +152,11 @@ $_SESSION["cliente"] = [
 
     if ($row = $result->fetch_assoc()) {
       if (password_verify($senha, $row["senha"])) {
+        // CORREÇÃO: Configurar sessões compatíveis
         $_SESSION["clientes"] = $row;
         $_SESSION["clientes_id"] = $row["id"];
+        $_SESSION["usuario"] = $row;
+        $_SESSION["usuario_id"] = $row["id"];
 
         // Verificar se é artista
         $sql_artistas = "SELECT id FROM artistas WHERE email = ? AND ativo = 1";
@@ -162,6 +167,7 @@ $_SESSION["cliente"] = [
 
         if ($isArtistas) {
           $_SESSION["tipo_artistas"] = 'artista';
+          $_SESSION["artistas"] = $row; // Para compatibilidade
           $redirectUrl = 'artistahome.php';
           $mensagem = "Bem-vindo de volta, artista {$row['nome']}! ✨";
         } else {

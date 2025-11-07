@@ -5,19 +5,11 @@ session_start();
 $usuarioLogado = null;
 $tipoUsuario = null;
 
-if (isset($_SESSION["clientes"])) {
-    if (is_array($_SESSION["clientes"])) {
-        $usuarioLogado = $_SESSION["clientes"];
-    } else {
-        $usuarioLogado = $_SESSION["clientes"];
-    }
-    $tipoUsuario = "clientes";
+if (isset($_SESSION["usuario"])) {
+    $usuarioLogado = $_SESSION["usuario"];
+    $tipoUsuario = "usuario";
 } elseif (isset($_SESSION["artistas"])) {
-    if (is_array($_SESSION["artistas"])) {
-        $usuarioLogado = $_SESSION["artistas"];
-    } else {
-        $usuarioLogado = $_SESSION["artistas"];
-    }
+    $usuarioLogado = $_SESSION["artistas"];
     $tipoUsuario = "artistas";
 }
 
@@ -33,43 +25,52 @@ if ($conn->connect_error) {
     die("Falha na conexão: " . $conn->connect_error);
 }
 
-// Buscar TODAS as obras do banco de dados
-$sql_obras = "
-    SELECT o.*, GROUP_CONCAT(c.nome) as categorias 
-    FROM obras o 
-    LEFT JOIN obra_categoria oc ON o.id = oc.obra_id 
-    LEFT JOIN categorias c ON oc.categoria_id = c.id 
-    GROUP BY o.id
-    ORDER BY o.data_criacao DESC
+// Buscar TODOS os produtos (obras) do banco de dados
+// CORREÇÃO: Buscar diretamente da tabela produtos sem JOIN
+$sql_produtos = "
+    SELECT p.* 
+    FROM produtos p 
+    WHERE p.ativo = 1
+    ORDER BY p.data_cadastro DESC
 ";
 
-$result_obras = $conn->query($sql_obras);
+$result_produtos = $conn->query($sql_produtos);
 $produtos = [];
 
-if ($result_obras && $result_obras->num_rows > 0) {
-    while ($obra = $result_obras->fetch_assoc()) {
+if ($result_produtos && $result_produtos->num_rows > 0) {
+    while ($produto = $result_produtos->fetch_assoc()) {
+        // Processar categorias do campo JSON
         $categorias = [];
-        if (!empty($obra['categorias'])) {
-            $categorias = explode(',', $obra['categorias']);
+        if (!empty($produto['categorias'])) {
+            $categorias_array = json_decode($produto['categorias'], true);
+            if (is_array($categorias_array)) {
+                $categorias = $categorias_array;
+            } else {
+                // Fallback: tentar separar por vírgula se não for JSON válido
+                $categorias = array_map('trim', explode(',', $produto['categorias']));
+            }
         }
         
-        // Criar array indexado numericamente para facilitar o loop
+        // Criar array do produto
         $produtos[] = [
-            "id" => intval($obra['id']),
-            "img" => !empty($obra['img']) ? $obra['img'] : '../img/imagem2.png',
-            "nome" => $obra['nome'] ?? 'Obra sem nome',
-            "artista" => $obra['artista'] ?? 'Artista desconhecido',
-            "preco" => floatval($obra['preco'] ?? 0),
-            "desc" => $obra['descricao'] ?? '',
-            "dimensao" => $obra['dimensao'] ?? '',
-            "tecnica" => $obra['tecnica'] ?? '',
-            "ano" => intval($obra['ano'] ?? 2024),
-            "material" => $obra['material'] ?? '',
-            "categoria" => $categorias
+            "id" => intval($produto['id']),
+            "img" => !empty($produto['imagem_url']) ? $produto['imagem_url'] : '../img/imagem2.png',
+            "nome" => $produto['nome'] ?? 'Obra sem nome',
+            "artista" => $produto['artista'] ?? 'Artista desconhecido',
+            "preco" => floatval($produto['preco'] ?? 0),
+            "descricao" => $produto['descricao'] ?? '',
+            "dimensoes" => $produto['dimensoes'] ?? '',
+            "tecnica" => $produto['tecnica'] ?? '',
+            "ano" => intval($produto['ano'] ?? 2024),
+            "material" => $produto['material'] ?? '',
+            "categorias" => $categorias,
+            "disponivel" => boolval($produto['ativo'] ?? true),
+            "estoque" => intval($produto['estoque'] ?? 0),
+            "data_cadastro" => $produto['data_cadastro'] ?? ''
         ];
     }
 } else {
-    // Se não encontrar obras no banco, usar array vazio
+    // Se não encontrar produtos no banco, usar array vazio
     $produtos = [];
 }
 
@@ -102,7 +103,7 @@ if (!empty($filtroArtista)) {
 if (!empty($filtroCategoria) && is_array($filtroCategoria)) {
     $produtosFiltrados = array_filter($produtosFiltrados, function($produto) use ($filtroCategoria) {
         foreach ($filtroCategoria as $categoria) {
-            if (in_array($categoria, $produto['categoria'])) {
+            if (in_array($categoria, $produto['categorias'])) {
                 return true;
             }
         }
@@ -120,11 +121,16 @@ if ($ordenacao === 'preco_asc') {
         return $b['preco'] <=> $a['preco'];
     });
 } elseif ($ordenacao === 'recentes') {
-    // Ordenar por ID (simulando data)
+    // Ordenar por data de cadastro
     usort($produtosFiltrados, function($a, $b) {
+        if (!empty($a['data_cadastro']) && !empty($b['data_cadastro'])) {
+            return strtotime($b['data_cadastro']) <=> strtotime($a['data_cadastro']);
+        }
         return $b['id'] <=> $a['id'];
     });
 }
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -400,18 +406,19 @@ if ($ordenacao === 'preco_asc') {
 </head>
 <body>
 <!-- HEADER -->
+<!-- HEADER -->
 <header>
   <div class="logo">Verseal</div>
   <nav>
-    <a href="../index.php">Início</a>
+    <a href="index.php">Início</a>
     <a href="../pages/produto.php">Obras</a>
     <a href="../pages/sobre.php">Sobre</a>
     <a href="../pages/artistas.php">Artistas</a>
     <a href="../pages/contato.php">Contato</a>
     
-    <a href="./pages/carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+    <a href="../pages/carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
     
-   <!-- Dropdown Perfil -->
+    <!-- Dropdown Perfil -->
 <div class="profile-dropdown">
   <a href="#" class="icon-link" id="profile-icon">
     <i class="fas fa-user"></i>
@@ -435,21 +442,21 @@ if ($ordenacao === 'preco_asc') {
       <div class="dropdown-divider"></div>
 
       <?php if ($tipoUsuario === "cliente"): ?>
-        <a href="./pages/perfilCliente.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
-        <a href="./pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+        <a href="../pages/perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
+        <a href="../pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
       <?php endif; ?>
 
       <div class="dropdown-divider"></div>
-      <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+      <a href="../pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
 
     <?php else: ?>
-          <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
-          <div class="dropdown-divider"></div>
-          <a href="./pages/login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-          <a href="./pages/login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
-        <?php endif; ?>
-      </div>
-    </div>
+      <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+      <div class="dropdown-divider"></div>
+      <a href="../pages/login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+      <a href="../pages/login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+    <?php endif; ?>
+  </div>
+</div>
 
     <!-- Menu Hamburguer Flutuante -->
     <div class="hamburger-menu-desktop">
@@ -760,22 +767,52 @@ if ($ordenacao === 'preco_asc') {
         });
       });
     }
+ // Dropdown do perfil
+    document.addEventListener('DOMContentLoaded', function () {
+      const profileIcon = document.getElementById('profile-icon');
+      const profileDropdown = document.getElementById('profile-dropdown');
 
-    // Dropdown Perfil
-    const profileIcon = document.getElementById("profile-icon");
-    const profileDropdown = document.getElementById("profile-dropdown");
-    if (profileIcon && profileDropdown) {
-      profileIcon.addEventListener("click", (e) => {
+      profileIcon.addEventListener('click', function (e) {
         e.preventDefault();
-        profileDropdown.style.display =
-          profileDropdown.style.display === "block" ? "none" : "block";
+        e.stopPropagation();
+        profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
       });
-      document.addEventListener("click", (e) => {
+
+      // Fechar dropdown ao clicar fora
+      document.addEventListener('click', function (e) {
         if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
-          profileDropdown.style.display = "none";
+          profileDropdown.style.display = 'none';
         }
       });
-    }
+
+      // Prevenir fechamento ao clicar dentro do dropdown
+      profileDropdown.addEventListener('click', function (e) {
+        e.stopPropagation();
+      });
+
+      // Menu Hamburguer Desktop
+      const menuToggleDesktop = document.getElementById('menu-toggle-desktop');
+      const menuContentDesktop = document.querySelector('.menu-content-desktop');
+
+      // Fechar menu ao clicar fora
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.hamburger-menu-desktop')) {
+          menuToggleDesktop.checked = false;
+        }
+      });
+
+      // Fechar menu ao clicar em um item (exceto Cliente)
+      const menuItems = document.querySelectorAll('.menu-item');
+      menuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+          // Não fecha o menu se for o item Cliente
+          if (!this.querySelector('i').classList.contains('fa-user')) {
+            menuToggleDesktop.checked = false;
+          }
+        });
+      });
+    });
   </script>
+
 </body>
 </html>

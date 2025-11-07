@@ -6,14 +6,14 @@ $usuarioLogado = null;
 $tipoUsuario = null;
 
 // Verifica se há sessão de cliente
-if (isset($_SESSION["cliente"])) {
-    $usuarioLogado = $_SESSION["cliente"];
-    $tipoUsuario = "cliente";
+if (isset($_SESSION["usuario"])) {
+    $usuarioLogado = $_SESSION["usuario"];
+    $tipoUsuario = "usuario";
 }
 // Verifica se há sessão de artista
-elseif (isset($_SESSION["artista"])) {
-    $usuarioLogado = $_SESSION["artista"];
-    $tipoUsuario = "artista";
+elseif (isset($_SESSION["artistas"])) {
+    $usuarioLogado = $_SESSION["artistas"];
+    $tipoUsuario = "artistas";
 }
 ?>
 <!DOCTYPE html>

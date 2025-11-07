@@ -5,14 +5,14 @@ session_start();
 $usuarioLogado = null;
 $tipoUsuario = null;
 
-// Verifica se há sessão de cliente
-if (isset($_SESSION["cliente"])) {
-    $usuarioLogado = $_SESSION["cliente"];
+// Verifica se há sessão de cliente (corrigido para "clientes" no plural)
+if (isset($_SESSION["clientes"])) {
+    $usuarioLogado = $_SESSION["clientes"];
     $tipoUsuario = "cliente";
 }
-// Verifica se há sessão de artista
-elseif (isset($_SESSION["artista"])) {
-    $usuarioLogado = $_SESSION["artista"];
+// Verifica se há sessão de artista (corrigido para "artistas" no plural)
+elseif (isset($_SESSION["artistas"])) {
+    $usuarioLogado = $_SESSION["artistas"];
     $tipoUsuario = "artista";
 }
 ?>
@@ -27,7 +27,7 @@ elseif (isset($_SESSION["artista"])) {
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
   <link rel="stylesheet" href="../css/sobre.css">
   <link rel="stylesheet" href="../css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
     .fade-in {
@@ -38,6 +38,72 @@ elseif (isset($_SESSION["artista"])) {
     .fade-in.show {
       opacity: 1;
       transform: translateY(0);
+    }
+    
+    /* Estilos para o dropdown corrigido */
+    .profile-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background: white;
+      min-width: 220px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      z-index: 1000;
+      padding: 10px 0;
+    }
+    
+    .dropdown-content.show {
+      display: block;
+    }
+    
+    .user-info {
+      padding: 10px 15px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .user-info p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #333;
+    }
+    
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 15px;
+      text-decoration: none;
+      color: #333;
+      transition: background 0.3s;
+    }
+    
+    .dropdown-item:hover {
+      background: #f8f9fa;
+    }
+    
+    .dropdown-item i {
+      margin-right: 10px;
+      width: 16px;
+      text-align: center;
+    }
+    
+    .dropdown-divider {
+      height: 1px;
+      background: #eee;
+      margin: 5px 0;
+    }
+    
+    .logout-btn {
+      color: #dc3545;
+    }
+    
+    .logout-btn:hover {
+      background: #f8d7da;
     }
   </style>
 </head>
@@ -52,42 +118,49 @@ elseif (isset($_SESSION["artista"])) {
     <a href="./contato.php">Contato</a>
     
     <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
-    <!-- Dropdown Perfil -->
-<div class="profile-dropdown">
-  <a href="#" class="icon-link" id="profile-icon">
-    <i class="fas fa-user"></i>
-  </a>
-  <div class="dropdown-content" id="profile-dropdown">
-    <?php if ($usuarioLogado): ?>
-      <div class="user-info">
-        <p>
-          Seja bem-vindo, 
-          <span id="user-name">
-            <?php 
-            if ($tipoUsuario === "cliente") {
-              echo htmlspecialchars($usuarioLogado['nome']);
-            } elseif ($tipoUsuario === "artista") {
-              echo htmlspecialchars($usuarioLogado['nome_artistico']);
-            }
-            ?>
-          </span>!
-        </p>
-      </div>
-      <div class="dropdown-divider"></div>
+    
+    <!-- Dropdown Perfil CORRIGIDO -->
+    <div class="profile-dropdown">
+      <a href="#" class="icon-link" id="profile-icon">
+        <i class="fas fa-user"></i>
+      </a>
+      <div class="dropdown-content" id="profile-dropdown">
+        <?php if ($usuarioLogado): ?>
+          <div class="user-info">
+            <p>
+              Seja bem-vindo, 
+              <span id="user-name">
+                <?php 
+                if ($tipoUsuario === "cliente") {
+                  // Verifica a estrutura do array de cliente
+                  echo htmlspecialchars(is_array($usuarioLogado) ? $usuarioLogado['nome'] : $usuarioLogado);
+                } elseif ($tipoUsuario === "artista") {
+                  // Verifica a estrutura do array de artista
+                  echo htmlspecialchars(is_array($usuarioLogado) ? ($usuarioLogado['nome_artistico'] ?? $usuarioLogado['nome']) : $usuarioLogado);
+                }
+                ?>
+              </span>!
+            </p>
+          </div>
+          <div class="dropdown-divider"></div>
 
-      <?php if ($tipoUsuario === "cliente"): ?>
-        <a href="./pages/perfilCliente.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
-        <a href="./pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
-      <?php endif; ?>
+          <?php if ($tipoUsuario === "cliente"): ?>
+            <a href="./perfilCliente.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
+            <a href="./favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+          <?php elseif ($tipoUsuario === "artista"): ?>
+            <a href="./artistahome.php" class="dropdown-item"><i class="fas fa-palette"></i> Meu Perfil</a>
+          <?php endif; ?>
 
-      <div class="dropdown-divider"></div>
-      <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+          <div class="dropdown-divider"></div>
+          <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
 
-    <?php else: ?>
-          <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+        <?php else: ?>
+          <div class="user-info">
+            <p>Faça login para acessar seu perfil</p>
+          </div>
           <div class="dropdown-divider"></div>
           <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-          <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+          <a href="./cadastro.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
         <?php endif; ?>
       </div>
     </div>
@@ -213,24 +286,27 @@ elseif (isset($_SESSION["artista"])) {
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.waves.min.js"></script>
 <script>
-  // Dropdown do perfil
+  // Dropdown do perfil CORRIGIDO
   document.addEventListener('DOMContentLoaded', function () {
     const profileIcon = document.getElementById('profile-icon');
     const profileDropdown = document.getElementById('profile-dropdown');
+    
     if (profileIcon && profileDropdown) {
       profileIcon.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+        profileDropdown.classList.toggle('show');
       });
+
+      // Fechar dropdown ao clicar fora
       document.addEventListener('click', function (e) {
-        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
-          profileDropdown.style.display = 'none';
+        if (!profileIcon.contains(e.target) && !profileDropdown.contains(e.target)) {
+          profileDropdown.classList.remove('show');
         }
       });
+
+      // Prevenir fechamento ao clicar dentro do dropdown
       profileDropdown.addEventListener('click', function (e) {
         e.stopPropagation();
       });
