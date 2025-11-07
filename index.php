@@ -1,16 +1,19 @@
 <?php
 session_start();
 
-// Verificar se usuário está logado de forma compatível
+// Verificar se usuário está logado (cliente ou artista)
 $usuarioLogado = null;
-if (isset($_SESSION["usuario"])) {
-    // Se for array (nova versão)
-    if (is_array($_SESSION["usuario"])) {
-        $usuarioLogado = $_SESSION["usuario"];
-    } else {
-        // Se for string (versão antiga - manter compatibilidade)
-        $usuarioLogado = $_SESSION["usuario"];
-    }
+$tipoUsuario = null;
+
+// Verifica se há sessão de cliente
+if (isset($_SESSION["cliente"])) {
+    $usuarioLogado = $_SESSION["cliente"];
+    $tipoUsuario = "cliente";
+}
+// Verifica se há sessão de artista
+elseif (isset($_SESSION["artista"])) {
+    $usuarioLogado = $_SESSION["artista"];
+    $tipoUsuario = "artista";
 }
 ?>
 <!DOCTYPE html>
@@ -51,39 +54,47 @@ if (isset($_SESSION["usuario"])) {
     <a href="./pages/artistas.php">Artistas</a>
     <a href="./pages/contato.php">Contato</a>
     
-    <a href="./pages/carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+    <a href="../pages/carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
     
     <!-- Dropdown Perfil -->
-    <div class="profile-dropdown">
-      <a href="perfil.php" class="icon-link" id="profile-icon">
-        <i class="fas fa-user"></i>
-      </a>
-      <div class="dropdown-content" id="profile-dropdown">
-        <?php if ($usuarioLogado): ?>
-          <div class="user-info">
-            <p>Seja bem-vindo, <span id="user-name">
-              <?php 
-              // CORREÇÃO AQUI: Verificar se é array ou string
-              if (is_array($usuarioLogado)) {
-                  echo htmlspecialchars($usuarioLogado['nome']);
-              } else {
-                  echo htmlspecialchars($usuarioLogado);
-              }
-              ?>
-            </span>!</p>
-          </div>
-          <div class="dropdown-divider"></div>
-          <a href="./pages/perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-          <div class="dropdown-divider"></div>
-          <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
-        <?php else: ?>
-          <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
-          <div class="dropdown-divider"></div>
-          <a href="./pages/login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-          <a href="./pages/login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
-        <?php endif; ?>
+<div class="profile-dropdown">
+  <a href="#" class="icon-link" id="profile-icon">
+    <i class="fas fa-user"></i>
+  </a>
+  <div class="dropdown-content" id="profile-dropdown">
+    <?php if ($usuarioLogado): ?>
+      <div class="user-info">
+        <p>
+          Seja bem-vindo, 
+          <span id="user-name">
+            <?php 
+            if ($tipoUsuario === "cliente") {
+              echo htmlspecialchars($usuarioLogado['nome']);
+            } elseif ($tipoUsuario === "artista") {
+              echo htmlspecialchars($usuarioLogado['nome_artistico']);
+            }
+            ?>
+          </span>!
+        </p>
       </div>
-    </div>
+      <div class="dropdown-divider"></div>
+
+      <?php if ($tipoUsuario === "cliente"): ?>
+        <a href="./pages/perfilCliente.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
+        <a href="./pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+      <?php endif; ?>
+
+      <div class="dropdown-divider"></div>
+      <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+
+    <?php else: ?>
+      <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+      <div class="dropdown-divider"></div>
+      <a href="./pages/login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+      <a href="./pages/cadastroCliente.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+    <?php endif; ?>
+  </div>
+</div>
 
     <!-- Menu Hamburguer Flutuante -->
     <div class="hamburger-menu-desktop">

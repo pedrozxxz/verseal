@@ -1,173 +1,77 @@
 <?php
 session_start();
-$usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
 
-// Lista de produtos disponíveis (COMPLETA - 12 produtos)
-$produtos = [
-    1 => [
-        "id" => 1,
-        "img" => "../img/imagem2.png",
-        "nome" => "Obra da Daniele",
-        "artista" => "Daniele Oliveira",
-        "preco" => 199.99,
-        "desc" => "Desenho realizado por Stefani e Daniele, feito digitalmente e manualmente.",
-        "dimensao" => "21 x 29,7cm (Manual) / 390cm x 522cm (Digital)",
-        "tecnica" => "Técnica mista: digital e manual",
-        "ano" => 2024,
-        "material" => "Tinta acrílica e digital",
-        "categoria" => ["manual", "digital", "colorido"]
-    ],
-    2 => [
-        "id" => 2,
-        "img" => "../img/imagem9.png",
-        "nome" => "Obra da Stefani", 
-        "artista" => "Stefani Correa",
-        "preco" => 188.99,
-        "desc" => "Desenho realizado com técnica mista.",
-        "dimensao" => "42 x 59,4cm",
-        "tecnica" => "Técnica mista",
-        "ano" => 2024,
-        "material" => "Nanquim e aquarela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    3 => [
-        "id" => 3,
-        "img" => "../img/imagem2.png",
-        "nome" => "Obra Moderna",
-        "artista" => "Daniele Oliveira",
-        "preco" => 250.00,
-        "desc" => "Arte contemporânea com técnicas inovadoras.",
-        "dimensao" => "50 x 70cm",
-        "tecnica" => "Pintura digital",
-        "ano" => 2024,
-        "material" => "Digital - alta resolução",
-        "categoria" => ["digital", "colorido"]
-    ],
-    4 => [
-        "id" => 4,
-        "img" => "../img/imagem2.png",
-        "nome" => "Paisagem Expressionista",
-        "artista" => "Stefani Correa", 
-        "preco" => 179.99,
-        "desc" => "Paisagem com cores vibrantes e traços expressionistas",
-        "dimensao" => "60 x 80cm",
-        "tecnica" => "Expressionismo",
-        "ano" => 2024,
-        "material" => "Óleo sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    5 => [
-        "id" => 5,
-        "img" => "../img/imagem2.png",
-        "nome" => "Abstração Colorida",
-        "artista" => "Lucas Andrade",
-        "preco" => 159.90,
-        "desc" => "Obra abstrata com paleta de cores vibrantes",
-        "dimensao" => "40 x 60cm",
-        "tecnica" => "Abstração",
-        "ano" => 2024,
-        "material" => "Acrílica sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    6 => [
-        "id" => 6,
-        "img" => "../img/imagem2.png",
-        "nome" => "Figura Humana",
-        "artista" => "Mariana Santos",
-        "preco" => 220.00,
-        "desc" => "Estudo da figura humana em movimento",
-        "dimensao" => "70 x 100cm",
-        "tecnica" => "Figurativo",
-        "ano" => 2024,
-        "material" => "Carvão e pastel",
-        "categoria" => ["manual", "preto e branco"]
-    ],
-    7 => [
-        "id" => 7,
-        "img" => "../img/imagem2.png",
-        "nome" => "Natureza Morta",
-        "artista" => "Rafael Costa",
-        "preco" => 145.50,
-        "desc" => "Natureza morta com elementos clássicos",
-        "dimensao" => "50 x 70cm",
-        "tecnica" => "Realismo",
-        "ano" => 2024,
-        "material" => "Óleo sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    8 => [
-        "id" => 8,
-        "img" => "../img/imagem2.png",
-        "nome" => "Cidade Noturna",
-        "artista" => "Camila Rocha",
-        "preco" => 189.99,
-        "desc" => "Panorama urbano noturno",
-        "dimensao" => "80 x 120cm",
-        "tecnica" => "Urban sketching",
-        "ano" => 2024,
-        "material" => "Tinta acrílica",
-        "categoria" => ["manual", "colorido"]
-    ],
-    9 => [
-        "id" => 9,
-        "img" => "../img/imagem2.png",
-        "nome" => "Abstração Minimalista",
-        "artista" => "João Almeida",
-        "preco" => 249.00,
-        "desc" => "Obra minimalista com formas puras",
-        "dimensao" => "60 x 60cm",
-        "tecnica" => "Minimalismo",
-        "ano" => 2024,
-        "material" => "Acrílica sobre MDF",
-        "categoria" => ["manual", "colorido"]
-    ],
-    10 => [
-        "id" => 10,
-        "img" => "../img/imagem2.png",
-        "nome" => "Flores Silvestres",
-        "artista" => "Bianca Freitas",
-        "preco" => 120.00,
-        "desc" => "Composição floral com cores suaves",
-        "dimensao" => "40 x 50cm",
-        "tecnica" => "Aquarela",
-        "ano" => 2024,
-        "material" => "Aquarela sobre papel",
-        "categoria" => ["manual", "colorido"]
-    ],
-    11 => [
-        "id" => 11,
-        "img" => "../img/imagem2.png",
-        "nome" => "Mar em Movimento",
-        "artista" => "Felipe Duarte",
-        "preco" => 199.90,
-        "desc" => "Representação do movimento das ondas",
-        "dimensao" => "90 x 120cm",
-        "tecnica" => "Abstração lírica",
-        "ano" => 2024,
-        "material" => "Óleo sobre tela",
-        "categoria" => ["manual", "colorido"]
-    ],
-    12 => [
-        "id" => 12,
-        "img" => "../img/imagem2.png",
-        "nome" => "Retrato em Preto e Branco",
-        "artista" => "Ana Clara",
-        "preco" => 134.99,
-        "desc" => "Retrato clássico em técnica monocromática",
-        "dimensao" => "50 x 70cm",
-        "tecnica" => "Realismo",
-        "ano" => 2024,
-        "material" => "Grafite e carvão",
-        "categoria" => ["manual", "preto e branco"]
-    ]
-];
+$host = "localhost";
+$usuario = "root"; // padrão do XAMPP
+$senha = ""; // padrão do XAMPP (sem senha)
+$banco = "verseal"; // nome do banco de dados
 
-// Inicializar carrinho na sessão se não existir
+$conexao = new mysqli($host, $usuario, $senha, $banco);
+
+if ($conexao->connect_error) {
+    die("Erro na conexão: " . $conexao->connect_error);
+}
+
+// Opcional: define charset
+$conexao->set_charset("utf8mb4");
+
+$caminhoConexao = file_exists("../conexao.php") ? "../conexao.php" : "conexao.php";
+require_once $caminhoConexao;
+
+// 🔹 Garante que a variável $conn tenha a conexão válida
+if (isset($conexao) && $conexao instanceof mysqli) {
+    $conn = $conexao;
+} else {
+    die("❌ Erro: conexão com o banco de dados não foi estabelecida.");
+}
+
+// Verificar se usuário está logado (cliente ou artista)
+$usuarioLogado = null;
+$tipoUsuario = null;
+
+// Verifica se há sessão de cliente
+if (isset($_SESSION["cliente"])) {
+    $usuarioLogado = $_SESSION["cliente"];
+    $tipoUsuario = "cliente";
+}
+// Verifica se há sessão de artista
+elseif (isset($_SESSION["artista"])) {
+    $usuarioLogado = $_SESSION["artista"];
+    $tipoUsuario = "artista";
+}
+// 🔹 Busca as obras cadastradas no banco
+$sql = "SELECT id, nome, artista, preco, descricao AS desc_obra, dimensao, tecnica, ano, material, imagem, categoria 
+        FROM obras";
+$result = $conn->query($sql);
+
+// 🔹 Cria array com as obras
+$produtos = [];
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $produtos[$row["id"]] = [
+            "id" => $row["id"],
+            "img" => "../uploads/" . ($row["imagem"] ?: "imagem_padrao.png"),
+            "nome" => $row["nome"],
+            "artista" => $row["artista"],
+            "preco" => (float)$row["preco"],
+            "desc" => $row["desc_obra"],
+            "dimensao" => $row["dimensao"],
+            "tecnica" => $row["tecnica"],
+            "ano" => $row["ano"],
+            "material" => $row["material"],
+            "categoria" => explode(",", $row["categoria"])
+        ];
+    }
+} else {
+    $produtos = []; // Nenhuma obra cadastrada
+}
+
+// 🔹 Inicializa o carrinho na sessão, se não existir
 if (!isset($_SESSION['carrinho'])) {
     $_SESSION['carrinho'] = [];
 }
 
-// Se for uma requisição AJAX, retornar JSON
+// 🔹 Requisição AJAX (adicionar, remover, atualizar)
 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
     $acao = $_POST['acao'] ?? '';
     $item_id = intval($_POST['item_id'] ?? 0);
@@ -216,7 +120,7 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
     exit;
 }
 
-// Processar ações normais (não-AJAX) - fallback
+// 🔹 Processar ações normais (sem AJAX)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $acao = $_POST['acao'] ?? '';
     $item_id = intval($_POST['item_id'] ?? 0);
@@ -263,9 +167,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
+// 🔹 Calcula o total do carrinho
 $carrinho = $_SESSION['carrinho'];
 $total = array_sum(array_map(fn($item) => $item["preco"] * $item["qtd"], $carrinho));
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -295,21 +201,38 @@ $total = array_sum(array_map(fn($item) => $item["preco"] * $item["qtd"], $carrin
     
     <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
     
-    <!-- Dropdown Perfil -->
-    <div class="profile-dropdown">
-      <a href="#" class="icon-link" id="profile-icon">
-        <i class="fas fa-user"></i>
-      </a>
-      <div class="dropdown-content" id="profile-dropdown">
-        <?php if ($usuarioLogado): ?>
-          <div class="user-info">
-            <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado); ?></span>!</p>
-          </div>
-          <div class="dropdown-divider"></div>
-          <a href="./pages/perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-          <div class="dropdown-divider"></div>
-          <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
-        <?php else: ?>
+   <!-- Dropdown Perfil -->
+<div class="profile-dropdown">
+  <a href="#" class="icon-link" id="profile-icon">
+    <i class="fas fa-user"></i>
+  </a>
+  <div class="dropdown-content" id="profile-dropdown">
+    <?php if ($usuarioLogado): ?>
+      <div class="user-info">
+        <p>
+          Seja bem-vindo, 
+          <span id="user-name">
+            <?php 
+            if ($tipoUsuario === "cliente") {
+              echo htmlspecialchars($usuarioLogado['nome']);
+            } elseif ($tipoUsuario === "artista") {
+              echo htmlspecialchars($usuarioLogado['nome_artistico']);
+            }
+            ?>
+          </span>!
+        </p>
+      </div>
+      <div class="dropdown-divider"></div>
+
+      <?php if ($tipoUsuario === "cliente"): ?>
+        <a href="./pages/perfilCliente.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
+        <a href="./pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+      <?php endif; ?>
+
+      <div class="dropdown-divider"></div>
+      <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+
+    <?php else: ?>
           <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
           <div class="dropdown-divider"></div>
           <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>

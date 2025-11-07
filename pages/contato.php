@@ -28,7 +28,20 @@ if (!$conn->query($sql_create_table)) {
     error_log("Erro ao criar tabela: " . $conn->error);
 }
 
-$usuarioLogado = $_SESSION['usuario'] ?? null;
+// Verificar se usuário está logado (cliente ou artista)
+$usuarioLogado = null;
+$tipoUsuario = null;
+
+// Verifica se há sessão de cliente
+if (isset($_SESSION["cliente"])) {
+    $usuarioLogado = $_SESSION["cliente"];
+    $tipoUsuario = "cliente";
+}
+// Verifica se há sessão de artista
+elseif (isset($_SESSION["artista"])) {
+    $usuarioLogado = $_SESSION["artista"];
+    $tipoUsuario = "artista";
+}
 $mensagem = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -220,31 +233,38 @@ $conn->close();
       
       <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
       
-      <!-- Dropdown Perfil -->
-      <div class="profile-dropdown">
-        <a href="perfil.php" class="icon-link" id="profile-icon">
-          <i class="fas fa-user"></i>
-        </a>
-        <div class="dropdown-content" id="profile-dropdown">
-          <?php if ($usuarioLogado): ?>
-            <div class="user-info">
-              <p>Seja bem-vindo, 
-                <span id="user-name">
-                  <?php 
-                  if (is_array($usuarioLogado)) {
-                      echo htmlspecialchars($usuarioLogado['nome'] ?? 'Usuário');
-                  } else {
-                      echo htmlspecialchars($usuarioLogado);
-                  }
-                  ?>
-                </span>!
-              </p>
-            </div>
-            <div class="dropdown-divider"></div>
-            <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-            <div class="dropdown-divider"></div>
-            <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
-          <?php else: ?>
+     <!-- Dropdown Perfil -->
+<div class="profile-dropdown">
+  <a href="#" class="icon-link" id="profile-icon">
+    <i class="fas fa-user"></i>
+  </a>
+  <div class="dropdown-content" id="profile-dropdown">
+    <?php if ($usuarioLogado): ?>
+      <div class="user-info">
+        <p>
+          Seja bem-vindo, 
+          <span id="user-name">
+            <?php 
+            if ($tipoUsuario === "cliente") {
+              echo htmlspecialchars($usuarioLogado['nome']);
+            } elseif ($tipoUsuario === "artista") {
+              echo htmlspecialchars($usuarioLogado['nome_artistico']);
+            }
+            ?>
+          </span>!
+        </p>
+      </div>
+      <div class="dropdown-divider"></div>
+
+      <?php if ($tipoUsuario === "cliente"): ?>
+        <a href="./pages/perfilCliente.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
+        <a href="./pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+      <?php endif; ?>
+
+      <div class="dropdown-divider"></div>
+      <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+
+    <?php else: ?>
             <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
             <div class="dropdown-divider"></div>
             <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>

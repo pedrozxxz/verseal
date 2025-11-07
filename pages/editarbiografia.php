@@ -1,48 +1,76 @@
 <?php
 session_start();
-$usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
 
-// Arquivo JSON que armazena os dados do artista
-$arquivo = 'dados_artista.json';
-
-// Inicializa dados se não existir
-if (!file_exists($arquivo)) {
-    $dados = [
-        "nome" => "Jamile Franquilim",
-        "descricao" => "Artista de 16 anos que busca autonomia no mercado artístico, expondo seus desenhos manuais e digitais para Verseal.",
-        "data_nascimento" => "2009-01-01",
-        "telefone" => "123456-7890",
-        "email" => "jamyfranquilim@gmail.com",
-        "social" => "@oliveirzz.a",
-        "foto" => "../img/jamile.jpg"
-    ];
-    file_put_contents($arquivo, json_encode($dados, JSON_PRETTY_PRINT));
-} else {
-    $dados = json_decode(file_get_contents($arquivo), true);
+// Verificar se é um artista logado
+if (!isset($_SESSION["artistas"])) {
+    header("Location: login.php");
+    exit;
 }
+
+$usuarioLogado = $_SESSION["artistas"];
+$artistaId = $usuarioLogado['id'];
+
+// Conexão com o banco para buscar dados atuais
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db = "verseal";
+
+$conn = new mysqli($host, $user, $pass, $db);
+
+if ($conn->connect_error) {
+    die("Falha na conexão: " . $conn->connect_error);
+}
+
+// Buscar dados atuais do artista
+$sql = "SELECT * FROM artistas WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $artistaId);
+$stmt->execute();
+$result = $stmt->get_result();
+$dados = $result->fetch_assoc();
 
 // Processa formulário ao salvar
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $dados['nome'] = $_POST['nome'];
-    $dados['descricao'] = $_POST['descricao'];
-    $dados['data_nascimento'] = $_POST['data_nascimento'];
-    $dados['telefone'] = $_POST['telefone'];
-    $dados['email'] = $_POST['email'];
-    $dados['social'] = $_POST['social'];
+    $nome = $_POST['nome'];
+    $descricao = $_POST['descricao'];
+    $biografia = $_POST['biografia'] ?? $descricao; // Usar campo específico de biografia se existir
+    $data_nascimento = $_POST['data_nascimento'];
+    $telefone = $_POST['telefone'];
+    $email = $_POST['email'];
+    $social = $_POST['social'];
 
-    if (isset($_FILES['foto']) && $_FILES['foto']['tmp_name']) {
-        $ext = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
-        $novoNome = '../img/artista.' . $ext;
-        move_uploaded_file($_FILES['foto']['tmp_name'], $novoNome);
-        $dados['foto'] = $novoNome;
+    // Atualizar no banco de dados
+    $sql_update = "UPDATE artistas SET nome = ?, descricao = ?, biografia = ?, data_nascimento = ?, telefone = ?, email = ?, instagram = ? WHERE id = ?";
+    $stmt_update = $conn->prepare($sql_update);
+    $stmt_update->bind_param("sssssssi", $nome, $descricao, $biografia, $data_nascimento, $telefone, $email, $social, $artistaId);
+    
+    if ($stmt_update->execute()) {
+        // Atualizar foto se foi enviada
+        if (isset($_FILES['foto']) && $_FILES['foto']['tmp_name']) {
+            $ext = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
+            $novoNome = '../img/artistas/artista_' . $artistaId . '.' . $ext;
+            move_uploaded_file($_FILES['foto']['tmp_name'], $novoNome);
+            
+            // Atualizar no banco
+            $sql_foto = "UPDATE artistas SET foto_perfil = ? WHERE id = ?";
+            $stmt_foto = $conn->prepare($sql_foto);
+            $stmt_foto->bind_param("si", $novoNome, $artistaId);
+            $stmt_foto->execute();
+        }
+        
+        // Atualizar dados na sessão
+        $_SESSION["artista"]['nome'] = $nome;
+        
+        // Redirecionar para a página de artistas
+        header("Location: artistas.php");
+        exit;
+    } else {
+        $erro = "Erro ao atualizar perfil: " . $conn->error;
     }
-
-    file_put_contents($arquivo, json_encode($dados, JSON_PRETTY_PRINT));
-
-    // Redireciona para visualização da biografia
-    header("Location: artistabiografia.php");
-    exit;
 }
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -55,7 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <style>
-
 /* FUNDO COM LINHAS DIAGONAIS */
 body {
   background-color: #fff;
@@ -66,12 +93,14 @@ body {
     transparent 1px,
     transparent 30px
   );
+  margin: 0;
+  padding: 0;
 }
 
 /* CONTAINER PRINCIPAL */
 .edit-bio-container {
   max-width: 1100px;
-  margin: 100px auto;
+  margin: 100px auto 50px;
   background: #ffffff;
   border-radius: 25px;
   padding: 50px 70px;
@@ -119,6 +148,7 @@ body {
   margin: 10px auto;
   font-size: 0.9rem;
   color: #444;
+  max-width: 250px;
 }
 
 /* FORMULÁRIO */
@@ -157,13 +187,23 @@ body {
   box-shadow: 0 0 8px rgba(224, 123, 103, 0.3);
 }
 
+.edit-bio-container textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Campo de biografia maior */
+.edit-bio-container textarea[name="biografia"] {
+  min-height: 120px;
+}
+
 /* CAMPOS EM DUAS COLUNAS (EMAIL + REDES SOCIAIS) */
 .edit-bio-container .duo {
   display: flex;
   gap: 20px;
 }
 
-.edit-bio-container .duo input {
+.edit-bio-container .duo > div {
   flex: 1;
 }
 
@@ -188,8 +228,17 @@ body {
   background: linear-gradient(135deg, #cc624e, #e07b67);
   box-shadow: 0 10px 25px rgba(224, 123, 103, 0.5);
 }
+
+/* Mensagem de erro */
+.erro {
+  color: #dc3545;
+  text-align: center;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
 </style>
 </head>
+<body>
 <header>
   <div class="logo">Verseal</div>
   
@@ -215,7 +264,7 @@ body {
       <a href="./perfil.php" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
       <div class="dropdown-content" id="profile-dropdown">
         <?php if ($usuarioLogado): ?>
-          <div class="user-info"><p>Seja bem-vindo, <?php echo htmlspecialchars($usuarioLogado); ?>!</p></div>
+          <div class="user-info"><p>Seja bem-vindo, <?php echo htmlspecialchars($usuarioLogado['nome']); ?>!</p></div>
           <div class="dropdown-divider"></div>
           <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
           <a href="./minhas-compras.php" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Minhas Compras</a>
@@ -232,43 +281,48 @@ body {
     </div>
   </nav>
 </header>
-<body>
+
 <div class="edit-bio-container">
   <div class="foto-area">
-    <h1>Edite sua Biografia</h1>
-    <img src="<?php echo $dados['foto']; ?>" alt="Foto da artista">
-    <input type="file" name="foto" form="form-bio">
+    <img src="<?php echo !empty($dados['foto_perfil']) ? $dados['foto_perfil'] : '../img/jamile.jpg'; ?>" alt="Foto do artista">
+    <input type="file" name="foto" form="form-bio" accept="image/*">
   </div>
 
   <form id="form-bio" action="" method="post" enctype="multipart/form-data">
-      <label>Nome completo</label>
-      <input type="text" name="nome" value="<?php echo htmlspecialchars($dados['nome']); ?>">
+    <?php if (isset($erro)): ?>
+      <div class="erro"><?php echo $erro; ?></div>
+    <?php endif; ?>
 
-      <label>Descrição</label>
-      <textarea name="descricao" rows="3"><?php echo htmlspecialchars($dados['descricao']); ?></textarea>
+    <label>Nome completo</label>
+    <input type="text" name="nome" value="<?php echo htmlspecialchars($dados['nome'] ?? ''); ?>" required>
 
-      <label>Data de nascimento</label>
-      <input type="date" name="data_nascimento" value="<?php echo $dados['data_nascimento']; ?>">
+    <label>Descrição curta</label>
+    <textarea name="descricao" rows="3" placeholder="Uma breve descrição sobre você..." required><?php echo htmlspecialchars($dados['descricao'] ?? ''); ?></textarea>
 
-      <label>Telefone</label>
-      <input type="tel" name="telefone" value="<?php echo $dados['telefone']; ?>">
+    <label>Biografia completa</label>
+    <textarea name="biografia" rows="5" placeholder="Conte sua história, inspirações, trajetória artística..."><?php echo htmlspecialchars($dados['biografia'] ?? $dados['descricao'] ?? ''); ?></textarea>
 
-      <div class="duo">
-        <div>
-          <label>E-mail</label>
-          <input type="email" name="email" value="<?php echo $dados['email']; ?>">
-        </div>
-        <div>
-          <label>Redes Sociais</label>
-          <input type="text" name="social" value="<?php echo $dados['social']; ?>">
-        </div>
+    <label>Data de nascimento</label>
+    <input type="date" name="data_nascimento" value="<?php echo $dados['data_nascimento'] ?? ''; ?>">
+
+    <label>Telefone</label>
+    <input type="tel" name="telefone" value="<?php echo $dados['telefone'] ?? ''; ?>">
+
+    <div class="duo">
+      <div>
+        <label>E-mail</label>
+        <input type="email" name="email" value="<?php echo $dados['email'] ?? ''; ?>" required>
       </div>
+      <div>
+        <label>Instagram</label>
+        <input type="text" name="social" value="<?php echo $dados['instagram'] ?? ''; ?>" placeholder="@seuinstagram">
+      </div>
+    </div>
 
-      <button type="submit">Salvar</button>
+    <button type="submit">Salvar Alterações</button>
   </form>
 </div>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.waves.min.js"></script>
+
 <script>
   // Dropdown do perfil
   document.addEventListener('DOMContentLoaded', function () {
@@ -289,20 +343,23 @@ body {
         e.stopPropagation();
       });
     }
-  });
 
-  // Fade-in on scroll
-  document.addEventListener('DOMContentLoaded', () => {
-    const elementos = document.querySelectorAll('.fade-in');
-    const observador = new IntersectionObserver((entradas) => {
-      entradas.forEach(entrada => {
-        if (entrada.isIntersecting) {
-          entrada.target.classList.add('show');
-          observador.unobserve(entrada.target);
+    // Preview da imagem ao selecionar
+    const inputFile = document.querySelector('input[type="file"]');
+    const imgPreview = document.querySelector('.foto-area img');
+    
+    if (inputFile && imgPreview) {
+      inputFile.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            imgPreview.src = e.target.result;
+          }
+          reader.readAsDataURL(file);
         }
       });
-    }, { threshold: 0.2 });
-    elementos.forEach(el => observador.observe(el));
+    }
   });
 </script>
 </body>
