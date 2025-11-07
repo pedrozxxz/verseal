@@ -29,20 +29,21 @@ if (isset($conexao) && $conexao instanceof mysqli) {
 $usuarioLogado = null;
 $tipoUsuario = null;
 
-// Verifica se há sessão de cliente
-if (isset($_SESSION["cliente"])) {
-    $usuarioLogado = $_SESSION["cliente"];
+// Verifica se há sessão de cliente (corrigido para "clientes" no plural)
+if (isset($_SESSION["clientes"])) {
+    $usuarioLogado = $_SESSION["clientes"];
     $tipoUsuario = "cliente";
 }
-// Verifica se há sessão de artista
-elseif (isset($_SESSION["artista"])) {
-    $usuarioLogado = $_SESSION["artista"];
+// Verifica se há sessão de artista (corrigido para "artistas" no plural)
+elseif (isset($_SESSION["artistas"])) {
+    $usuarioLogado = $_SESSION["artistas"];
     $tipoUsuario = "artista";
 }
+
 // Busca as obras cadastradas no banco
-$sql = "SELECT id, nome, artista, preco, descricao AS desc_obra, dimensao, tecnica, ano, material, imagem, categoria 
-        FROM obras";
-$result = $conn->query($sql);
+$sql = "SELECT id, nome, artista, preco, descricao AS descricao, dimensoes, tecnica, ano, material, imagem_url, categorias 
+        FROM produtos";
+$result = $conexao->query($sql);
 
 // Cria array com as obras
 $produtos = [];
@@ -50,16 +51,16 @@ if ($result && $result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $produtos[$row["id"]] = [
             "id" => $row["id"],
-            "img" => "../uploads/" . ($row["imagem"] ?: "imagem_padrao.png"),
+            "img" => "../uploads/" . ($row["imagem_url"] ?: "imagem_padrao.png"),
             "nome" => $row["nome"],
             "artista" => $row["artista"],
             "preco" => (float)$row["preco"],
-            "desc" => $row["desc_obra"],
-            "dimensao" => $row["dimensao"],
+            "desc" => $row["descricao"],
+            "dimensao" => $row["dimensoes"],
             "tecnica" => $row["tecnica"],
             "ano" => $row["ano"],
             "material" => $row["material"],
-            "categoria" => explode(",", $row["categoria"])
+            "categoria" => explode(",", $row["categorias"])
         ];
     }
 } else {
@@ -82,7 +83,6 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 
         foreach ($_SESSION['carrinho'] as &$item) {
             if ($item['id'] == $item_id) {
-                $item['qtd'] += 1;
                 $existe_no_carrinho = true;
                 break;
             }
@@ -94,7 +94,6 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
                 'img' => $produto['img'],
                 'nome' => $produto['nome'],
                 'preco' => $produto['preco'],
-                'qtd' => 1,
                 'desc' => $produto['desc'],
                 'dimensao' => $produto['dimensao']
             ];
@@ -107,15 +106,6 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
         });
         $_SESSION['carrinho'] = array_values($_SESSION['carrinho']);
         echo json_encode(['success' => true, 'message' => 'Produto removido do carrinho!']);
-    } elseif ($acao === 'atualizar_qtd') {
-        $nova_qtd = intval($_POST['qtd'] ?? 1);
-        foreach ($_SESSION['carrinho'] as &$item) {
-            if ($item['id'] == $item_id) {
-                $item['qtd'] = max(1, $nova_qtd);
-                break;
-            }
-        }
-        echo json_encode(['success' => true, 'message' => 'Quantidade atualizada!']);
     }
     exit;
 }
@@ -131,7 +121,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         foreach ($_SESSION['carrinho'] as &$item) {
             if ($item['id'] == $item_id) {
-                $item['qtd'] += 1;
                 $existe_no_carrinho = true;
                 break;
             }
@@ -143,7 +132,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'img' => $produto['img'],
                 'nome' => $produto['nome'],
                 'preco' => $produto['preco'],
-                'qtd' => 1,
                 'desc' => $produto['desc'],
                 'dimensao' => $produto['dimensao']
             ];
@@ -153,14 +141,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return $item['id'] != $item_id;
         });
         $_SESSION['carrinho'] = array_values($_SESSION['carrinho']);
-    } elseif ($acao === 'atualizar_qtd') {
-        $nova_qtd = intval($_POST['qtd'] ?? 1);
-        foreach ($_SESSION['carrinho'] as &$item) {
-            if ($item['id'] == $item_id) {
-                $item['qtd'] = max(1, $nova_qtd);
-                break;
-            }
-        }
     }
 
     header('Location: ' . $_SERVER['PHP_SELF']);
@@ -169,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // 🔹 Calcula o total do carrinho
 $carrinho = $_SESSION['carrinho'];
-$total = array_sum(array_map(fn($item) => $item["preco"] * $item["qtd"], $carrinho));
+$total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
 ?>
 
 
@@ -287,18 +267,9 @@ $total = array_sum(array_map(fn($item) => $item["preco"] * $item["qtd"], $carrin
                                     <span class="preco-unitario">R$
                                         <?php echo number_format($item['preco'], 2, ',', '.'); ?></span>
 
-                                    <div class="controles-quantidade">
-                                        <button type="button" class="btn-diminuir"
-                                            onclick="alterarQuantidade(<?php echo $item['id']; ?>, -1)">-</button>
-                                        <input type="number" class="quantidade-input" value="<?php echo $item['qtd']; ?>"
-                                            min="1" onchange="atualizarQuantidade(<?php echo $item['id']; ?>, this.value)">
-                                        <button type="button" class="btn-aumentar"
-                                            onclick="alterarQuantidade(<?php echo $item['id']; ?>, 1)">+</button>
-                                    </div>
-
                                     <div class="subtotal">
                                         Subtotal: R$ <span
-                                            class="subtotal-valor"><?php echo number_format($item['preco'] * $item['qtd'], 2, ',', '.'); ?></span>
+                                            class="subtotal-valor"><?php echo number_format($item['preco']); ?></span>
                                     </div>
 
                                     <button type="button" class="btn-remover"
@@ -318,9 +289,8 @@ $total = array_sum(array_map(fn($item) => $item["preco"] * $item["qtd"], $carrin
                             <?php foreach ($carrinho as $item): ?>
                                 <div class="resumo-item">
                                     <span class="resumo-nome"><?php echo $item['nome']; ?></span>
-                                    <span class="resumo-qtd"><?php echo $item['qtd']; ?>x</span>
                                     <span class="resumo-preco">R$
-                                        <?php echo number_format($item['preco'] * $item['qtd'], 2, ',', '.'); ?></span>
+                                        <?php echo number_format($item['preco']); ?></span>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -432,21 +402,6 @@ function removerDoCarrinho(id){
     const fd = new FormData(); fd.append('acao','remover'); fd.append('item_id',id);
     fetch(window.location.href,{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest'}})
     .then(r=>r.json()).then(d=>{ if(d.success) mostrarNotificacao(d.message,'info'); atualizarInterfaceCarrinho(); });
-}
-
-// Alterar quantidade
-function atualizarQuantidade(id,qtd){
-    const fd = new FormData(); fd.append('acao','atualizar_qtd'); fd.append('item_id',id); fd.append('qtd',qtd);
-    fetch(window.location.href,{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest'}})
-    .then(r=>r.json()).then(d=>{ if(d.success) mostrarNotificacao(d.message,'success'); atualizarInterfaceCarrinho(); });
-}
-
-function alterarQuantidade(id, delta){
-    const input = document.querySelector(`.item-card[data-item-id="${id}"] .quantidade-input`);
-    if(!input) return;
-    let qtd = parseInt(input.value)+delta;
-    if(qtd<1) qtd=1; input.value=qtd;
-    atualizarQuantidade(id,qtd);
 }
 
 // Dropdown perfil

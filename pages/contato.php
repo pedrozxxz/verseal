@@ -32,14 +32,14 @@ if (!$conn->query($sql_create_table)) {
 $usuarioLogado = null;
 $tipoUsuario = null;
 
-// Verifica se há sessão de cliente
-if (isset($_SESSION["cliente"])) {
-    $usuarioLogado = $_SESSION["cliente"];
+// Verifica se há sessão de cliente (corrigido para "clientes" no plural)
+if (isset($_SESSION["clientes"])) {
+    $usuarioLogado = $_SESSION["clientes"];
     $tipoUsuario = "cliente";
 }
-// Verifica se há sessão de artista
-elseif (isset($_SESSION["artista"])) {
-    $usuarioLogado = $_SESSION["artista"];
+// Verifica se há sessão de artista (corrigido para "artistas" no plural)
+elseif (isset($_SESSION["artistas"])) {
+    $usuarioLogado = $_SESSION["artistas"];
     $tipoUsuario = "artista";
 }
 $mensagem = "";
