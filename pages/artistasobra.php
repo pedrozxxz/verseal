@@ -30,47 +30,40 @@ if ($conn->connect_error) {
 
 // Buscar obras do usuário logado
 $sql_obras = "
-    SELECT o.*, GROUP_CONCAT(c.nome) as categorias 
-    FROM obras o 
-    LEFT JOIN obra_categoria oc ON o.id = oc.obra_id 
-    LEFT JOIN categorias c ON oc.categoria_id = c.id 
-    WHERE o.artista = ? 
-    GROUP BY o.id
-    ORDER BY o.data_criacao DESC
+    SELECT *
+    FROM produtos
+    WHERE artista = ?
+    ORDER BY data_cadastro DESC
 ";
-
 $stmt_obras = $conn->prepare($sql_obras);
 $nomeArtista = $usuarioLogado['nome'];
 $stmt_obras->bind_param("s", $nomeArtista);
 $stmt_obras->execute();
 $result_obras = $stmt_obras->get_result();
-
 $produtos = [];
 if ($result_obras) {
     while ($obra = $result_obras->fetch_assoc()) {
-        // Garantir que categorias seja um array
         $categorias = [];
         if (!empty($obra['categorias'])) {
-            $categorias = explode(',', $obra['categorias']);
+            $categorias = explode(',', $obra['categorias']); // transforma string em array
         }
-        
+
         $produtos[$obra['id']] = [
             "id" => intval($obra['id']),
-            "img" => $obra['img'] ?? '',
+            "img" => $obra['imagem_url'] ?? '',
             "nome" => $obra['nome'] ?? '',
             "artista" => $obra['artista'] ?? '',
             "preco" => floatval($obra['preco'] ?? 0),
             "desc" => $obra['descricao'] ?? '',
-            "dimensao" => $obra['dimensao'] ?? '',
+            "dimensao" => $obra['dimensoes'] ?? '',
             "tecnica" => $obra['tecnica'] ?? '',
             "ano" => intval($obra['ano'] ?? 0),
             "material" => $obra['material'] ?? '',
             "categoria" => $categorias,
-            "data_criacao" => $obra['data_criacao'] ?? ''
+            "data_cadastro" => $obra['data_cadastro'] ?? ''
         ];
     }
 }
-
 // Processar filtros
 $filtroCategoria = $_GET['categoria'] ?? [];
 $ordenacao = $_GET['ordenacao'] ?? 'recentes';
@@ -411,7 +404,7 @@ if (!is_array($produtosFiltrados)) {
             </span>
         </div>
     </div>
-    <a href="adicionar-obras.php" class="btn-adiconar-obra">
+    <a href="../pages/adicionarobra.php" class="btn-adiconar-obra">
         <i class="fas fa-plus"></i> Adicionar Nova Obra
     </a>
 </div>
@@ -503,7 +496,7 @@ if (!is_array($produtosFiltrados)) {
             <i class="fas fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
             <h3>Nenhuma obra encontrada</h3>
             <p>Você ainda não possui obras cadastradas ou nenhuma obra corresponde aos filtros aplicados.</p>
-<a href="adicionar-obras.php" class="btn-adiconar-obra">              
+<a href="adicionarobras.php" class="btn-adiconar-obra">              
   <i class="fas fa-plus"></i> Adicionar Primeira Obra
             </a>
           </div>

@@ -1,6 +1,6 @@
 <?php
 session_start();
-$usuarioLogado = isset($_SESSION["usuario"]) ? $_SESSION["usuario"] : null;
+$usuarioLogado = $_SESSION["usuario"] ?? null;
 
 if (!$usuarioLogado) {
     header("Location: login.php");
@@ -21,7 +21,7 @@ if ($conn->connect_error) {
 // Processar o formulário quando enviado
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nome = $_POST["nome"] ?? '';
-    $preco = $_POST["preco"] ?? '';
+    $preco = $_POST["preco"] ?? 0;
     $tecnica = $_POST["tecnica"] ?? '';
     $dimensoes = $_POST["dimensoes"] ?? '';
     $ano = $_POST["ano"] ?? '';
@@ -50,20 +50,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sql = "INSERT INTO produtos (nome, artista, preco, descricao, dimensoes, tecnica, ano, material, categorias, imagem_url, ativo) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
     $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        die("Erro na preparação da query: " . $conn->error);
+    }
+
     $artista_nome = is_array($usuarioLogado) ? $usuarioLogado['nome'] : $usuarioLogado;
     $stmt->bind_param("ssdsssisss", $nome, $artista_nome, $preco, $descricao, $dimensoes, $tecnica, $ano, $material, $categorias_json, $imagem_url);
 
     if ($stmt->execute()) {
-        echo "<script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Obra adicionada!',
-                text: 'Sua obra foi cadastrada com sucesso.',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                window.location.href = 'artistasobra.php';
-            });
-        </script>";
+        // Redireciona após salvar
+        header("Location: artistahome.php");
+        exit;
     } else {
         echo "<script>
             Swal.fire({
@@ -76,14 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Buscar obras do artista
-$artista_nome = is_array($usuarioLogado) ? $usuarioLogado['nome'] : $usuarioLogado;
-$stmt = $conn->prepare("SELECT * FROM produtos WHERE artista = ? ORDER BY id DESC");
-$stmt->bind_param("s", $artista_nome);
-$stmt->execute();
-$result = $stmt->get_result();
-$obras = $result->fetch_all(MYSQLI_ASSOC);
-
+// Fechar conexão
 $conn->close();
 ?>
 <!DOCTYPE html>
@@ -395,9 +385,9 @@ body {
         </div>
       </div>
 
-      <button type="submit">
-        <i class="fas fa-plus"></i> Adicionar Obra
-      </button>
+  <button type="submit">
+    <i class="fas fa-plus"></i> Adicionar Obra
+  </button>
     </form>
   </div>
 
