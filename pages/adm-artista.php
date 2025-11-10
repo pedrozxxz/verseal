@@ -2,14 +2,31 @@
 session_start();
 require_once '../config/database.php';
 
+// Verificar se é admin
+if (!isset($_SESSION["tipo_usuario"]) || $_SESSION["tipo_usuario"] !== 'admin') {
+    header("Location: login.php");
+    exit;
+}
+
 // Processar ações (excluir e editar)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['excluir_artista'])) {
         $artista_id = $_POST['artista_id'];
+        
+        // Buscar imagem do artista para excluir
+        $stmt = $pdo->prepare("SELECT imagem_perfil FROM artistas WHERE id = ?");
+        $stmt->execute([$artista_id]);
+        $artista = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Excluir arquivo de imagem se existir
+        if ($artista['imagem_perfil'] && file_exists('../' . $artista['imagem_perfil'])) {
+            unlink('../' . $artista['imagem_perfil']);
+        }
+        
         $stmt = $pdo->prepare("UPDATE artistas SET ativo = 0 WHERE id = ?");
         $stmt->execute([$artista_id]);
         
-        header("Location: adm3.php?excluido=1");
+        header("Location: adm-artista.php?excluido=1");
         exit;
     }
     
@@ -20,28 +37,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $telefone = $_POST['telefone'];
         
         // Processar upload de imagem
-        $imagem_perfil = $_POST['imagem_atual']; // manter a imagem atual
+        $imagem_perfil = $_POST['imagem_atual']; // manter a imagem atual por padrão
         
-        if (isset($_FILES['imagem_perfil']) && $_FILES['imagem_perfil']['error'] === 0) {
+        if (isset($_FILES['imagem_perfil']) && $_FILES['imagem_perfil']['error'] === UPLOAD_ERR_OK) {
             $arquivo = $_FILES['imagem_perfil'];
             $extensao = strtolower(pathinfo($arquivo['name'], PATHINFO_EXTENSION));
-            $extensoes_permitidas = ['jpg', 'jpeg', 'png', 'gif'];
+            $extensoes_permitidas = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
             
             if (in_array($extensao, $extensoes_permitidas)) {
-                $pasta_upload = '../img/artistas/';
+                // Criar pasta de uploads se não existir
+                $pasta_upload = '../img/uploads/';
                 if (!is_dir($pasta_upload)) {
-                    mkdir($pasta_upload, 0777, true);
+                    mkdir($pasta_upload, 0755, true);
                 }
                 
+                // Gerar nome único para o arquivo
                 $nome_arquivo = 'artista_' . $artista_id . '_' . time() . '.' . $extensao;
                 $caminho_completo = $pasta_upload . $nome_arquivo;
                 
                 if (move_uploaded_file($arquivo['tmp_name'], $caminho_completo)) {
                     // Remover imagem antiga se existir
-                    if ($_POST['imagem_atual'] && file_exists('../' . $_POST['imagem_atual'])) {
+                    if (!empty($_POST['imagem_atual']) && file_exists('../' . $_POST['imagem_atual'])) {
                         unlink('../' . $_POST['imagem_atual']);
                     }
-                    $imagem_perfil = 'img/artistas/' . $nome_arquivo;
+                    $imagem_perfil = 'img/uploads/' . $nome_arquivo;
                 }
             }
         }
@@ -54,11 +73,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             $stmt->execute([$nome, $email, $telefone, $imagem_perfil, $artista_id]);
             
-            header("Location: adm3.php?editado=1");
+            header("Location: adm-artista.php?editado=1");
             exit;
             
         } catch (PDOException $e) {
-            header("Location: adm3.php?erro=1");
+            header("Location: adm-artista.php?erro=1");
             exit;
         }
     }
@@ -87,14 +106,15 @@ try {
         $stmt = $pdo->prepare("
             SELECT COUNT(*) as total_obras 
             FROM produtos 
-            WHERE artista = ? AND ativo = 1
+            WHERE artista_id = ? AND ativo = 1
         ");
-        $stmt->execute([$artista['nome']]);
+        $stmt->execute([$artista['id']]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $artista['total_obras'] = $result['total_obras'];
     }
 
 } catch (PDOException $e) {
+    // Se der erro na contagem, usar consulta alternativa
     $stmt = $pdo->prepare("
         SELECT * FROM artistas 
         WHERE ativo = 1 
@@ -116,6 +136,7 @@ $stmt = $pdo->query("SELECT COUNT(*) as total FROM artistas WHERE ativo = 1");
 $totalArtistas = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 $totalPaginas = ceil($totalArtistas / $limite);
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -134,10 +155,10 @@ $totalPaginas = ceil($totalArtistas / $limite);
         <h2 class="logo">Verseal</h2>
         <nav class="menu">
             <a href="admhome.php">Início</a>
-            <a href="adm2.php">Clientes</a>
-            <a href="adm3.php" class="active">Artistas</a>
-            <a href="adm4.php">Obras</a>
-            <a href="adm5.php">Contato</a>
+            <a href="adm-cliente.php">Clientes</a>
+            <a href="adm-artista.php" class="active">Artistas</a>
+            <a href="adm-obras.php">Obras</a>
+            <a href="adm-contato.php">Contato</a>
         </nav>
     </aside>
 
@@ -279,7 +300,7 @@ $totalPaginas = ceil($totalArtistas / $limite);
     <div id="modalEditar" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Editar Artista</h2>
+                <h2><i class="fas fa-user-edit"></i> Editar Artista</h2>
                 <span class="close" onclick="fecharModalEditar()">&times;</span>
             </div>
             <form id="formEditar" method="POST" enctype="multipart/form-data">
@@ -287,25 +308,25 @@ $totalPaginas = ceil($totalArtistas / $limite);
                 <input type="hidden" name="imagem_atual" id="editar_imagem_atual">
                 <input type="hidden" name="editar_artista" value="1">
                 
-                <div class="form-group">
-                    <label for="editar_nome">Nome</label>
+                <div class="campo">
+                    <label><i class="fas fa-user"></i> Nome:</label>
                     <input type="text" id="editar_nome" name="nome" required>
                 </div>
                 
-                <div class="form-group">
-                    <label for="editar_email">Email</label>
+                <div class="campo">
+                    <label><i class="fas fa-envelope"></i> Email:</label>
                     <input type="email" id="editar_email" name="email" required>
                 </div>
                 
-                <div class="form-group">
-                    <label for="editar_telefone">Telefone</label>
-                    <input type="text" id="editar_telefone" name="telefone">
+                <div class="campo">
+                    <label><i class="fas fa-phone"></i> Telefone:</label>
+                    <input type="text" id="editar_telefone" name="telefone" placeholder="(00) 00000-0000">
                 </div>
                 
-                <div class="form-group">
-                    <label for="editar_imagem_perfil">Imagem de Perfil</label>
+                <div class="campo">
+                    <label><i class="fas fa-image"></i> Imagem de Perfil:</label>
                     <input type="file" id="editar_imagem_perfil" name="imagem_perfil" accept="image/*">
-                    <small>Formatos: JPG, PNG, GIF. Deixe em branco para manter a imagem atual.</small>
+                    <small>Formatos: JPG, PNG, GIF, WEBP. Deixe em branco para manter a imagem atual.</small>
                 </div>
                 
                 <div class="preview-imagem">
@@ -318,7 +339,9 @@ $totalPaginas = ceil($totalArtistas / $limite);
                 
                 <div class="modal-actions">
                     <button type="button" class="btn-cancelar" onclick="fecharModalEditar()">Cancelar</button>
-                    <button type="submit" class="btn-salvar">Salvar Alterações</button>
+                    <button type="submit" class="btn-salvar">
+                        <i class="fas fa-save"></i> Salvar Alterações
+                    </button>
                 </div>
             </form>
         </div>
@@ -442,12 +465,42 @@ $totalPaginas = ceil($totalArtistas / $limite);
         });
         <?php endif; ?>
 
+        <?php if (isset($_GET['sucesso']) && $_GET['sucesso'] == 1): ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'Artista cadastrado!',
+            html: 'Artista <strong><?php echo isset($_GET['nome']) ? htmlspecialchars($_GET['nome']) : ''; ?></strong> cadastrado com sucesso!',
+            timer: 3000,
+            showConfirmButton: false,
+            background: '#fff'
+        });
+        <?php endif; ?>
+
         // Menu hamburguer
         document.addEventListener('click', function(e) {
             const toggle = document.getElementById('menu-toggle-desktop');
             if(!e.target.closest('.hamburger-menu-desktop')) {
                 toggle.checked = false;
             }
+        });
+
+        // Formatação do telefone no modal
+        document.getElementById('editar_telefone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length <= 11) {
+                if (value.length <= 2) {
+                    value = value.replace(/^(\d{0,2})/, '($1');
+                } else if (value.length <= 6) {
+                    value = value.replace(/^(\d{2})(\d{0,4})/, '($1) $2');
+                } else if (value.length <= 10) {
+                    value = value.replace(/^(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+                } else {
+                    value = value.replace(/^(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+                }
+            }
+            
+            e.target.value = value;
         });
     </script>
 
@@ -571,6 +624,9 @@ $totalPaginas = ceil($totalArtistas / $limite);
         .modal-header h2 {
             margin: 0;
             font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .close {
@@ -589,18 +645,21 @@ $totalPaginas = ceil($totalArtistas / $limite);
             padding: 25px;
         }
 
-        .form-group {
+        .campo {
             margin-bottom: 20px;
         }
 
-        .form-group label {
+        .campo label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
             color: #555;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .form-group input {
+        .campo input {
             width: 100%;
             padding: 12px;
             border: 2px solid #eee;
@@ -609,12 +668,12 @@ $totalPaginas = ceil($totalArtistas / $limite);
             transition: 0.3s;
         }
 
-        .form-group input:focus {
+        .campo input:focus {
             border-color: #db6d56;
             outline: none;
         }
 
-        .form-group small {
+        .campo small {
             color: #888;
             font-size: 0.8rem;
             margin-top: 5px;
@@ -631,6 +690,7 @@ $totalPaginas = ceil($totalArtistas / $limite);
             max-height: 100px;
             border-radius: 50%;
             border: 2px solid #db6d56;
+            object-fit: cover;
         }
 
         .modal-actions {
@@ -662,6 +722,9 @@ $totalPaginas = ceil($totalArtistas / $limite);
             border: none;
             cursor: pointer;
             transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn-salvar:hover {

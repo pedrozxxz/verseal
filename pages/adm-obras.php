@@ -16,10 +16,10 @@
         <h2 class="logo">Verseal</h2>
         <nav class="menu">
             <a href="admhome.php">Início</a>
-            <a href="adm2.php">Clientes</a>
-            <a href="adm3.php">Artistas</a>
-            <a href="adm4.php" class="active">Obras</a>
-            <a href="adm5.php">Contato</a>
+            <a href="adm-cliente.php">Clientes</a>
+            <a href="adm-artista.php">Artistas</a>
+            <a href="adm-obras.php" class="active">Obras</a>
+            <a href="adm-contato.php">Contato</a>
         </nav>
     </aside>
 

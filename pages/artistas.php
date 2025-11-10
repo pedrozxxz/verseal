@@ -17,7 +17,6 @@ if ($conn->connect_error) {
 $usuarioLogado = null;
 $tipoUsuario = null;
 
-// Corrigido para usar as sessões corretas
 if (isset($_SESSION["clientes"])) {
     $usuarioLogado = $_SESSION["clientes"];
     $tipoUsuario = "cliente";
@@ -26,32 +25,41 @@ if (isset($_SESSION["clientes"])) {
     $tipoUsuario = "artista";
 }
 
-// CORREÇÃO: Buscar artistas da tabela ARTISTAS (no plural)
+// Buscar apenas artistas sem contar obras
 $sql_artistas = "SELECT * FROM artistas WHERE ativo = 1 ORDER BY nome ASC";
 $result_artistas = $conn->query($sql_artistas);
 $artistas = [];
 
 if ($result_artistas && $result_artistas->num_rows > 0) {
     while ($artista = $result_artistas->fetch_assoc()) {
+        // Ajustar o caminho da imagem
+        $foto_perfil = '';
+        if (!empty($artista['imagem_perfil'])) {
+            if (strpos($artista['imagem_perfil'], 'http') === 0) {
+                $foto_perfil = $artista['imagem_perfil'];
+            } else {
+                $foto_perfil = (strpos($artista['imagem_perfil'], '../') === 0) 
+                    ? $artista['imagem_perfil'] 
+                    : '../' . $artista['imagem_perfil'];
+            }
+        }
+        
         $artistas[] = [
             'id' => $artista['id'],
             'nome' => $artista['nome'],
             'idade' => $artista['idade'] ?? '',
-            'descricao' => $artista['descricao'] ?? '',
-            'biografia' => $artista['descricao'] ?? '', // usando descricao como biografia
+            'descricao' => $artista['descricao'] ?? $artista['biografia'] ?? '',
+            'biografia' => $artista['biografia'] ?? $artista['descricao'] ?? '',
             'telefone' => $artista['telefone'] ?? '',
             'email' => $artista['email'] ?? '',
             'instagram' => $artista['instagram'] ?? '',
             'cor_gradiente' => $artista['cor_gradiente'] ?? 'linear-gradient(135deg, #e07b67, #cc624e)',
             'icone' => $artista['icone'] ?? 'fas fa-paint-brush',
-            'foto_perfil' => $artista['imagem_perfil'] ?? '', // CORREÇÃO: imagem_perfil no banco
-            'total_obras' => $artista['total_obras'] ?? 0
+            'foto_perfil' => $foto_perfil,
+            'total_obras' => 0
         ];
     }
 }
-
-// Debug para verificar se os artistas estão sendo carregados
-error_log("Artistas carregados: " . count($artistas));
 
 $conn->close();
 ?>
@@ -321,6 +329,177 @@ $conn->close();
     .logout-btn:hover {
       background: #f8d7da;
     }
+
+    /* CORREÇÃO: Estilos para as imagens dos artistas */
+    .artista-imagem {
+        height: 250px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Remove o fundo gradiente quando tem imagem */
+    .artista-imagem:has(img[src*="/"]) {
+        background: transparent !important;
+    }
+
+    /* Mantém o fundo apenas para ícones (quando não tem imagem) */
+    .artista-imagem:not(:has(img[src*="/"])) {
+        background: linear-gradient(135deg, #e07b67, #cc624e);
+    }
+
+    .artista-imagem img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        transition: transform 0.3s ease;
+    }
+
+    .card-artista:hover .artista-imagem img {
+        transform: scale(1.05);
+    }
+
+    .icone-fallback {
+        font-size: 4rem;
+        color: white;
+        opacity: 0.8;
+    }
+
+    /* Estilos existentes para a galeria */
+    .galeria-artistas {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 30px;
+      padding: 20px 0;
+    }
+
+    .card-artista {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card-artista:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .artista-info {
+      padding: 25px;
+    }
+
+    .artista-nome {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .artista-idade {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
+    .total-obras {
+      background: #f8f9fa;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      color: #666;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 15px;
+    }
+
+    .artista-descricao {
+      color: #555;
+      line-height: 1.5;
+      margin-bottom: 15px;
+      font-size: 0.95rem;
+    }
+
+    .artista-contatos {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .contato-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .contato-item i {
+      width: 16px;
+      color: #e07b67;
+    }
+
+    .nenhum-artista {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+
+    .nenhum-artista h3 {
+      margin: 15px 0 10px 0;
+      color: #333;
+    }
+
+    /* Hero section */
+    .hero-artistas {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 100px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+      border-radius: 0 0 20px 20px;
+    }
+
+    .hero-artistas-content {
+      flex: 1;
+      max-width: 600px;
+    }
+
+    .hero-artistas-content h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+
+    .hero-artistas-content p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      opacity: 0.9;
+    }
+
+    .btn-destaque {
+      background: white;
+      color: #667eea;
+      padding: 12px 30px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-destaque:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+    }
   </style>
 </head>
 
@@ -412,10 +591,14 @@ $conn->close();
         <?php else: ?>
           <?php foreach ($artistas as $artista): ?>
             <div class="card-artista">
-              <div class="artista-imagem" style="background: <?php echo $artista['cor_gradiente']; ?>;">
+              <div class="artista-imagem">
                 <?php if (!empty($artista['foto_perfil'])): ?>
-                  <img src="<?php echo $artista['foto_perfil']; ?>" 
-                       alt="<?php echo htmlspecialchars($artista['nome']); ?>">
+                  <img src="<?php echo htmlspecialchars($artista['foto_perfil']); ?>" 
+                       alt="<?php echo htmlspecialchars($artista['nome']); ?>"
+                       onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <div class="icone-fallback" style="display: none;">
+                    <i class="<?php echo $artista['icone']; ?>"></i>
+                  </div>
                 <?php else: ?>
                   <div class="icone-fallback">
                     <i class="<?php echo $artista['icone']; ?>"></i>
@@ -427,7 +610,7 @@ $conn->close();
                 <h3 class="artista-nome"><?php echo htmlspecialchars($artista['nome']); ?></h3>
                 
                 <?php if (!empty($artista['idade'])): ?>
-                  <p class="artista-idade"><?php echo $artista['idade']; ?> anos</p>
+                  <p class="artista-idade"><?php echo htmlspecialchars($artista['idade']); ?> anos</p>
                 <?php endif; ?>
 
                 <?php if (!empty($artista['total_obras'])): ?>

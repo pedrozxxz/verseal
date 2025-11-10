@@ -158,24 +158,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION["usuario"] = $row;
         $_SESSION["usuario_id"] = $row["id"];
 
+        // VERIFICAÇÃO DO TIPO DE USUÁRIO - CORREÇÃO ADICIONADA
+        $redirectUrl = '../index.php'; // Padrão: cliente
+        $mensagem = "Olá, {$row['nome']}! Explore as novas obras da Verseal.";
+        
+        // Verificar se é admin
+        if ($email === 'admin@verseal.com' || $row['tipo'] === 'admin') {
+          $_SESSION["tipo_usuario"] = 'admin';
+          $_SESSION["admin"] = $row;
+          $redirectUrl = 'admhome.php';
+          $mensagem = "Bem-vindo ao painel administrativo, {$row['nome']}!";
+        } 
         // Verificar se é artista
-        $sql_artistas = "SELECT id FROM artistas WHERE email = ? AND ativo = 1";
-        $stmt_artistas = $conn->prepare($sql_artistas);
-        $stmt_artistas->bind_param("s", $email);
-        $stmt_artistas->execute();
-        $isArtistas = $stmt_artistas->get_result()->num_rows > 0;
+        else {
+          $sql_artistas = "SELECT id FROM artistas WHERE email = ? AND ativo = 1";
+          $stmt_artistas = $conn->prepare($sql_artistas);
+          $stmt_artistas->bind_param("s", $email);
+          $stmt_artistas->execute();
+          $isArtistas = $stmt_artistas->get_result()->num_rows > 0;
 
-        if ($isArtistas) {
-          $_SESSION["tipo_artistas"] = 'artista';
-          $_SESSION["artistas"] = $row; // Para compatibilidade
-          $redirectUrl = 'artistahome.php';
-          $mensagem = "Bem-vindo de volta, artista {$row['nome']}! ✨";
-        } else {
-          $_SESSION["tipo_clientes"] = 'cliente';
-          $redirectUrl = '../index.php';
-          $mensagem = "Olá, {$row['nome']}! Explore as novas obras da Verseal.";
+          if ($isArtistas) {
+            $_SESSION["tipo_artistas"] = 'artista';
+            $_SESSION["artistas"] = $row;
+            $redirectUrl = 'artistahome.php';
+            $mensagem = "Bem-vindo de volta, artista {$row['nome']}! ✨";
+          } else {
+            $_SESSION["tipo_clientes"] = 'cliente';
+          }
         }
 
+        // Se veio do checkout, redireciona para checkout
         if ($fromCheckout) {
           $redirectUrl = 'checkout.php';
         }
@@ -225,7 +237,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 $conn->close();
 ?>
-
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -281,6 +292,9 @@ $conn->close();
 
 <body>
 
+  <!-- Botão Voltar -->
+  <a href="<?php echo $voltarUrl; ?>" class="btn-voltar">← Voltar</a>
+
   <!-- Partículas no fundo -->
   <div id="particles-js"></div>
 
@@ -304,7 +318,7 @@ $conn->close();
       </div>
       <button type="submit" name="login" class="botao-estilizado">Entrar</button>
       
-      <!-- Acesso Admin (opcional) -->
+      <!-- Acesso Admin -->
       <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 0.9rem;">
         <small style="color: #666;">Acesso administrativo: admin@verseal.com</small>
       </div>

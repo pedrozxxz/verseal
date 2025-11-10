@@ -9,8 +9,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['excluir_cliente'])) {
     $stmt->execute([$cliente_id]);
 
     // Redirecionar para evitar reenvio do formulário
-    header("Location: adm2.php?excluido=1");
+    header("Location: adm-cliente.php?excluido=1");
     exit;
+}
+// Processar ações (excluir e editar)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['excluir_cliente'])) {
+        $cliente_id = $_POST['cliente_id'];
+        $stmt = $pdo->prepare("UPDATE usuarios SET ativo = 0 WHERE id = ?");
+        $stmt->execute([$cliente_id]);
+
+        // Redirecionar para evitar reenvio do formulário
+        header("Location: adm2.php?excluido=1");
+        exit;
+    }
+
+    // Processar edição do cliente
+    if (isset($_POST['cliente_id']) && isset($_POST['nome']) && isset($_POST['email'])) {
+        $cliente_id = $_POST['cliente_id'];
+        $nome = $_POST['nome'];
+        $email = $_POST['email'];
+        $telefone = $_POST['telefone'] ?? null;
+
+        // Verificar se o email já existe em outro usuário
+        $stmt = $pdo->prepare("SELECT id FROM usuarios WHERE email = ? AND id != ? AND ativo = 1");
+        $stmt->execute([$email, $cliente_id]);
+
+        if ($stmt->rowCount() > 0) {
+            header("Location: adm2.php?erro=email_existente");
+            exit;
+        }
+
+        // Atualizar os dados do cliente
+        $stmt = $pdo->prepare("UPDATE usuarios SET nome = ?, email = ?, telefone = ? WHERE id = ?");
+        $stmt->execute([$nome, $email, $telefone, $cliente_id]);
+
+        // Redirecionar para evitar reenvio do formulário
+        header("Location: adm-cliente.php?editado=1");
+        exit;
+    }
 }
 
 // Paginação
@@ -59,10 +96,10 @@ $totalPaginas = ceil($totalClientes / $limite);
         <h2 class="logo">Verseal</h2>
         <nav class="menu">
             <a href="admhome.php">Início</a>
-            <a href="adm2.php" class="active">Clientes</a>
-            <a href="adm3.php">Artistas</a>
-            <a href="adm4.php">Obras</a>
-            <a href="adm5.php">Contato</a>
+            <a href="adm-cliente.php" class="active">Clientes</a>
+            <a href="adm-artista.php">Artistas</a>
+            <a href="adm-obras.php">Obras</a>
+            <a href="adm-contato.php">Contato</a>
         </nav>
     </aside>
 
@@ -186,23 +223,26 @@ $totalPaginas = ceil($totalClientes / $limite);
         <div class="modal-content">
             <span class="fechar">&times;</span>
             <h3><i class="fas fa-user-edit"></i> Editar Cliente</h3>
-            <form id="formEdicao">
+            <form id="formEdicao" method="POST">
                 <input type="hidden" id="clienteId" name="cliente_id">
 
                 <div class="campo">
                     <label><i class="fas fa-user"></i> Nome:</label>
-                    <input type="text" id="clienteNome" name="nome" required readonly>
+                    <input type="text" id="clienteNome" name="nome" required>
                 </div>
                 <div class="campo">
                     <label><i class="fas fa-envelope"></i> Email:</label>
-                    <input type="email" id="clienteEmail" name="email" required readonly>
+                    <input type="email" id="clienteEmail" name="email" required>
                 </div>
                 <div class="campo">
                     <label><i class="fas fa-phone"></i> Telefone:</label>
-                    <input type="text" id="clienteTelefone" name="telefone" readonly>
+                    <input type="text" id="clienteTelefone" name="telefone" placeholder="(00) 00000-0000">
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="btn-cancelar" onclick="fecharModal()">Fechar</button>
+                    <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+                    <button type="submit" class="btn-salvar">
+                        <i class="fas fa-save"></i> Salvar Alterações
+                    </button>
                 </div>
             </form>
         </div>
@@ -219,12 +259,13 @@ $totalPaginas = ceil($totalClientes / $limite);
         const modal = document.getElementById('modalEdicao');
         const fecharBtn = document.querySelector('.fechar');
         const formExcluir = document.getElementById('formExcluir');
+        const formEdicao = document.getElementById('formEdicao');
 
         function editarCliente(id, nome, email, telefone) {
             document.getElementById('clienteId').value = id;
             document.getElementById('clienteNome').value = nome;
             document.getElementById('clienteEmail').value = email;
-            document.getElementById('clienteTelefone').value = telefone;
+            document.getElementById('clienteTelefone').value = telefone || '';
             modal.style.display = 'block';
 
             // Prevenir comportamento padrão
@@ -258,6 +299,28 @@ $totalPaginas = ceil($totalClientes / $limite);
             modal.style.display = 'none';
         }
 
+        // Submissão do formulário de edição
+        formEdicao.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            Swal.fire({
+                title: 'Salvar alterações?',
+                text: 'As informações do cliente serão atualizadas.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#db6d56',
+                cancelButtonColor: '#95a5a6',
+                confirmButtonText: 'Sim, salvar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submit();
+                }
+            });
+        });
+
         fecharBtn.onclick = fecharModal;
 
         window.onclick = function (event) {
@@ -266,7 +329,7 @@ $totalPaginas = ceil($totalClientes / $limite);
             }
         }
 
-        // SweetAlert para exclusão bem sucedida
+        // SweetAlert para notificações
         <?php if (isset($_GET['excluido']) && $_GET['excluido'] == 1): ?>
             Swal.fire({
                 icon: 'success',
@@ -278,12 +341,45 @@ $totalPaginas = ceil($totalClientes / $limite);
             });
         <?php endif; ?>
 
+        <?php if (isset($_GET['editado']) && $_GET['editado'] == 1): ?>
+            Swal.fire({
+                icon: 'success',
+                title: 'Alterações salvas!',
+                text: 'Os dados do cliente foram atualizados com sucesso.',
+                timer: 2000,
+                showConfirmButton: false,
+                background: '#fff'
+            });
+        <?php endif; ?>
+
+        <?php if (isset($_GET['erro']) && $_GET['erro'] == 'email_existente'): ?>
+            Swal.fire({
+                icon: 'error',
+                title: 'Email já existe!',
+                text: 'Este email já está cadastrado para outro usuário.',
+                timer: 3000,
+                showConfirmButton: false,
+                background: '#fff'
+            });
+        <?php endif; ?>
+
         document.addEventListener('click', function (e) {
             const toggle = document.getElementById('menu-toggle-desktop');
             if (!e.target.closest('.hamburger-menu-desktop')) {
                 toggle.checked = false;
             }
         });
+        // SweetAlert para cliente cadastrado com sucesso
+        <?php if (isset($_GET['sucesso']) && $_GET['sucesso'] == 1): ?>
+            Swal.fire({
+                icon: 'success',
+                title: 'Cliente cadastrado!',
+                html: 'Cliente <strong><?php echo isset($_GET['nome']) ? htmlspecialchars($_GET['nome']) : ''; ?></strong> cadastrado com sucesso!',
+                timer: 3000,
+                showConfirmButton: false,
+                background: '#fff'
+            });
+        <?php endif; ?>
     </script>
 
     <style>
@@ -744,6 +840,24 @@ $totalPaginas = ceil($totalClientes / $limite);
                 width: 95%;
                 padding: 15px;
             }
+        }
+
+        .btn-salvar {
+            background: #27ae60;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-salvar:hover {
+            background: #219653;
+            transform: translateY(-2px);
         }
     </style>
 </body>
