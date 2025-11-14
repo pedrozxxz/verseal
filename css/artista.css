@@ -1,672 +1,973 @@
+/* artistas.css - Estilos específicos para a página de artistas */
+
 * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-    body {
-      font-family: 'Open Sans', sans-serif;
-      background-color: #f9f9f9;
-      color: #222;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: #f9f9f9;
+    color: #222;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
 
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
+a {
+    text-decoration: none;
+    color: inherit;
+}
 
-    img {
-      max-width: 100%;
-      border-radius: 10px;
-    }
+img {
+    max-width: 100%;
+    border-radius: 10px;
+}
 
-    /* HEADER */
- header {
-  display: flex;
-  justify-content: space-between; /* logo à esquerda, nav à direita */
-  align-items: center;
-  background: #fff;
-  padding: 25px 50px;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  font-weight: 700;
-  gap: 30px;
+/* HEADER */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 25px 50px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    font-weight: 700;
+    gap: 30px;
 }
 
 nav {
-  display: flex;
-  align-items: center; /* mantém os links centralizados verticalmente */
-  gap: 15px; /* espaçamento entre os links */
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
 nav a {
-  margin: 0; /* 🔹 remove margem lateral */
-  padding: 8px 15px; /* 🔹 adiciona espaçamento interno suave */
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: #444;
-  text-transform: uppercase;
-  transition: color 0.3s ease, letter-spacing 0.3s ease;
-  position: relative;
-  display: inline-block;
+    margin: 0;
+    padding: 8px 15px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #444;
+    text-transform: uppercase;
+    transition: color 0.3s ease, letter-spacing 0.3s ease;
+    position: relative;
+    display: inline-block;
 }
 
 nav a::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: -4px;
-  left: 0;
-  background-color: #e07b67;
-  transition: width 0.3s ease;
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background-color: #e07b67;
+    transition: width 0.3s ease;
 }
 
 nav a:hover {
-  color: #e07b67;
-  letter-spacing: 1px;
+    color: #e07b67;
+    letter-spacing: 1px;
 }
 
 nav a:hover::after {
-  width: 100%;
+    width: 100%;
 }
-    .logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.8rem;
-      color: #e07b67;
-      letter-spacing: 5px;
-      font-style: italic;
-      cursor: default;
-      user-select: none;
-      transition: color 0.3s ease;
-      text-shadow: 2px 2px 5px rgba(224,123,103,0.6);
-    }
 
-    .logo:hover {
-      color: #cc624e;
-      text-shadow: 2px 2px 8px rgba(204,98,78,0.8);
-    }
+.logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    color: #e07b67;
+    letter-spacing: 5px;
+    font-style: italic;
+    cursor: default;
+    user-select: none;
+    transition: color 0.3s ease;
+    text-shadow: 2px 2px 5px rgba(224,123,103,0.6);
+}
 
-    /* NAVBAR ICONS */
-    .nav-icons {
-      display: flex;
-      align-items: center;
-      margin-left: 25px;
-      gap: 8px;
-    }
+.logo:hover {
+    color: #cc624e;
+    text-shadow: 2px 2px 8px rgba(204,98,78,0.8);
+}
 
-    .icon-link {
-      font-size: 1.3rem;
-      color: #444;
-      transition: color 0.3s ease;
-      position: relative;
-      padding: 5px;
-    }
+/* NAVBAR ICONS */
+.nav-icons {
+    display: flex;
+    align-items: center;
+    margin-left: 25px;
+    gap: 8px;
+}
 
-    .icon-link:hover {
-      color: #e07b67;
-      transform: scale(1.1);
-    }
+.icon-link {
+    font-size: 1.3rem;
+    color: #444;
+    transition: color 0.3s ease;
+    position: relative;
+    padding: 5px;
+}
 
-    /* PROFILE DROPDOWN */
-    .profile-dropdown {
-      position: relative;
-      display: inline-block;
-    }
+.icon-link:hover {
+    color: #e07b67;
+    transform: scale(1.1);
+}
 
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 100%;
-      background-color: #fff;
-      min-width: 250px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-      border-radius: 12px;
-      z-index: 1001;
-      margin-top: 15px;
-      overflow: hidden;
-      border: 1px solid #eee;
-    }
+/* PROFILE DROPDOWN */
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+}
 
-    .dropdown-content.show {
-      display: block;
-    }
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: #fff;
+    min-width: 250px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border-radius: 12px;
+    z-index: 1001;
+    margin-top: 15px;
+    overflow: hidden;
+    border: 1px solid #eee;
+}
 
-    .user-info {
-      padding: 20px;
-      background: linear-gradient(135deg, #fef9f6, #f7e8de);
-      border-bottom: 1px solid #eee;
-    }
+.dropdown-content.show {
+    display: block;
+}
 
-    .user-info p {
-      margin: 0;
-      font-weight: 600;
-      color: #5b4a42;
-      font-size: 0.95rem;
-    }
+.user-info {
+    padding: 20px;
+    background: linear-gradient(135deg, #fef9f6, #f7e8de);
+    border-bottom: 1px solid #eee;
+}
 
-    #user-name {
-      color: #e07b67;
-      font-weight: 700;
-    }
+.user-info p {
+    margin: 0;
+    font-weight: 600;
+    color: #5b4a42;
+    font-size: 0.95rem;
+}
 
-    .dropdown-divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, #e07b67, transparent);
-      margin: 8px 0;
-    }
+#user-name {
+    color: #e07b67;
+    font-weight: 700;
+}
 
-    .dropdown-item {
-      display: flex;
-      align-items: center;
-      padding: 15px 20px;
-      color: #444;
-      transition: all 0.3s ease;
-      font-size: 0.95rem;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-      cursor: pointer;
-    }
+.dropdown-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e07b67, transparent);
+    margin: 8px 0;
+}
 
-    .dropdown-item:hover {
-      background-color: #f9f9f9;
-      color: #e07b67;
-      padding-left: 25px;
-    }
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: #444;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
 
-    .dropdown-item i {
-      margin-right: 12px;
-      width: 16px;
-      text-align: center;
-      font-size: 1rem;
-    }
+.dropdown-item:hover {
+    background-color: #f9f9f9;
+    color: #e07b67;
+    padding-left: 25px;
+}
 
-    .logout-btn {
-      color: #e07b67;
-      font-weight: 600;
-    }
+.dropdown-item i {
+    margin-right: 12px;
+    width: 16px;
+    text-align: center;
+    font-size: 1rem;
+}
 
-    /* HERO ARTISTAS - DESIGN MELHORADO */
-    .hero-artistas {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      padding: 100px 7%;
-      background: linear-gradient(135deg, #fef9f6, #f0ece4);
-      gap: 40px;
-      min-height: 480px;
-      border-radius: 30px;
-      margin: 30px;
-      box-shadow: 0 20px 50px rgba(224,123,103,0.25);
-      position: relative;
-      overflow: hidden;
-    }
+.logout-btn {
+    color: #e07b67;
+    font-weight: 600;
+}
 
-    .hero-artistas::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -10%;
-      width: 400px;
-      height: 400px;
-      background: linear-gradient(135deg, rgba(224,123,103,0.1), rgba(204,98,78,0.05));
-      border-radius: 50%;
-      z-index: 1;
-    }
+/* HERO ARTISTAS */
+.hero-artistas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 100px 7%;
+    background: linear-gradient(135deg, #fef9f6, #f0ece4);
+    gap: 40px;
+    min-height: 480px;
+    border-radius: 30px;
+    margin: 30px;
+    box-shadow: 0 20px 50px rgba(224,123,103,0.25);
+    position: relative;
+    overflow: hidden;
+}
 
-    .hero-artistas::after {
-      content: '';
-      position: absolute;
-      bottom: -30%;
-      right: 5%;
-      width: 300px;
-      height: 300px;
-      background: linear-gradient(135deg, rgba(204,98,78,0.08), rgba(224,123,103,0.12));
-      border-radius: 50%;
-      z-index: 1;
-    }
+.hero-artistas::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: linear-gradient(135deg, rgba(224,123,103,0.1), rgba(204,98,78,0.05));
+    border-radius: 50%;
+    z-index: 1;
+}
 
-    .hero-artistas-content {
-      flex: 1 1 450px;
-      max-width: 600px;
-      padding-right: 40px;
-      position: relative;
-      z-index: 2;
-    }
+.hero-artistas::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    right: 5%;
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(135deg, rgba(204,98,78,0.08), rgba(224,123,103,0.12));
+    border-radius: 50%;
+    z-index: 1;
+}
 
-    .hero-artistas-content h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 4.2rem;
-      font-weight: 900;
-      color: #cc624e;
-      line-height: 1.1;
-      text-transform: uppercase;
-      letter-spacing: 7px;
-      margin-bottom: 20px;
-      text-shadow: 3px 3px 10px rgba(204,98,78,0.4);
-    }
+.hero-artistas-content {
+    flex: 1 1 450px;
+    max-width: 600px;
+    padding-right: 40px;
+    position: relative;
+    z-index: 2;
+}
 
-    .hero-artistas-content p {
-      font-size: 1.5rem;
-      margin-bottom: 40px;
-      color: #5b4a42;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
+.hero-artistas-content h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 4.2rem;
+    font-weight: 900;
+    color: #cc624e;
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 7px;
+    margin-bottom: 20px;
+    text-shadow: 3px 3px 10px rgba(204,98,78,0.4);
+}
 
-    .btn-destaque {
-      display: inline-block;
-      padding: 16px 38px;
-      background: linear-gradient(135deg, #e07b67, #cc624e);
-      color: white;
-      border-radius: 60px;
-      font-weight: 800;
-      font-size: 1.3rem;
-      text-transform: uppercase;
-      box-shadow: 0 10px 25px rgba(204,98,78,0.6);
-      transition: background 0.4s ease, transform 0.3s ease;
-      cursor: pointer;
-      position: relative;
-      z-index: 2;
-    }
+.hero-artistas-content p {
+    font-size: 1.5rem;
+    margin-bottom: 40px;
+    color: #5b4a42;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
 
-    .btn-destaque:hover {
-      background: linear-gradient(135deg, #cc624e, #e07b67);
-      transform: scale(1.05);
-      box-shadow: 0 14px 35px rgba(224,123,103,0.8);
-    }
+.btn-destaque {
+    display: inline-block;
+    padding: 16px 38px;
+    background: linear-gradient(135deg, #e07b67, #cc624e);
+    color: white;
+    border-radius: 60px;
+    font-weight: 800;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    box-shadow: 0 10px 25px rgba(204,98,78,0.6);
+    transition: background 0.4s ease, transform 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+}
 
-    .hero-artistas-imagem {
-      flex: 1 1 350px;
-      position: relative;
-      z-index: 2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+.btn-destaque:hover {
+    background: linear-gradient(135deg, #cc624e, #e07b67);
+    transform: scale(1.05);
+    box-shadow: 0 14px 35px rgba(224,123,103,0.8);
+}
 
-    .arte-abstrata {
-      width: 100%;
-      max-width: 400px;
-      height: 400px;
-      background: linear-gradient(135deg, #e07b67, #cc624e, #8a7360, #5b4a42);
-      border-radius: 20px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 15px 35px rgba(224,123,103,0.3);
-      animation: float 6s ease-in-out infinite;
-    }
+.hero-artistas-imagem {
+    flex: 1 1 350px;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-    .arte-abstrata::before {
-      content: '';
-      position: absolute;
-      top: 20%;
-      left: 20%;
-      width: 60%;
-      height: 60%;
-      background: rgba(255,255,255,0.1);
-      border-radius: 50%;
-      filter: blur(20px);
-    }
+.arte-abstrata {
+    width: 100%;
+    max-width: 400px;
+    height: 400px;
+    background: linear-gradient(135deg, #e07b67, #cc624e, #8a7360, #5b4a42);
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(224,123,103,0.3);
+    animation: float 6s ease-in-out infinite;
+}
 
-    .arte-abstrata::after {
-      content: '';
-      position: absolute;
-      bottom: 15%;
-      right: 15%;
-      width: 40%;
-      height: 40%;
-      background: rgba(255,255,255,0.08);
-      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-      filter: blur(15px);
-    }
+.arte-abstrata::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    width: 60%;
+    height: 60%;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    filter: blur(20px);
+}
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-20px) rotate(2deg); }
-    }
+.arte-abstrata::after {
+    content: '';
+    position: absolute;
+    bottom: 15%;
+    right: 15%;
+    width: 40%;
+    height: 40%;
+    background: rgba(255,255,255,0.08);
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    filter: blur(15px);
+}
 
-    /* SEÇÃO ARTISTAS */
-    .artistas {
-      padding: 80px 5%;
-      background: #fff;
-      text-align: center;
-    }
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(2deg); }
+}
 
-    .artistas h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-      color: #cc624e;
-    }
+/* SEÇÃO ARTISTAS */
+.artistas {
+    padding: 80px 5%;
+    background: #fff;
+    text-align: center;
+}
 
-    .artistas-subtitle {
-      max-width: 800px;
-      margin: 0 auto 40px;
-      color: #666;
-      font-size: 1.2rem;
-    }
+.artistas h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #cc624e;
+}
 
-    .galeria-artistas {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 30px;
-      margin-top: 40px;
-    }
+.artistas-subtitle {
+    max-width: 800px;
+    margin: 0 auto 40px;
+    color: #666;
+    font-size: 1.2rem;
+}
 
-    .card-artista {
-      background: #fafafa;
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
+.galeria-artistas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
 
-    .card-artista:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 15px 30px rgba(204, 98, 78, 0.2);
-    }
+.card-artista {
+    background: #fafafa;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-    .artista-imagem {
-      width: 100%;
-      height: 300px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 5rem;
-      position: relative;
-      overflow: hidden;
-    }
+.card-artista:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(204, 98, 78, 0.2);
+}
 
-    .artista-imagem::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #e07b67, #cc624e);
-      opacity: 0.9;
-      z-index: 1;
-    }
+/* CORREÇÃO: Remove o fundo laranja apenas para artistas COM imagem */
+.artista-imagem {
+    width: 100%;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
 
-    .artista-imagem i {
-      position: relative;
-      z-index: 2;
-    }
+/* Fundo cinza para artistas COM imagem */
+.artista-imagem:has(img[src*="/"]) {
+    background: #f8f9fa !important;
+}
 
-    .artista-info {
-      padding: 25px;
-      text-align: left;
-    }
+/* Fundo laranja para artistas SEM imagem (apenas ícone) */
+.artista-imagem:not(:has(img[src*="/"])) {
+    background: linear-gradient(135deg, #e07b67, #cc624e) !important;
+}
 
-    .artista-nome {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.8rem;
-      color: #5b4a42;
-      margin-bottom: 5px;
-    }
+.artista-imagem img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.3s ease;
+}
 
-    .artista-idade {
-      color: #e07b67;
-      font-weight: 600;
-      margin-bottom: 15px;
-      font-size: 1.1rem;
-    }
+.artista-imagem i {
+    position: relative;
+    z-index: 2;
+    font-size: 4rem;
+    opacity: 0.9;
+}
 
-    .artista-descricao {
-      color: #666;
-      margin-bottom: 20px;
-      line-height: 1.6;
-    }
+/* Ícone branco para fundo laranja */
+.artista-imagem:not(:has(img[src*="/"])) i {
+    color: white;
+}
 
-    .artista-contatos {
-      border-top: 1px solid #eee;
-      padding-top: 20px;
-    }
+/* Ícone cinza para fundo cinza */
+.artista-imagem:has(img[src*="/"]) i {
+    color: #666;
+    opacity: 0.7;
+}
 
-    .contato-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-      color: #5b4a42;
-    }
+.card-artista:hover .artista-imagem img {
+    transform: scale(1.05);
+}
 
-    .contato-item i {
-      margin-right: 10px;
-      color: #e07b67;
-      width: 20px;
-    }
+.artista-info {
+    padding: 25px;
+    text-align: left;
+}
 
-    /* SOBRE COM EFEITO ARTÍSTICO */
-    .sobre-artistas {
-      position: relative;
-      color: #fff;
-      text-align: center;
-      padding: 120px 20px;
-      overflow: hidden;
-      min-height: 70vh;
-      background: linear-gradient(135deg, #5b4a42, #cc624e);
-    }
+.artista-nome {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: #5b4a42;
+    margin-bottom: 5px;
+}
 
-    .conteudo-sobre-artistas {
-      position: relative;
-      z-index: 1;
-      max-width: 850px;
-      margin: 0 auto;
-      background: rgba(20, 20, 20, 0.65);
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-      animation: fadeInUp 1.2s ease forwards;
-      opacity: 0;
-    }
+.artista-idade {
+    color: #e07b67;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
 
-    .conteudo-sobre-artistas h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.8rem;
-      margin-bottom: 1rem;
-      color: #fff;
-    }
+.artista-descricao {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
 
-    .conteudo-sobre-artistas p {
-      font-size: 1.2rem;
-      line-height: 1.8;
-      color: #ddd;
-      margin-top: 15px;
-    }
+.artista-contatos {
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
 
-    .conteudo-sobre-artistas .destaque {
-      color: #e07b67;
-      font-weight: bold;
-    }
+.contato-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    color: #5b4a42;
+}
 
-    /* ANIMAÇÃO */
-    @keyframes fadeInUp {
-      from {
+.contato-item i {
+    margin-right: 10px;
+    color: #e07b67;
+    width: 20px;
+}
+
+/* Botões e ações */
+.btn-mensagem-artista {
+    display: inline-block;
+    margin-top: 12px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-mensagem-artista:hover {
+    background: linear-gradient(135deg, #20c997, #28a745);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.btn-mensagem-artista i {
+    margin-right: 8px;
+}
+
+.artista-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+/* SOBRE COM EFEITO ARTÍSTICO */
+.sobre-artistas {
+    position: relative;
+    color: #fff;
+    text-align: center;
+    padding: 120px 20px;
+    overflow: hidden;
+    min-height: 70vh;
+    background: linear-gradient(135deg, #5b4a42, #cc624e);
+}
+
+.conteudo-sobre-artistas {
+    position: relative;
+    z-index: 1;
+    max-width: 850px;
+    margin: 0 auto;
+    background: rgba(20, 20, 20, 0.65);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    animation: fadeInUp 1.2s ease forwards;
+    opacity: 0;
+}
+
+.conteudo-sobre-artistas h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.conteudo-sobre-artistas p {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #ddd;
+    margin-top: 15px;
+}
+
+.conteudo-sobre-artistas .destaque {
+    color: #e07b67;
+    font-weight: bold;
+}
+
+/* ANIMAÇÃO */
+@keyframes fadeInUp {
+    from {
         transform: translateY(40px);
         opacity: 0;
-      }
-      to {
+    }
+    to {
         transform: translateY(0);
         opacity: 1;
-      }
     }
+}
 
-    /* RODAPÉ */
-    footer {
-      background: #ffffff;
-      color: #000000;
-      text-align: center;
-      padding: 40px 20px;
-      border-top: 1px solid #eee;
-    }
+/* RODAPÉ */
+footer {
+    background: #ffffff;
+    color: #000000;
+    text-align: center;
+    padding: 40px 20px;
+    border-top: 1px solid #eee;
+}
 
-    footer p {
-      margin-bottom: 25px;
-      font-size: 1rem;
-      color: #666;
-    }
+footer p {
+    margin-bottom: 25px;
+    font-size: 1rem;
+    color: #666;
+}
 
-    footer .social {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      gap: 25px;
-    }
+footer .social {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+}
 
-    footer .social a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 45px;
-      height: 45px;
-      background: #f8f8f8;
-      border-radius: 50%;
-      transition: all 0.3s ease;
-      color: #333;
-      text-decoration: none;
-      font-size: 1.2rem;
-    }
+footer .social a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    background: #f8f8f8;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    color: #333;
+    text-decoration: none;
+    font-size: 1.2rem;
+}
 
-    footer .social a:hover {
-      background: #e07b67;
-      color: white;
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(224, 123, 103, 0.3);
-    }
+footer .social a:hover {
+    background: #e07b67;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(224, 123, 103, 0.3);
+}
 
-    /* RESPONSIVIDADE */
-    @media (max-width: 768px) {
-      header {
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+    header {
         padding: 20px;
         flex-direction: column;
         gap: 15px;
-      }
-      
-      nav {
+    }
+    
+    nav {
         margin-top: 15px;
         flex-wrap: wrap;
         justify-content: center;
-      }
-      
-      nav a {
+    }
+    
+    nav a {
         margin-left: 15px;
         margin-right: 15px;
         font-size: 1rem;
-      }
-      
-      .nav-icons {
+    }
+    
+    .nav-icons {
         margin-left: 15px;
         margin-top: 10px;
         gap: 5px;
-      }
-      
-      .hero-artistas {
+    }
+    
+    .hero-artistas {
         margin: 15px;
         padding: 60px 5%;
         text-align: center;
-      }
-      
-      .hero-artistas-content {
+    }
+    
+    .hero-artistas-content {
         padding-right: 0;
-      }
-      
-      .hero-artistas-content h1 {
+    }
+    
+    .hero-artistas-content h1 {
         font-size: 2.8rem;
-      }
-      
-      .arte-abstrata {
+    }
+    
+    .arte-abstrata {
         height: 300px;
         margin-top: 30px;
-      }
-      
-      .galeria-artistas {
-        grid-template-columns: 1fr;
-      }
-      
-      .conteudo-sobre-artistas h2 {
-        font-size: 2.2rem;
-      }
-      
-      .conteudo-sobre-artistas p {
-        font-size: 1.1rem;
-      }
     }
-    /* Botão hamburger */
+    
+    .galeria-artistas {
+        grid-template-columns: 1fr;
+    }
+    
+    .conteudo-sobre-artistas h2 {
+        font-size: 2.2rem;
+    }
+    
+    .conteudo-sobre-artistas p {
+        font-size: 1.1rem;
+    }
+}
+
+/* Botão hamburger */
 .hamburger {
-  display: none;
-  font-size: 1.8rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #444;
-  z-index: 1002; /* acima da navbar */
-  position: absolute;
-  top: 25px;
-  right: 50px;
+    display: none;
+    font-size: 1.8rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #444;
+    z-index: 1002;
+    position: absolute;
+    top: 25px;
+    right: 50px;
 }
 
 /* Mostrar botão apenas no mobile */
 @media (max-width: 768px) {
-  .hamburger {
-    display: block;
-  }
+    .hamburger {
+        display: block;
+    }
 
-  nav {
-    position: fixed;
-    top: 0;
-    left: -100%; /* escondido por padrão */
-    width: 100%;
-    height: 100vh;
-    background: #fff;
-    flex-direction: column;
+    nav {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100vh;
+        background: #fff;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+        transition: left 0.3s ease;
+        z-index: 1000;
+    }
+
+    nav.nav-open {
+        left: 0;
+    }
+
+    nav a {
+        font-size: 1.5rem;
+        margin: 0;
+    }
+
+    .nav-icons {
+        flex-direction: column;
+        margin: 0;
+        gap: 20px;
+    }
+
+    .profile-dropdown {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .dropdown-content {
+        position: relative;
+        top: 0;
+        right: 0;
+        box-shadow: none;
+        width: 90%;
+        margin: 15px 0;
+    }
+}
+
+.nenhum-artista {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.nenhum-artista h3 {
+    margin: 15px 0 10px 0;
+    color: #333;
+}
+/* HERO ARTISTAS COM IMAGEM DE FUNDO */
+.hero-artistas {
+    position: relative;
+    min-height: 80vh;
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 30px;
-    transition: left 0.3s ease;
-    z-index: 1000;
-  }
+    padding: 80px 7%;
+    background-image: url('../img/banner_fundo_artista.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* Efeito parallax */
+    border-radius: 20px;
+    margin: 30px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
 
-  nav.nav-open {
-    left: 0; /* menu aparece */
-  }
-
-  nav a {
-    font-size: 1.5rem;
-    margin: 0;
-  }
-
-  .nav-icons {
-    flex-direction: column;
-    margin: 0;
-    gap: 20px;
-  }
-
-  .profile-dropdown {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-  }
-
-  .dropdown-content {
-    position: relative;
+/* Overlay para melhor contraste do texto */
+.hero-overlay {
+    position: absolute;
     top: 0;
-    right: 0;
-    box-shadow: none;
-    width: 90%;
-    margin: 15px 0;
-  }
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(91, 74, 66, 0.7) 0%,
+        rgba(204, 98, 78, 0.5) 50%,
+        rgba(224, 123, 103, 0.6) 100%
+    );
+    z-index: 1;
+}
+
+.hero-artistas-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    color: white;
+}
+
+.hero-artistas-content h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 4.5rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 8px;
+    margin-bottom: 25px;
+    text-shadow: 3px 3px 15px rgba(0,0,0,0.5);
+    animation: fadeInUp 1s ease;
+}
+
+.hero-artistas-content p {
+    font-size: 1.6rem;
+    margin-bottom: 40px;
+    color: #f8f8f8;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+    animation: fadeInUp 1s ease 0.2s both;
+}
+
+.btn-destaque {
+    display: inline-block;
+    padding: 18px 45px;
+    background: linear-gradient(135deg, #e07b67, #cc624e);
+    color: white;
+    border-radius: 60px;
+    font-weight: 800;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    transition: all 0.4s ease;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    border: 2px solid rgba(255,255,255,0.3);
+    animation: fadeInUp 1s ease 0.4s both;
+}
+
+.btn-destaque:hover {
+    background: linear-gradient(135deg, #cc624e, #e07b67);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(224,123,103,0.6);
+    border-color: rgba(255,255,255,0.6);
+}
+
+/* Efeitos decorativos adicionais */
+.hero-artistas::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
+    background-size: cover;
+    z-index: 1;
+    opacity: 0.3;
+}
+
+/* Animação de entrada */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+    .hero-artistas {
+        margin: 15px;
+        padding: 60px 5%;
+        min-height: 60vh;
+        background-attachment: scroll; /* Remove parallax no mobile */
+    }
+    
+    .hero-artistas-content h1 {
+        font-size: 3rem;
+        letter-spacing: 4px;
+    }
+    
+    .hero-artistas-content p {
+        font-size: 1.3rem;
+    }
+    
+    .btn-destaque {
+        padding: 16px 35px;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-artistas-content h1 {
+        font-size: 2.2rem;
+        letter-spacing: 2px;
+    }
+    
+    .hero-artistas-content p {
+        font-size: 1.1rem;
+    }
+    
+    .btn-destaque {
+        padding: 14px 30px;
+        font-size: 1.1rem;
+    }
+}
+
+/* Efeito de brilho na imagem */
+.imagem-artista-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+    transition: left 0.6s ease;
+    z-index: 2;
+}
+
+.imagem-artista-container:hover::before {
+    left: 100%;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+    .hero-artistas {
+        margin: 15px;
+        padding: 60px 5%;
+        text-align: center;
+        flex-direction: column;
+    }
+    
+    .hero-artistas-content {
+        padding-right: 0;
+        margin-bottom: 40px;
+    }
+    
+    .hero-artistas-content h1 {
+        font-size: 2.8rem;
+        letter-spacing: 3px;
+    }
+    
+    .hero-artistas-content p {
+        font-size: 1.2rem;
+    }
+    
+    .imagem-artista-container {
+        height: 300px;
+        max-width: 400px;
+        transform: none;
+    }
+    
+    .imagem-artista-container:hover {
+        transform: scale(1.02);
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-artistas-content h1 {
+        font-size: 2.2rem;
+    }
+    
+    .hero-artistas-content p {
+        font-size: 1.1rem;
+    }
+    
+    .btn-destaque {
+        padding: 14px 30px;
+        font-size: 1.1rem;
+    }
+    
+    .imagem-artista-container {
+        height: 250px;
+    }
 }
