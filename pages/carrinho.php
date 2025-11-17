@@ -49,9 +49,37 @@ $result = $conexao->query($sql);
 $produtos = [];
 if ($result && $result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
+        // CORREÇÃO: Processar corretamente a URL da imagem
+        $imagem_url = '';
+        if (!empty($row['imagem_url'])) {
+            // Se a imagem já tem o caminho completo, usar como está
+            if (strpos($row['imagem_url'], '../') === 0) {
+                $imagem_url = $row['imagem_url'];
+            } 
+            // Se é um caminho relativo sem ../, adicionar ../
+            elseif (strpos($row['imagem_url'], 'img/') === 0) {
+                $imagem_url = '../' . $row['imagem_url'];
+            }
+            // Se é um caminho de upload, adicionar ../
+            elseif (strpos($row['imagem_url'], 'uploads/') === 0) {
+                $imagem_url = '../' . $row['imagem_url'];
+            }
+            // Se já começa com img/uploads/, adicionar ../
+            elseif (strpos($row['imagem_url'], 'img/uploads/') === 0) {
+                $imagem_url = '../' . $row['imagem_url'];
+            }
+            // Para qualquer outro caso, usar como está
+            else {
+                $imagem_url = $row['imagem_url'];
+            }
+        } else {
+            // Imagem padrão se não houver imagem
+            $imagem_url = '../img/imagem2.png';
+        }
+
         $produtos[$row["id"]] = [
             "id" => $row["id"],
-            "img" => "../uploads/" . ($row["imagem_url"] ?: "imagem_padrao.png"),
+            "img" => $imagem_url, // CORRIGIDO: Usar a URL processada
             "nome" => $row["nome"],
             "artista" => $row["artista"],
             "preco" => (float)$row["preco"],
@@ -165,6 +193,35 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/carrinho.css">
+    <style>
+        /* Estilo para imagens que não carregam */
+        .item-card img,
+        .produto-card img {
+            object-fit: cover;
+            height: 200px;
+            width: 100%;
+        }
+
+        .img-error {
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .item-card img {
+            height: 150px;
+            width: 150px;
+            border-radius: 8px;
+        }
+
+        .produto-card img {
+            height: 250px;
+        }
+    </style>
 </head>
 
 <body>
@@ -261,7 +318,9 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
                     <div class="carrinho-itens">
                         <?php foreach ($carrinho as $item): ?>
                             <div class="item-card" data-item-id="<?php echo $item['id']; ?>">
-                                <img src="<?php echo $item['img']; ?>" alt="<?php echo $item['nome']; ?>">
+                                <img src="<?php echo $item['img']; ?>" 
+                                     alt="<?php echo $item['nome']; ?>"
+                                     onerror="this.onerror=null; this.src='../img/imagem2.png'; this.classList.add('img-error');">
                                 <div class="item-info">
                                     <p><strong><?php echo $item['nome']; ?></strong></p>
                                     <span class="preco-unitario">R$
@@ -269,7 +328,7 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
 
                                     <div class="subtotal">
                                         Subtotal: R$ <span
-                                            class="subtotal-valor"><?php echo number_format($item['preco']); ?></span>
+                                            class="subtotal-valor"><?php echo number_format($item['preco'], 2, ',', '.'); ?></span>
                                     </div>
 
                                     <button type="button" class="btn-remover"
@@ -290,7 +349,7 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
                                 <div class="resumo-item">
                                     <span class="resumo-nome"><?php echo $item['nome']; ?></span>
                                     <span class="resumo-preco">R$
-                                        <?php echo number_format($item['preco']); ?></span>
+                                        <?php echo number_format($item['preco'], 2, ',', '.'); ?></span>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -335,7 +394,9 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
             <div class="lista-produtos">
                 <?php foreach ($produtos as $produto): ?>
                     <div class="produto-card">
-                        <img src="<?php echo $produto['img']; ?>" alt="<?php echo $produto['nome']; ?>">
+                        <img src="<?php echo $produto['img']; ?>" 
+                             alt="<?php echo $produto['nome']; ?>"
+                             onerror="this.onerror=null; this.src='../img/imagem2.png'; this.classList.add('img-error');">
                         <div class="produto-info">
                             <h3><?php echo $produto['nome']; ?></h3>
                             <span class="preco">R$ <?php echo number_format($produto['preco'], 2, ',', '.'); ?></span>
@@ -379,6 +440,7 @@ function atualizarInterfaceCarrinho() {
         if(novo) document.getElementById('carrinho-container').innerHTML = novo.innerHTML;
     }).catch(e=>window.location.reload());
 }
+
 function finalizarCompra() {
     // Verifica se o carrinho está vazio
     const carrinhoVazio = document.querySelectorAll('.item-card').length === 0;
@@ -390,6 +452,7 @@ function finalizarCompra() {
     // Redireciona para a página de pagamento (exemplo)
     window.location.href = './checkout.php';
 }
+
 // Adicionar
 function adicionarAoCarrinho(id){
     const fd = new FormData(); fd.append('acao','adicionar'); fd.append('item_id',id);

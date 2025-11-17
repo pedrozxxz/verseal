@@ -42,6 +42,34 @@ $produtos = [];
 
 if ($result_produtos && $result_produtos->num_rows > 0) {
     while ($produto = $result_produtos->fetch_assoc()) {
+        // CORREÇÃO: Processar corretamente a URL da imagem
+        $imagem_url = '';
+        if (!empty($produto['imagem_url'])) {
+            // Se a imagem já tem o caminho completo, usar como está
+            if (strpos($produto['imagem_url'], '../') === 0) {
+                $imagem_url = $produto['imagem_url'];
+            } 
+            // Se é um caminho relativo sem ../, adicionar ../
+            elseif (strpos($produto['imagem_url'], 'img/') === 0) {
+                $imagem_url = '../' . $produto['imagem_url'];
+            }
+            // Se é um caminho de upload, adicionar ../
+            elseif (strpos($produto['imagem_url'], 'uploads/') === 0) {
+                $imagem_url = '../' . $produto['imagem_url'];
+            }
+            // Se já começa com img/uploads/, adicionar ../
+            elseif (strpos($produto['imagem_url'], 'img/uploads/') === 0) {
+                $imagem_url = '../' . $produto['imagem_url'];
+            }
+            // Para qualquer outro caso, usar como está
+            else {
+                $imagem_url = $produto['imagem_url'];
+            }
+        } else {
+            // Imagem padrão se não houver imagem
+            $imagem_url = '../img/imagem2.png';
+        }
+
         // Processar categorias do campo JSON
         $categorias = [];
         if (!empty($produto['categorias'])) {
@@ -57,7 +85,7 @@ if ($result_produtos && $result_produtos->num_rows > 0) {
         // Criar array do produto
         $produtos[] = [
             "id" => intval($produto['id']),
-            "img" => !empty($produto['imagem_url']) ? $produto['imagem_url'] : '../img/imagem2.png',
+            "img" => $imagem_url, // CORRIGIDO: Usar a URL processada
             "nome" => $produto['nome'] ?? 'Obra sem nome',
             "artista" => $produto['artista'] ?? 'Artista desconhecido',
             "preco" => floatval($produto['preco'] ?? 0),
@@ -233,8 +261,10 @@ $conn->close();
 
     .modal-imagem img {
       max-width: 100%;
+      max-height: 400px;
       border-radius: 10px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      object-fit: contain;
     }
 
     .modal-info {
@@ -375,6 +405,23 @@ $conn->close();
       max-width: 500px;
       margin-left: auto;
       margin-right: auto;
+    }
+
+    /* Estilo para imagens que não carregam */
+    .obra-card img {
+      object-fit: cover;
+      height: 250px;
+      width: 100%;
+    }
+
+    .img-error {
+      background: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #6c757d;
+      font-size: 0.9rem;
     }
 
     @media (max-width: 768px) {
@@ -582,7 +629,9 @@ $conn->close();
         <?php else: ?>
           <?php foreach ($produtosFiltrados as $produto): ?>
           <div class="obra-card">
-            <img src="<?php echo $produto['img']; ?>" alt="<?php echo $produto['nome']; ?>">
+            <img src="<?php echo $produto['img']; ?>" 
+                 alt="<?php echo $produto['nome']; ?>"
+                 onerror="this.onerror=null; this.src='../img/imagem2.png'; this.classList.add('img-error');">
             <h4><?php echo $produto['nome']; ?></h4>
             <p>Por <?php echo $produto['artista']; ?></p>
             <span class="preco-obra">R$ <?php echo number_format($produto['preco'], 2, ',', '.'); ?></span>
@@ -643,7 +692,7 @@ $conn->close();
       // Preencher conteúdo
       modalBody.innerHTML = `
         <div class="modal-imagem">
-          <img src="${obra.img}" alt="${obra.nome}">
+          <img src="${obra.img}" alt="${obra.nome}" onerror="this.onerror=null; this.src='../img/imagem2.png';">
         </div>
         <div class="modal-info">
           <div class="info-item">
@@ -656,24 +705,28 @@ $conn->close();
           </div>
           <div class="info-item">
             <span class="info-label">Dimensões:</span>
-            <span class="info-value">${obra.dimensao}</span>
+            <span class="info-value">${obra.dimensoes || 'Não informado'}</span>
           </div>
           <div class="info-item">
             <span class="info-label">Técnica:</span>
-            <span class="info-value">${obra.tecnica}</span>
+            <span class="info-value">${obra.tecnica || 'Não informado'}</span>
           </div>
           <div class="info-item">
             <span class="info-label">Ano:</span>
-            <span class="info-value">${obra.ano}</span>
+            <span class="info-value">${obra.ano || 'Não informado'}</span>
           </div>
           <div class="info-item">
             <span class="info-label">Material:</span>
-            <span class="info-value">${obra.material}</span>
+            <span class="info-value">${obra.material || 'Não informado'}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Estoque:</span>
+            <span class="info-value">${obra.estoque} unidades</span>
           </div>
         </div>
         <div class="descricao-completa">
           <h4>Descrição da Obra</h4>
-          <p>${obra.desc}</p>
+          <p>${obra.descricao || 'Esta obra não possui descrição detalhada.'}</p>
         </div>
         <div class="modal-actions">
           <button class="btn-comprar-modal" onclick="adicionarAoCarrinho(${obra.id}); fecharModal()">
