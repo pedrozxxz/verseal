@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 
             // INSERE NA TABELA artistas
-            $sql = "INSERT INTO artistas (nome, nome_artistico, insta, email, telefone, cpf, senha) 
+            $sql = "INSERT INTO artistas (nome, nome_artistico, instagram, email, telefone, cpf, senha) 
                     VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("sssssss", $nome, $nome_artistico, $insta, $email, $telefone, $cpf, $senhaHash);
@@ -133,10 +133,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     });
                 });
             </script>";
-            $_SESSION["artista"] = [
-    "id" => $id,
-    "nome_artistico" => $nomeArtistico
-];
         }
     }
 }
