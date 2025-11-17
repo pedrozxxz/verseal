@@ -496,8 +496,8 @@ if (!is_array($produtosFiltrados)) {
             <i class="fas fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
             <h3>Nenhuma obra encontrada</h3>
             <p>Você ainda não possui obras cadastradas ou nenhuma obra corresponde aos filtros aplicados.</p>
-<a href="adicionarobras.php" class="btn-adiconar-obra">              
-  <i class="fas fa-plus"></i> Adicionar Primeira Obra
+            <a href="adicionarobras.php" class="btn-adiconar-obra">              
+              <i class="fas fa-plus"></i> Adicionar Primeira Obra
             </a>
           </div>
         <?php else: ?>
@@ -522,7 +522,7 @@ if (!is_array($produtosFiltrados)) {
       </section>
     </div>
   </main>
-
+        
   <!-- MODAL DETALHES DA OBRA -->
   <div id="modalDetalhes" class="modal-detalhes">
     <div class="modal-conteudo">

@@ -58,7 +58,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_param("ssdsssisss", $nome, $artista_nome, $preco, $descricao, $dimensoes, $tecnica, $ano, $material, $categorias_json, $imagem_url);
 
     if ($stmt->execute()) {
-        // Redireciona após salvar
         header("Location: artistahome.php");
         exit;
     } else {
@@ -83,196 +82,182 @@ $conn->close();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Verseal - Adicionar Obra</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
   <link rel="stylesheet" href="../css/style.css">
-  <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <style>
-/* FUNDO COM LINHAS DIAGONAIS */
-body {
-  background-color: #fff;
-  background-image: repeating-linear-gradient(
-    -45deg,
-    #f6eae5 0px,
-    #f6eae5 1px,
-    transparent 1px,
-    transparent 30px
-  );
-  margin: 0;
-  padding: 0;
-}
+    /* FUNDO COM LINHAS DIAGONAIS */
+    body {
+      background-color: #fff;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        #f6eae5 0px,
+        #f6eae5 1px,
+        transparent 1px,
+        transparent 30px
+      );
+      margin: 0;
+      padding: 0;
+    }
 
-/* CONTAINER PRINCIPAL */
-.edit-obra-container {
-  max-width: 1100px;
-  margin: 100px auto;
-  background: #ffffff;
-  border-radius: 25px;
-  padding: 50px 70px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-  display: flex;
-  align-items: flex-start;
-  gap: 60px;
-  position: relative;
-}
+    /* CONTAINER PRINCIPAL */
+    .edit-obra-container {
+      max-width: 1100px;
+      margin: 100px auto;
+      background: #ffffff;
+      border-radius: 25px;
+      padding: 50px 70px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: flex-start;
+      gap: 60px;
+      position: relative;
+    }
 
-/* TÍTULO COM PINCELADA */
-.edit-obra-container::before {
-  content: 'ADICIONAR OBRA';
-  position: absolute;
-  top: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: 'Playfair Display', serif;
-  font-size: 2.2rem;
-  color: #fff;
-  background: url('../img/pincelada.png') no-repeat center/contain;
-  padding: 15px 40px;
-  text-align: center;
-  font-weight: bold;
-  letter-spacing: 2px;
-}
+    /* TÍTULO COM PINCELADA */
+    .edit-obra-container::before {
+      content: 'ADICIONAR OBRA';
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      color: #fff;
+      background: url('../img/pincelada.png') no-repeat center/contain;
+      padding: 15px 40px;
+      text-align: center;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
 
-/* FOTO */
-.edit-obra-container .foto-area {
-  flex: 1;
-  text-align: center;
-}
+    /* FOTO */
+    .foto-area {
+      flex: 1;
+      text-align: center;
+    }
 
-.edit-obra-container .foto-area img {
-  width: 320px;
-  height: 320px;
-  object-fit: cover;
-  border-radius: 20px;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-  margin-bottom: 15px;
-  border: 2px dashed #e07b67;
-}
+    .foto-area img {
+      width: 320px;
+      height: 320px;
+      object-fit: cover;
+      border-radius: 20px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      margin-bottom: 15px;
+      border: 2px dashed #e07b67;
+    }
 
-.edit-obra-container .foto-area input[type="file"] {
-  display: block;
-  margin: 10px auto;
-  font-size: 0.9rem;
-  color: #444;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  width: 100%;
-}
+    .foto-area input[type="file"] {
+      display: block;
+      margin: 10px auto;
+      font-size: 0.9rem;
+      color: #444;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      width: 100%;
+    }
 
-/* FORMULÁRIO */
-.edit-obra-container form {
-  flex: 1.2;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
+    /* FORMULÁRIO */
+    form {
+      flex: 1.2;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
 
-.edit-obra-container label {
-  font-weight: 600;
-  color: #444;
-  font-size: 1rem;
-  margin-bottom: 5px;
-}
+    form label {
+      font-weight: 600;
+      color: #444;
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
 
-.edit-obra-container input,
-.edit-obra-container textarea,
-.edit-obra-container select {
-  width: 100%;
-  padding: 12px 15px;
-  border: 2px solid #f0dcd0;
-  border-radius: 12px;
-  font-size: 1rem;
-  color: #333;
-  outline: none;
-  transition: all 0.3s ease;
-  background: #fdf9f8;
-  box-sizing: border-box;
-}
+    form input,
+    form textarea,
+    form select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #f0dcd0;
+      border-radius: 12px;
+      font-size: 1rem;
+      color: #333;
+      outline: none;
+      transition: all 0.3s ease;
+      background: #fdf9f8;
+      box-sizing: border-box;
+    }
 
-.edit-obra-container input:focus,
-.edit-obra-container textarea:focus,
-.edit-obra-container select:focus {
-  border-color: #e07b67;
-  box-shadow: 0 0 8px rgba(224, 123, 103, 0.3);
-}
+    form input:focus,
+    form textarea:focus,
+    form select:focus {
+      border-color: #e07b67;
+      box-shadow: 0 0 8px rgba(224, 123, 103, 0.3);
+    }
 
-.edit-obra-container textarea {
-  height: 100px;
-  resize: vertical;
-}
+    form textarea {
+      height: 100px;
+      resize: vertical;
+    }
 
-/* CHECKBOXES DE CATEGORIAS */
-.categorias-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 5px;
-}
+    /* CHECKBOXES */
+    .categorias-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 5px;
+    }
 
-.categoria-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+    .categoria-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-.categoria-checkbox input[type="checkbox"] {
-  width: auto;
-  margin: 0;
-}
+    /* BOTÃO SALVAR */
+    button[type="submit"] {
+      align-self: center;
+      margin-top: 20px;
+      padding: 12px 40px;
+      background: linear-gradient(135deg, #e07b67, #cc624e);
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(204, 98, 78, 0.4);
+      transition: all 0.3s ease;
+      width: auto;
+    }
 
-.categoria-checkbox label {
-  font-weight: normal;
-  margin: 0;
-  font-size: 0.9rem;
-}
+    button[type="submit"]:hover {
+      transform: translateY(-3px);
+      background: linear-gradient(135deg, #cc624e, #e07b67);
+      box-shadow: 0 10px 25px rgba(224, 123, 103, 0.5);
+    }
 
-/* BOTÃO SALVAR */
-.edit-obra-container button[type="submit"] {
-  align-self: center;
-  margin-top: 20px;
-  padding: 12px 40px;
-  background: linear-gradient(135deg, #e07b67, #cc624e);
-  color: #fff;
-  border: none;
-  border-radius: 30px;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(204, 98, 78, 0.4);
-  transition: all 0.3s ease;
-  width: auto;
-}
+    /* Preview da imagem */
+    #imagePreview {
+      max-width: 100%;
+      max-height: 300px;
+      display: none;
+      margin-top: 10px;
+      border-radius: 10px;
+    }
 
-.edit-obra-container button[type="submit"]:hover {
-  transform: translateY(-3px);
-  background: linear-gradient(135deg, #cc624e, #e07b67);
-  box-shadow: 0 10px 25px rgba(224, 123, 103, 0.5);
-}
-
-/* Preview da imagem */
-#imagePreview {
-  max-width: 100%;
-  max-height: 300px;
-  display: none;
-  margin-top: 10px;
-  border-radius: 10px;
-}
-
-/* Para telas menores */
-@media (max-width: 768px) {
-  .edit-obra-container {
-    flex-direction: column;
-    padding: 30px;
-    margin: 80px 20px;
-  }
-  
-  .categorias-group {
-    grid-template-columns: 1fr;
-  }
-}
+    @media (max-width: 768px) {
+      .edit-obra-container {
+        flex-direction: column;
+        padding: 30px;
+        margin: 80px 20px;
+      }
+      .categorias-group {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 
@@ -285,8 +270,8 @@ body {
       <a href="artistahome.php"><i class="fas fa-home"></i> Início</a>
       <a href="artistasobra.php"><i class="fas fa-palette"></i> Obras</a>
       <a href="artistabiografia.php"><i class="fas fa-user"></i> Quem eu sou?</a>
-      
-      <!-- Menu Hamburguer Flutuante -->
+
+      <!-- Menu hamburguer -->
       <div class="hamburger-menu-desktop">
         <input type="checkbox" id="menu-toggle-desktop">
         <label for="menu-toggle-desktop" class="hamburger-desktop">
@@ -311,25 +296,26 @@ body {
         </div>
       </div>
 
+      <!-- Perfil -->
       <div class="profile-dropdown">
         <a href="#" class="icon-link" id="profile-icon">
           <i class="fas fa-user"></i>
         </a>
         <div class="dropdown-content" id="profile-dropdown">
-            <div class="user-info">
-              <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars(is_array($usuarioLogado) ? $usuarioLogado['nome'] : $usuarioLogado); ?></span>!</p>
-            </div>
-            <div class="dropdown-divider"></div>
-            <a href="artistabiografia.php" class="dropdown-item">
-              <i class="fas fa-user-circle"></i> Meu Perfil
-            </a>
-            <a href="artistasobra.php" class="dropdown-item">
-              <i class="fas fa-palette"></i> Minhas Obras
-            </a>
-            <div class="dropdown-divider"></div>
-            <a href="logout.php" class="dropdown-item logout-btn">
-              <i class="fas fa-sign-out-alt"></i> Sair
-            </a>
+          <div class="user-info">
+            <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars(is_array($usuarioLogado) ? $usuarioLogado['nome'] : $usuarioLogado); ?></span>!</p>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a href="artistabiografia.php" class="dropdown-item">
+            <i class="fas fa-user-circle"></i> Meu Perfil
+          </a>
+          <a href="artistasobra.php" class="dropdown-item">
+            <i class="fas fa-palette"></i> Minhas Obras
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="logout.php" class="dropdown-item logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </a>
         </div>
       </div>
     </nav>
@@ -337,13 +323,14 @@ body {
 
   <!-- FORMULÁRIO DE ADIÇÃO DE OBRA -->
   <div class="edit-obra-container">
-    <div class="foto-area">
-      <img src="../img/placeholder-obra.jpg" alt="Preview da obra" id="imagePreview">
-      <input type="file" name="imagem" id="imagemInput" accept="image/*">
-      <small>Selecione uma imagem para a obra</small>
-    </div>
-
     <form action="" method="post" enctype="multipart/form-data">
+
+      <div class="foto-area">
+        <img src="../img/placeholder-obra.jpg" alt="Preview da obra" id="imagePreview">
+        <input type="file" name="imagem" id="imagemInput" accept="image/*">
+        <small>Selecione uma imagem para a obra</small>
+      </div>
+
       <label for="nome">Nome da Obra</label>
       <input type="text" name="nome" id="nome" placeholder="Digite o nome da obra..." required>
 
@@ -385,9 +372,10 @@ body {
         </div>
       </div>
 
-  <button type="submit">
-    <i class="fas fa-plus"></i> Adicionar Obra
-  </button>
+      <button type="submit">
+        <i class="fas fa-plus"></i> Adicionar Obra
+      </button>
+
     </form>
   </div>
 
@@ -409,7 +397,7 @@ body {
       }
     });
 
-    // Dropdown do perfil
+    // Dropdown Perfil
     document.addEventListener('DOMContentLoaded', function() {
       const profileIcon = document.getElementById('profile-icon');
       const profileDropdown = document.getElementById('profile-dropdown');
@@ -429,5 +417,6 @@ body {
       }
     });
   </script>
+
 </body>
 </html>
