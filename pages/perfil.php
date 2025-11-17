@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Verificar se o usuário está logado
+// Verificar se o usuário está logado - CORREÇÃO AQUI
 if (!isset($_SESSION["usuario"])) {
     header("Location: login.php");
     exit();
@@ -18,27 +18,17 @@ if ($conn->connect_error) {
     die("Falha na conexão: " . $conn->connect_error);
 }
 
-// Verificar e adicionar colunas faltantes na tabela usuarios
-$columns_to_check = ['telefone', 'endereco', 'foto_perfil'];
-foreach ($columns_to_check as $column) {
-    $check_sql = "SHOW COLUMNS FROM usuarios LIKE '$column'";
-    $result = $conn->query($check_sql);
-    if ($result->num_rows == 0) {
-        // Coluna não existe, vamos adicionar
-        if ($column == 'telefone') {
-            $alter_sql = "ALTER TABLE usuarios ADD COLUMN $column VARCHAR(20) NULL AFTER email";
-        } elseif ($column == 'endereco') {
-            $alter_sql = "ALTER TABLE usuarios ADD COLUMN $column TEXT NULL AFTER telefone";
-        } elseif ($column == 'foto_perfil') {
-            $alter_sql = "ALTER TABLE usuarios ADD COLUMN $column VARCHAR(255) NULL AFTER endereco";
-        }
-        $conn->query($alter_sql);
-    }
+// CORREÇÃO: Verificar se $_SESSION["usuario"] é array ou string
+if (is_array($_SESSION["usuario"])) {
+    $usuario_nome = $_SESSION["usuario"]['nome'];
+    $usuario_id = $_SESSION["usuario"]['id'] ?? null;
+} else {
+    // Se for string, usar como nome
+    $usuario_nome = $_SESSION["usuario"];
+    $usuario_id = null;
 }
 
-// Buscar dados do usuário
-$usuario_nome = $_SESSION["usuario"]['nome']; // Acessar a chave 'nome' do array
-
+// Buscar dados do usuário - CORREÇÃO AQUI
 $sql = "SELECT * FROM usuarios WHERE nome = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $usuario_nome);
@@ -46,9 +36,8 @@ $stmt->execute();
 $result = $stmt->get_result();
 $usuario = $result->fetch_assoc();
 
-// Se não encontrou pelo nome, tentar pelo ID (mais seguro)
-if (!$usuario) {
-    $usuario_id = $_SESSION["usuario"]['id'];
+// Se não encontrou pelo nome e temos ID, tentar pelo ID
+if (!$usuario && $usuario_id) {
     $sql = "SELECT * FROM usuarios WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $usuario_id);
@@ -56,6 +45,25 @@ if (!$usuario) {
     $result = $stmt->get_result();
     $usuario = $result->fetch_assoc();
 }
+
+// Se ainda não encontrou, tentar buscar o primeiro usuário com esse nome
+if (!$usuario) {
+    $sql = "SELECT * FROM usuarios WHERE nome = ? LIMIT 1";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $usuario_nome);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $usuario = $result->fetch_assoc();
+}
+
+// Se ainda não encontrou nenhum usuário, fazer logout
+if (!$usuario) {
+    session_destroy();
+    header("Location: login.php");
+    exit();
+}
+
+
 // Processar atualização do perfil
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["atualizar_perfil"])) {
     $nome = $_POST["nome"];

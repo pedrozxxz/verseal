@@ -181,7 +181,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION["tipo_artistas"] = 'artista';
             $_SESSION["artistas"] = $row;
             $redirectUrl = 'artistahome.php';
-            $mensagem = "Bem-vindo de volta, artista {$row['nome']}! ✨";
+            $mensagem = "Bem-vindo de volta, artista {$row['nome']}!";
           } else {
             $_SESSION["tipo_clientes"] = 'cliente';
           }

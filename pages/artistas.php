@@ -117,8 +117,7 @@ $conn->close();
             <div class="dropdown-divider"></div>
 
             <?php if ($tipoUsuario === "cliente"): ?>
-              <a href="./perfilCliente.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
-              <a href="./favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+              <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
             <?php elseif ($tipoUsuario === "artista"): ?>
               <a href="./artistahome.php" class="dropdown-item"><i class="fas fa-palette"></i> Meu Perfil</a>
             <?php endif; ?>
@@ -278,5 +277,15 @@ $conn->close();
     }
   </script>
 </body>
+
+<!-- FOOTER -->
+    <footer>
+        <p>&copy; 2025 Verseal. Todos os direitos reservados.</p>
+        <div class="social">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#"><i class="fab fa-whatsapp"></i></a>
+        </div>
+    </footer>
 
 </html>

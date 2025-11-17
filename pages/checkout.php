@@ -74,13 +74,13 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
                         </div>
                         <div class="dropdown-divider"></div>
                         <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-                        <a href="./minhas-compras.php" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Minhas Compras</a>
                         <div class="dropdown-divider"></div>
                         <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
                     <?php else: ?>
                         <div class="user-info">
                             <p>Faça login para acessar seu perfil</p>
                         </div>
+                        
                         <div class="dropdown-divider"></div>
                         <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
                         <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
@@ -336,7 +336,6 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
     </footer>
 
     <script>
-        // JavaScript permanece igual...
         // Mostrar/ocultar campos de pagamento baseado na seleção
         const meioPagamento = document.getElementById('meio-pagamento');
         const dadosCartao = document.getElementById('dados-cartao');
@@ -344,10 +343,12 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
         const dadosBoleto = document.getElementById('dados-boleto');
 
         meioPagamento.addEventListener('change', function () {
+            // Oculta todos os campos primeiro
             dadosCartao.style.display = 'none';
             dadosPix.style.display = 'none';
             dadosBoleto.style.display = 'none';
 
+            // Mostra apenas o selecionado
             switch (this.value) {
                 case 'cartao':
                     dadosCartao.style.display = 'block';
@@ -361,7 +362,146 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
             }
         });
 
-        // ... resto do JavaScript permanece igual
+        // Formatação do número do cartão
+        document.querySelector('input[name="numero_cartao"]')?.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{4})/g, '$1 ').trim();
+            e.target.value = value.substring(0, 19);
+        });
+
+        // Formatação da validade
+        document.querySelector('input[name="validade"]')?.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            e.target.value = value.substring(0, 5);
+        });
+
+        // Formatação do CEP
+        document.querySelector('input[name="cep"]')?.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 5) {
+                value = value.substring(0, 5) + '-' + value.substring(5, 8);
+            }
+            e.target.value = value.substring(0, 9);
+        });
+
+        // Buscar endereço pelo CEP
+        document.querySelector('input[name="cep"]')?.addEventListener('blur', function (e) {
+            const cep = e.target.value.replace(/\D/g, '');
+
+            if (cep.length === 8) {
+                buscarEnderecoPorCEP(cep);
+            } else if (cep.length > 0) {
+                mostrarNotificacao('CEP inválido. Digite 8 números.', 'error');
+            }
+        });
+
+        function buscarEnderecoPorCEP(cep) {
+            const campoCep = document.querySelector('input[name="cep"]');
+            campoCep.disabled = true;
+            campoCep.classList.add('loading');
+
+            fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                .then(response => response.json())
+                .then(data => {
+                    campoCep.classList.remove('loading');
+                    campoCep.disabled = false;
+
+                    if (data.erro) {
+                        mostrarNotificacao('CEP não encontrado. Verifique o número.', 'error');
+                        return;
+                    }
+
+                    // Preencher os campos
+                    if (data.logradouro) document.querySelector('input[name="endereco"]').value = data.logradouro;
+                    if (data.bairro) document.querySelector('input[name="bairro"]').value = data.bairro;
+                    if (data.localidade) document.querySelector('input[name="cidade"]').value = data.localidade;
+                    if (data.uf) document.querySelector('select[name="estado"]').value = data.uf;
+
+                    // Destacar campos preenchidos automaticamente
+                    const camposPreenchidos = [
+                        document.querySelector('input[name="endereco"]'),
+                        document.querySelector('input[name="bairro"]'),
+                        document.querySelector('input[name="cidade"]')
+                    ];
+
+                    camposPreenchidos.forEach(campo => {
+                        if (campo && campo.value) {
+                            campo.style.backgroundColor = '#f0f8ff';
+                            campo.style.borderColor = '#cc624e';
+                            setTimeout(() => {
+                                campo.style.backgroundColor = '';
+                                campo.style.borderColor = '';
+                            }, 2000);
+                        }
+                    });
+
+                    mostrarNotificacao('Endereço preenchido automaticamente! ', 'success');
+
+                    // Focar no campo número
+                    setTimeout(() => {
+                        document.querySelector('input[name="numero"]')?.focus();
+                    }, 500);
+
+                })
+                .catch(error => {
+                    campoCep.classList.remove('loading');
+                    campoCep.disabled = false;
+                    console.error('Erro ao buscar CEP:', error);
+                    mostrarNotificacao('Erro de conexão. Tente novamente.', 'error');
+                });
+        }
+
+        // Função para mostrar notificação bonita
+        function mostrarNotificacao(mensagem, tipo = 'success') {
+            // Criar elemento de notificação
+            const notificacao = document.createElement('div');
+            notificacao.className = `notificacao-cep ${tipo}`;
+            notificacao.innerHTML = `
+        <div class="notificacao-conteudo">
+            <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+            <span>${mensagem}</span>
+        </div>
+    `;
+
+            // Adicionar ao body
+            document.body.appendChild(notificacao);
+
+            // Mostrar com animação
+            setTimeout(() => {
+                notificacao.classList.add('show');
+            }, 10);
+
+            // Remover após 3 segundos
+            setTimeout(() => {
+                notificacao.classList.remove('show');
+                setTimeout(() => {
+                    if (notificacao.parentNode) {
+                        notificacao.parentNode.removeChild(notificacao);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        // Dropdown do perfil
+        const profileIcon = document.getElementById("profile-icon");
+        const profileDropdown = document.getElementById("profile-dropdown");
+        if (profileIcon && profileDropdown) {
+            profileIcon.addEventListener("click", (e) => {
+                e.preventDefault();
+                profileDropdown.style.display =
+                    profileDropdown.style.display === "block" ? "none" : "block";
+            });
+            document.addEventListener("click", (e) => {
+                if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
+                    profileDropdown.style.display = "none";
+                }
+            });
+        }
+
+        // REMOVA COMPLETAMENTE qualquer validação do formulário
+        // Não há event listener para o submit - o formulário envia normalmente
     </script>
 </body>
 </html>

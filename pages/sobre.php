@@ -136,8 +136,7 @@ elseif (isset($_SESSION["artistas"])) {
           <div class="dropdown-divider"></div>
 
           <?php if ($tipoUsuario === "cliente"): ?>
-            <a href="./perfilCliente.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
-            <a href="./favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+            <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
           <?php elseif ($tipoUsuario === "artista"): ?>
             <a href="./artistahome.php" class="dropdown-item"><i class="fas fa-palette"></i> Meu Perfil</a>
           <?php endif; ?>

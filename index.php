@@ -83,7 +83,6 @@ elseif (isset($_SESSION["artistas"])) {
 
           <?php if ($tipoUsuario === "cliente"): ?>
             <a href="pages/perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
-            <a href="pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
           <?php elseif ($tipoUsuario === "artista"): ?>
             <a href="pages/artistahome.php" class="dropdown-item"><i class="fas fa-palette"></i> Meu Perfil</a>
           <?php endif; ?>

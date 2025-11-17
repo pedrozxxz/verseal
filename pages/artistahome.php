@@ -69,7 +69,7 @@ elseif (isset($_SESSION["artista"])) {
       <h1>ARTE QUE TRANSFORMA.</h1>
       <p>Crie obras únicas e as coloque em exibição aqui</p>
       <div class="hero-buttons">
-        <a href="adicionar-obras.php" class="btn-destaque">ADICIONAR OBRAS</a>
+        <a href="adicionarobra.php" class="btn-destaque">ADICIONAR OBRAS</a>
       </div>
     </div>
     <div class="hero-gallery">

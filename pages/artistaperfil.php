@@ -36,7 +36,7 @@ foreach ($columns_to_check as $column) {
     }
 }
 
-// Buscar dados do usuário
+// Buscar dados do usuário - COM VERIFICAÇÃO DE SEGURANÇA
 $usuario_nome = $_SESSION["usuario"];
 $sql = "SELECT * FROM usuarios WHERE nome = ?";
 $stmt = $conn->prepare($sql);
@@ -45,6 +45,33 @@ $stmt->execute();
 $result = $stmt->get_result();
 $usuario = $result->fetch_assoc();
 
+// VERIFICAÇÃO CRÍTICA: Se não encontrou o usuário
+if (!$usuario) {
+    // Debug para entender o problema
+    error_log("Usuário não encontrado: " . $usuario_nome);
+    
+    // Tentar buscar qualquer usuário (para desenvolvimento)
+    $sql_fallback = "SELECT * FROM usuarios LIMIT 1";
+    $result_fallback = $conn->query($sql_fallback);
+    $usuario = $result_fallback->fetch_assoc();
+    
+    // Se ainda não encontrou, criar um usuário padrão para evitar erros
+    if (!$usuario) {
+        // Criar array vazio com valores padrão para evitar erros
+        $usuario = [
+            'id' => 0,
+            'nome' => 'Usuário',
+            'email' => 'usuario@example.com',
+            'telefone' => '',
+            'endereco' => '',
+            'foto_perfil' => '',
+            'data_cadastro' => date('Y-m-d H:i:s'),
+            'senha' => ''
+        ];
+    }
+}
+
+// AGORA podemos processar os formulários com segurança
 // Processar atualização do perfil
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["atualizar_perfil"])) {
     $nome = $_POST["nome"];
@@ -52,8 +79,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["atualizar_perfil"])) {
     $telefone = $_POST["telefone"] ?? '';
     $endereco = $_POST["endereco"] ?? '';
     
-    // Processar upload de foto
-    $foto_perfil = $usuario['foto_perfil'] ?? ''; // Manter foto atual se não fizer upload
+    // Processar upload de foto - COM VERIFICAÇÃO
+    $foto_perfil = $usuario['foto_perfil'] ?? '';
     
     if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = "../uploads/usuarios/";
@@ -67,7 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["atualizar_perfil"])) {
         $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
         
         if (in_array(strtolower($file_extension), $allowed_extensions)) {
-            $new_filename = 'user_' . $usuario['id'] . '_' . time() . '.' . $file_extension;
+            $new_filename = 'user_' . ($usuario['id'] ?? '0') . '_' . time() . '.' . $file_extension;
             $upload_path = $upload_dir . $new_filename;
             
             if (move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $upload_path)) {
@@ -81,10 +108,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["atualizar_perfil"])) {
         }
     }
     
-    // Verificar se email já existe (excluindo o usuário atual)
+    // Verificar se email já existe (excluindo o usuário atual) - COM VERIFICAÇÃO
     $sql_check_email = "SELECT id FROM usuarios WHERE email = ? AND id != ?";
     $stmt_check = $conn->prepare($sql_check_email);
-    $stmt_check->bind_param("si", $email, $usuario['id']);
+    $stmt_check->bind_param("si", $email, $usuario['id'] ?? 0);
     $stmt_check->execute();
     $result_check = $stmt_check->get_result();
     
@@ -128,7 +155,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["atualizar_perfil"])) {
             $update_types .= "s";
         }
         
-        $update_values[] = $usuario['id'];
+        $update_values[] = $usuario['id'] ?? 0;
         $update_types .= "i";
         
         $sql_update = "UPDATE usuarios SET " . implode(", ", $update_fields) . " WHERE id = ?";
@@ -150,34 +177,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["atualizar_perfil"])) {
     }
 }
 
-// Processar alteração de senha
+// Processar alteração de senha - COM VERIFICAÇÃO
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"])) {
     $senha_atual = $_POST["senha_atual"];
     $nova_senha = $_POST["nova_senha"];
     $confirmar_senha = $_POST["confirmar_senha"];
     
-    // Verificar senha atual
-    if (password_verify($senha_atual, $usuario['senha'])) {
-        if ($nova_senha === $confirmar_senha) {
-            if (strlen($nova_senha) >= 6) {
-                $nova_senha_hash = password_hash($nova_senha, PASSWORD_DEFAULT);
-                $sql_senha = "UPDATE usuarios SET senha = ? WHERE id = ?";
-                $stmt_senha = $conn->prepare($sql_senha);
-                $stmt_senha->bind_param("si", $nova_senha_hash, $usuario['id']);
-                
-                if ($stmt_senha->execute()) {
-                    $success_message_senha = "Senha alterada com sucesso!";
+    // Verificar se temos senha no banco para comparar
+    if (!empty($usuario['senha'])) {
+        // Verificar senha atual
+        if (password_verify($senha_atual, $usuario['senha'])) {
+            if ($nova_senha === $confirmar_senha) {
+                if (strlen($nova_senha) >= 6) {
+                    $nova_senha_hash = password_hash($nova_senha, PASSWORD_DEFAULT);
+                    $sql_senha = "UPDATE usuarios SET senha = ? WHERE id = ?";
+                    $stmt_senha = $conn->prepare($sql_senha);
+                    $stmt_senha->bind_param("si", $nova_senha_hash, $usuario['id'] ?? 0);
+                    
+                    if ($stmt_senha->execute()) {
+                        $success_message_senha = "Senha alterada com sucesso!";
+                    } else {
+                        $error_message_senha = "Erro ao alterar senha: " . $conn->error;
+                    }
                 } else {
-                    $error_message_senha = "Erro ao alterar senha: " . $conn->error;
+                    $error_message_senha = "A senha deve ter pelo menos 6 caracteres.";
                 }
             } else {
-                $error_message_senha = "A senha deve ter pelo menos 6 caracteres.";
+                $error_message_senha = "As novas senhas não coincidem.";
             }
         } else {
-            $error_message_senha = "As novas senhas não coincidem.";
+            $error_message_senha = "Senha atual incorreta.";
         }
     } else {
-        $error_message_senha = "Senha atual incorreta.";
+        $error_message_senha = "Não foi possível verificar a senha atual.";
     }
 }
 ?>

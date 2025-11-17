@@ -262,12 +262,11 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
       <div class="dropdown-divider"></div>
 
       <?php if ($tipoUsuario === "cliente"): ?>
-        <a href="./pages/perfilCliente.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
-        <a href="./pages/favoritos.php" class="dropdown-item"><i class="fas fa-heart"></i> Favoritos</a>
+        <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
       <?php endif; ?>
 
       <div class="dropdown-divider"></div>
-      <a href="./pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+      <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
 
     <?php else: ?>
           <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
