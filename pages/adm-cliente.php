@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['excluir_cliente'])) {
     header("Location: adm-cliente.php?excluido=1");
     exit;
 }
+
 // Processar ações (excluir e editar)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['excluir_cliente'])) {
@@ -46,6 +47,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Redirecionar para evitar reenvio do formulário
         header("Location: adm-cliente.php?editado=1");
+        exit;
+    }
+    
+    // Processar novo cliente
+    if (isset($_POST['novo_cliente']) && isset($_POST['nome']) && isset($_POST['email'])) {
+        $nome = $_POST['nome'];
+        $email = $_POST['email'];
+        $telefone = $_POST['telefone'] ?? null;
+        $senha = password_hash($_POST['senha'], PASSWORD_DEFAULT);
+
+        // Verificar se o email já existe
+        $stmt = $pdo->prepare("SELECT id FROM usuarios WHERE email = ? AND ativo = 1");
+        $stmt->execute([$email]);
+
+        if ($stmt->rowCount() > 0) {
+            header("Location: adm-cliente.php?erro=email_existente");
+            exit;
+        }
+
+        // Inserir novo cliente
+        $stmt = $pdo->prepare("INSERT INTO usuarios (nome, email, telefone, senha, tipo, ativo) VALUES (?, ?, ?, ?, 'usuario', 1)");
+        $stmt->execute([$nome, $email, $telefone, $senha]);
+
+        // Redirecionar para evitar reenvio do formulário
+        header("Location: adm-cliente.php?novo=1&nome=" . urlencode($nome));
         exit;
     }
 }
@@ -209,11 +235,9 @@ $totalPaginas = ceil($totalClientes / $limite);
                 <button class="refresh" onclick="window.location.reload()">
                     <i class="fas fa-sync-alt"></i> Atualizar
                 </button>
-                <a href="novo_cliente_adm.php" style="text-decoration: none; display: inline-block;">
-                    <button class="new">
-                        <i class="fas fa-plus"></i> Novo Cliente
-                    </button>
-                </a>
+                <button class="new" onclick="novoCliente()">
+                    <i class="fas fa-plus"></i> Novo Cliente
+                </button>
             </div>
         </section>
     </main>
@@ -248,6 +272,40 @@ $totalPaginas = ceil($totalClientes / $limite);
         </div>
     </div>
 
+    <!-- MODAL NOVO CLIENTE -->
+    <div id="modalNovoCliente" class="modal">
+        <div class="modal-content">
+            <span class="fechar" onclick="fecharModalNovo()">&times;</span>
+            <h3><i class="fas fa-user-plus"></i> Novo Cliente</h3>
+            <form id="formNovoCliente" method="POST">
+                <input type="hidden" name="novo_cliente" value="1">
+
+                <div class="campo">
+                    <label><i class="fas fa-user"></i> Nome:</label>
+                    <input type="text" name="nome" required>
+                </div>
+                <div class="campo">
+                    <label><i class="fas fa-envelope"></i> Email:</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div class="campo">
+                    <label><i class="fas fa-phone"></i> Telefone:</label>
+                    <input type="text" name="telefone" placeholder="(00) 00000-0000">
+                </div>
+                <div class="campo">
+                    <label><i class="fas fa-lock"></i> Senha:</label>
+                    <input type="password" name="senha" required minlength="6">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancelar" onclick="fecharModalNovo()">Cancelar</button>
+                    <button type="submit" class="btn-salvar">
+                        <i class="fas fa-user-plus"></i> Cadastrar Cliente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- FORMULÁRIO INVISÍVEL PARA EXCLUSÃO -->
     <form id="formExcluir" method="POST" style="display: none;">
         <input type="hidden" id="clienteExcluirId" name="cliente_id">
@@ -257,9 +315,11 @@ $totalPaginas = ceil($totalClientes / $limite);
     <script>
         // Modal de edição
         const modal = document.getElementById('modalEdicao');
+        const modalNovo = document.getElementById('modalNovoCliente');
         const fecharBtn = document.querySelector('.fechar');
         const formExcluir = document.getElementById('formExcluir');
         const formEdicao = document.getElementById('formEdicao');
+        const formNovoCliente = document.getElementById('formNovoCliente');
 
         function editarCliente(id, nome, email, telefone) {
             document.getElementById('clienteId').value = id;
@@ -269,6 +329,11 @@ $totalPaginas = ceil($totalClientes / $limite);
             modal.style.display = 'block';
 
             // Prevenir comportamento padrão
+            return false;
+        }
+
+        function novoCliente() {
+            modalNovo.style.display = 'block';
             return false;
         }
 
@@ -299,6 +364,10 @@ $totalPaginas = ceil($totalClientes / $limite);
             modal.style.display = 'none';
         }
 
+        function fecharModalNovo() {
+            modalNovo.style.display = 'none';
+        }
+
         // Submissão do formulário de edição
         formEdicao.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -321,11 +390,36 @@ $totalPaginas = ceil($totalClientes / $limite);
             });
         });
 
+        // Submissão do formulário de novo cliente
+        formNovoCliente.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            Swal.fire({
+                title: 'Cadastrar cliente?',
+                text: 'Um novo cliente será adicionado ao sistema.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#db6d56',
+                cancelButtonColor: '#95a5a6',
+                confirmButtonText: 'Sim, cadastrar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submit();
+                }
+            });
+        });
+
         fecharBtn.onclick = fecharModal;
 
         window.onclick = function (event) {
             if (event.target == modal) {
                 fecharModal();
+            }
+            if (event.target == modalNovo) {
+                fecharModalNovo();
             }
         }
 
@@ -352,6 +446,17 @@ $totalPaginas = ceil($totalClientes / $limite);
             });
         <?php endif; ?>
 
+        <?php if (isset($_GET['novo']) && $_GET['novo'] == 1): ?>
+            Swal.fire({
+                icon: 'success',
+                title: 'Cliente cadastrado!',
+                html: 'Cliente <strong><?php echo isset($_GET['nome']) ? htmlspecialchars($_GET['nome']) : ''; ?></strong> cadastrado com sucesso!',
+                timer: 3000,
+                showConfirmButton: false,
+                background: '#fff'
+            });
+        <?php endif; ?>
+
         <?php if (isset($_GET['erro']) && $_GET['erro'] == 'email_existente'): ?>
             Swal.fire({
                 icon: 'error',
@@ -369,17 +474,6 @@ $totalPaginas = ceil($totalClientes / $limite);
                 toggle.checked = false;
             }
         });
-        // SweetAlert para cliente cadastrado com sucesso
-        <?php if (isset($_GET['sucesso']) && $_GET['sucesso'] == 1): ?>
-            Swal.fire({
-                icon: 'success',
-                title: 'Cliente cadastrado!',
-                html: 'Cliente <strong><?php echo isset($_GET['nome']) ? htmlspecialchars($_GET['nome']) : ''; ?></strong> cadastrado com sucesso!',
-                timer: 3000,
-                showConfirmButton: false,
-                background: '#fff'
-            });
-        <?php endif; ?>
     </script>
 
     <style>
@@ -644,15 +738,39 @@ $totalPaginas = ceil($totalClientes / $limite);
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
         }
 
         .modal-content {
             background-color: #fefefe;
-            margin: 10% auto;
+            margin: 5% auto;
             padding: 30px;
             border-radius: 15px;
             width: 90%;
             max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-content h3 {
+            color: #db6d56;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .fechar {
@@ -661,10 +779,13 @@ $totalPaginas = ceil($totalClientes / $limite);
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
+            position: absolute;
+            top: 15px;
+            right: 20px;
         }
 
         .fechar:hover {
-            color: #000;
+            color: #db6d56;
         }
 
         .campo {
@@ -690,6 +811,14 @@ $totalPaginas = ceil($totalClientes / $limite);
             border-radius: 8px;
             font-size: 1rem;
             background: #f5f5f5;
+            transition: all 0.3s ease;
+        }
+
+        .campo input:focus {
+            border-color: #db6d56;
+            background: #fff;
+            box-shadow: 0 0 0 2px rgba(219, 109, 86, 0.2);
+            outline: none;
         }
 
         .campo input:read-only {
@@ -712,10 +841,30 @@ $totalPaginas = ceil($totalClientes / $limite);
             border-radius: 8px;
             cursor: pointer;
             font-size: 1rem;
+            transition: all 0.3s ease;
         }
 
         .btn-cancelar:hover {
             background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .btn-salvar {
+            background: #27ae60;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-salvar:hover {
+            background: #219653;
             transform: translateY(-2px);
         }
 
@@ -840,24 +989,11 @@ $totalPaginas = ceil($totalClientes / $limite);
                 width: 95%;
                 padding: 15px;
             }
-        }
-
-        .btn-salvar {
-            background: #27ae60;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .btn-salvar:hover {
-            background: #219653;
-            transform: translateY(-2px);
+            
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+            }
         }
     </style>
 </body>

@@ -312,20 +312,20 @@ $totalPaginas = ceil($totalObras / $limite);
                                     <td><?php echo $obra['estoque']; ?></td>
                                     <td>
                                         <div class="acoes-botoes">
-                                            <button class="edit" onclick="abrirModalEditar(
+                                            <button class="edit" onclick="abrirModalEditarObra(
                                                 <?php echo $obra['id']; ?>, 
-                                                '<?php echo htmlspecialchars($obra['nome']); ?>', 
-                                                '<?php echo htmlspecialchars($obra['artista']); ?>', 
+                                                '<?php echo addslashes(htmlspecialchars($obra['nome'])); ?>', 
+                                                '<?php echo addslashes(htmlspecialchars($obra['artista'])); ?>', 
                                                 '<?php echo $obra['preco']; ?>', 
-                                                '<?php echo htmlspecialchars($obra['descricao']); ?>', 
-                                                '<?php echo htmlspecialchars($obra['dimensoes']); ?>', 
-                                                '<?php echo htmlspecialchars($obra['tecnica']); ?>', 
+                                                `<?php echo addslashes(str_replace(["\r", "\n"], '', $obra['descricao'])); ?>`, 
+                                                '<?php echo addslashes(htmlspecialchars($obra['dimensoes'])); ?>', 
+                                                '<?php echo addslashes(htmlspecialchars($obra['tecnica'])); ?>', 
                                                 '<?php echo $obra['ano']; ?>', 
-                                                '<?php echo htmlspecialchars($obra['material']); ?>', 
+                                                '<?php echo addslashes(htmlspecialchars($obra['material'])); ?>', 
                                                 <?php echo $obra['estoque']; ?>, 
                                                 <?php echo $obra['destaque']; ?>, 
-                                                '<?php echo !empty($obra['imagem_url']) ? $obra['imagem_url'] : ''; ?>',
-                                                '<?php echo $obra['categorias']; ?>'
+                                                '<?php echo !empty($obra['imagem_url']) ? addslashes($obra['imagem_url']) : ''; ?>',
+                                                `<?php echo addslashes($obra['categorias']); ?>`
                                             )">
                                                 <i class="fas fa-edit"></i> Editar
                                             </button>
@@ -602,70 +602,83 @@ $totalPaginas = ceil($totalObras / $limite);
     </form>
 
     <script>
-        // DEBUG: Verificar se a função está sendo carregada
-        console.log('Script carregado - Funções disponíveis:', {
-            abrirModalEditar: typeof abrirModalEditar,
-            fecharModalEditar: typeof fecharModalEditar,
-            abrirModalNovaObra: typeof abrirModalNovaObra,
-            fecharModalNovaObra: typeof fecharModalNovaObra
-        });
-
-        // Função para abrir modal de edição - CORRIGIDA
-        function abrirModalEditar(id, nome, artista, preco, descricao, dimensoes, tecnica, ano, material, estoque, destaque, imagem, categorias) {
+        // Função para abrir modal de edição
+        function abrirModalEditarObra(id, nome, artista, preco, descricao, dimensoes, tecnica, ano, material, estoque, destaque, imagem, categorias) {
             console.log('Abrindo modal de edição para obra ID:', id);
             
-            // Preencher os campos do formulário
-            document.getElementById('editar_produto_id').value = id;
-            document.getElementById('editar_nome').value = nome;
-            document.getElementById('editar_artista').value = artista;
-            document.getElementById('editar_preco').value = preco;
-            document.getElementById('editar_descricao').value = descricao || '';
-            document.getElementById('editar_dimensoes').value = dimensoes || '';
-            document.getElementById('editar_tecnica').value = tecnica || '';
-            document.getElementById('editar_ano').value = ano || '';
-            document.getElementById('editar_material').value = material || '';
-            document.getElementById('editar_estoque').value = estoque;
-            document.getElementById('editar_destaque').checked = destaque == 1;
-            document.getElementById('editar_imagem_atual').value = imagem || '';
-
-            // Preview da imagem atual
-            const previewImg = document.getElementById('preview_imagem');
-            const semPreview = document.getElementById('sem_preview');
-
-            if (imagem && imagem.trim() !== '') {
-                previewImg.src = '../' + imagem;
-                previewImg.style.display = 'block';
-                semPreview.style.display = 'none';
-            } else {
-                previewImg.style.display = 'none';
-                semPreview.style.display = 'flex';
-            }
-
-            // Processar categorias
             try {
-                const categoriasArray = JSON.parse(categorias);
-                console.log('Categorias encontradas:', categoriasArray);
+                // Preencher os campos do formulário
+                document.getElementById('editar_produto_id').value = id;
+                document.getElementById('editar_nome').value = nome;
+                document.getElementById('editar_artista').value = artista;
+                document.getElementById('editar_preco').value = preco;
+                document.getElementById('editar_descricao').value = descricao || '';
+                document.getElementById('editar_dimensoes').value = dimensoes || '';
+                document.getElementById('editar_tecnica').value = tecnica || '';
+                document.getElementById('editar_ano').value = ano || '';
+                document.getElementById('editar_material').value = material || '';
+                document.getElementById('editar_estoque').value = estoque;
+                document.getElementById('editar_destaque').checked = destaque == 1;
+                document.getElementById('editar_imagem_atual').value = imagem || '';
+
+                // Preview da imagem atual
+                const previewImg = document.getElementById('preview_imagem');
+                const semPreview = document.getElementById('sem_preview');
+
+                if (imagem && imagem.trim() !== '') {
+                    previewImg.src = '../' + imagem;
+                    previewImg.style.display = 'block';
+                    semPreview.style.display = 'none';
+                } else {
+                    previewImg.style.display = 'none';
+                    semPreview.style.display = 'flex';
+                }
+
+                // Processar categorias
+                try {
+                    const categoriasArray = JSON.parse(categorias);
+                    console.log('Categorias encontradas:', categoriasArray);
+                    
+                    // Limpar todas as seleções primeiro
+                    document.querySelectorAll('#formEditar input[name="categorias[]"]').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    
+                    // Marcar as categorias que existem
+                    if (Array.isArray(categoriasArray)) {
+                        categoriasArray.forEach(categoria => {
+                            const checkbox = document.querySelector(`#formEditar input[name="categorias[]"][value="${categoria}"]`);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error('Erro ao processar categorias:', e);
+                    // Desmarcar todas as categorias em caso de erro
+                    document.querySelectorAll('#formEditar input[name="categorias[]"]').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                }
+
+                // Resetar nome do arquivo
+                document.getElementById('nome_arquivo_editar').textContent = 'Manter imagem atual';
+
+                // Mostrar o modal
+                const modal = document.getElementById('modalEditar');
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
                 
-                document.querySelectorAll('#formEditar input[name="categorias[]"]').forEach(checkbox => {
-                    checkbox.checked = categoriasArray.includes(checkbox.value);
-                });
-            } catch (e) {
-                console.error('Erro ao processar categorias:', e);
-                // Desmarcar todas as categorias em caso de erro
-                document.querySelectorAll('#formEditar input[name="categorias[]"]').forEach(checkbox => {
-                    checkbox.checked = false;
+                console.log('Modal de edição aberto com sucesso');
+            } catch (error) {
+                console.error('Erro ao abrir modal de edição:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: 'Não foi possível abrir o formulário de edição.',
+                    timer: 3000
                 });
             }
-
-            // Resetar nome do arquivo
-            document.getElementById('nome_arquivo_editar').textContent = 'Manter imagem atual';
-
-            // Mostrar o modal
-            const modal = document.getElementById('modalEditar');
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            
-            console.log('Modal deve estar visível agora');
         }
 
         // Função para fechar modal de edição
@@ -678,14 +691,18 @@ $totalPaginas = ceil($totalObras / $limite);
         // Função para abrir modal de nova obra
         function abrirModalNovaObra() {
             console.log('Abrindo modal de nova obra');
-            document.getElementById('modalNovaObra').style.display = 'block';
-            // Limpar formulário
-            document.getElementById('formNovaObra').reset();
-            // Resetar preview
-            document.getElementById('preview_nova_imagem').style.display = 'none';
-            document.getElementById('sem_preview_novo').style.display = 'flex';
-            document.getElementById('nome_arquivo_novo').textContent = 'Nenhum arquivo selecionado';
-            document.body.style.overflow = 'hidden';
+            try {
+                document.getElementById('modalNovaObra').style.display = 'block';
+                // Limpar formulário
+                document.getElementById('formNovaObra').reset();
+                // Resetar preview
+                document.getElementById('preview_nova_imagem').style.display = 'none';
+                document.getElementById('sem_preview_novo').style.display = 'flex';
+                document.getElementById('nome_arquivo_novo').textContent = 'Nenhum arquivo selecionado';
+                document.body.style.overflow = 'hidden';
+            } catch (error) {
+                console.error('Erro ao abrir modal nova obra:', error);
+            }
         }
 
         // Função para fechar modal de nova obra
@@ -827,7 +844,7 @@ $totalPaginas = ceil($totalObras / $limite);
         });
 
         // Fechar modais ao clicar fora ou pressionar ESC
-        window.onclick = function (event) {
+        window.addEventListener('click', function (event) {
             const modalEditar = document.getElementById('modalEditar');
             const modalNova = document.getElementById('modalNovaObra');
 
@@ -837,7 +854,7 @@ $totalPaginas = ceil($totalObras / $limite);
             if (event.target === modalNova) {
                 fecharModalNovaObra();
             }
-        }
+        });
 
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') {
@@ -920,6 +937,11 @@ $totalPaginas = ceil($totalObras / $limite);
                 background: '#fff'
             });
         <?php endif; ?>
+
+        // Inicialização quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Página de obras carregada - Modais prontos para uso');
+        });
     </script>
 
     <style>

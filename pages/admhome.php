@@ -18,13 +18,34 @@ try {
     $stmt = $pdo->query("SELECT COUNT(*) as total FROM produtos WHERE ativo = 1");
     $totalObras = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-    // Total de vendas (soma de todos os pedidos pagos)
+    // Total de vendas FICTÍCIO FIXO
     $stmt = $pdo->query("SELECT COALESCE(SUM(valor_total), 0) as total FROM pedidos WHERE status = 'pago'");
-    $totalVendas = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // Se não houver vendas reais, usa valor fictício fixo
+    if ($resultado['total'] <= 0) {
+        // Valor fixo baseado no número de obras (sempre o mesmo cálculo)
+        $totalVendas = $totalObras * 325; // Valor fixo médio de R$ 325 por obra
+    } else {
+        $totalVendas = $resultado['total'];
+    }
 
-    // Dados para o gráfico (vendas mensais)
-    $stmt = $pdo->query("SELECT mes, valor_total FROM vendas WHERE ano = 2025 ORDER BY FIELD(mes, 'Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez')");
-    $vendasMensais = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Dados FICTÍCIOS FIXOS para o gráfico (vendas mensais)
+    // Valores fixos que não mudam
+    $vendasMensais = [
+        ['mes' => 'Jan', 'valor_total' => 5200],
+        ['mes' => 'Fev', 'valor_total' => 4800],
+        ['mes' => 'Mar', 'valor_total' => 6100],
+        ['mes' => 'Abr', 'valor_total' => 7300],
+        ['mes' => 'Mai', 'valor_total' => 8900],
+        ['mes' => 'Jun', 'valor_total' => 10200],
+        ['mes' => 'Jul', 'valor_total' => 11500],
+        ['mes' => 'Ago', 'valor_total' => 10800],
+        ['mes' => 'Set', 'valor_total' => 12400],
+        ['mes' => 'Out', 'valor_total' => 13200],
+        ['mes' => 'Nov', 'valor_total' => 14500],
+        ['mes' => 'Dez', 'valor_total' => 15800]
+    ];
 
     // Últimos clientes cadastrados
     $stmt = $pdo->query("SELECT nome, email, criado_em FROM usuarios WHERE tipo = 'usuario' ORDER BY criado_em DESC LIMIT 5");
@@ -255,6 +276,9 @@ try {
             width: 100%;
             max-width: 900px;
             margin: 20px auto 0 auto;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
         }
 
         /* ===== ACTIVITIES ===== */
@@ -497,14 +521,13 @@ try {
             <div class="card">
                 <img class="icon" src="../img/vendas.png" alt="Ícone de Vendas">
                 <h3>R$ <?php echo number_format($totalVendas, 2, ',', '.'); ?></h3>
-                <p>Vendas</p>
+                <p>Vendas Totais</p>
             </div>
         </section>
 
         <section class="overview">
             <h2>Visão Geral</h2>
-            <p>Bem-vindo ao painel administrativo da Verseal! Aqui você poderá acompanhar métricas e gerenciar o
-                sistema.</p>
+            <p>Bem-vindo ao painel administrativo da Verseal! Aqui você poderá acompanhar métricas e gerenciar o sistema. O gráfico abaixo mostra o desempenho das vendas mensais.</p>
 
             <!-- Gráfico -->
             <div class="chart-container">
@@ -516,32 +539,52 @@ try {
                 <div class="activity-section">
                     <h3>Últimos Clientes</h3>
                     <div class="activity-list">
-                        <?php foreach ($ultimosClientes as $cliente): ?>
+                        <?php if (!empty($ultimosClientes)): ?>
+                            <?php foreach ($ultimosClientes as $cliente): ?>
+                                <div class="activity-item">
+                                    <i class="fas fa-user-plus"></i>
+                                    <div class="activity-info">
+                                        <strong><?php echo htmlspecialchars($cliente['nome']); ?></strong>
+                                        <span><?php echo htmlspecialchars($cliente['email']); ?></span>
+                                        <small><?php echo date('d/m/Y', strtotime($cliente['criado_em'])); ?></small>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
                             <div class="activity-item">
-                                <i class="fas fa-user-plus"></i>
+                                <i class="fas fa-info-circle"></i>
                                 <div class="activity-info">
-                                    <strong><?php echo htmlspecialchars($cliente['nome']); ?></strong>
-                                    <span><?php echo htmlspecialchars($cliente['email']); ?></span>
-                                    <small><?php echo date('d/m/Y', strtotime($cliente['criado_em'])); ?></small>
+                                    <strong>Nenhum cliente cadastrado</strong>
+                                    <span>Aguarde novos cadastros</span>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
 
                 <div class="activity-section">
                     <h3>Últimas Obras</h3>
                     <div class="activity-list">
-                        <?php foreach ($ultimasObras as $obra): ?>
+                        <?php if (!empty($ultimasObras)): ?>
+                            <?php foreach ($ultimasObras as $obra): ?>
+                                <div class="activity-item">
+                                    <i class="fas fa-palette"></i>
+                                    <div class="activity-info">
+                                        <strong><?php echo htmlspecialchars($obra['nome']); ?></strong>
+                                        <span><?php echo htmlspecialchars($obra['artista']); ?></span>
+                                        <small>R$ <?php echo number_format($obra['preco'], 2, ',', '.'); ?></small>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
                             <div class="activity-item">
-                                <i class="fas fa-palette"></i>
+                                <i class="fas fa-info-circle"></i>
                                 <div class="activity-info">
-                                    <strong><?php echo htmlspecialchars($obra['nome']); ?></strong>
-                                    <span><?php echo htmlspecialchars($obra['artista']); ?></span>
-                                    <small>R$ <?php echo number_format($obra['preco'], 2, ',', '.'); ?></small>
+                                    <strong>Nenhuma obra cadastrada</strong>
+                                    <span>Cadastre novas obras</span>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -553,33 +596,82 @@ try {
     <script>
         const ctx = document.getElementById('monthlySalesChart').getContext('2d');
         const monthlySalesChart = new Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: [<?php echo '"' . implode('","', array_column($vendasMensais, 'mes')) . '"'; ?>],
                 datasets: [{
-                    label: 'Vendas (R$)',
+                    label: 'Vendas Mensais (R$)',
                     data: [<?php echo implode(',', array_column($vendasMensais, 'valor_total')); ?>],
-                    backgroundColor: '#db6d56',
-                    borderRadius: 8
+                    backgroundColor: 'rgba(219, 109, 86, 0.1)',
+                    borderColor: '#db6d56',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#db6d56',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { display: true, position: 'top' },
+                    legend: { 
+                        display: true, 
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14,
+                                family: "'Poppins', sans-serif"
+                            },
+                            color: '#333'
+                        }
+                    },
                     tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: {
+                            family: "'Poppins', sans-serif"
+                        },
+                        bodyFont: {
+                            family: "'Poppins', sans-serif"
+                        },
                         callbacks: {
-                            label: function (context) { return `R$ ${context.raw.toLocaleString()}`; }
+                            label: function (context) { 
+                                return `R$ ${context.raw.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`; 
+                            }
                         }
                     }
                 },
-                scales: { y: { beginAtZero: true } }
+                scales: { 
+                    y: { 
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toLocaleString('pt-BR');
+                            },
+                            font: {
+                                family: "'Poppins', sans-serif"
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                family: "'Poppins', sans-serif"
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    }
+                }
             }
         });
     </script>
-
-    <!-- ESTILOS -->
-
 
     <!-- JS Hamburguinho -->
     <script>
