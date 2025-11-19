@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+// Configurações do banco
 $host = "localhost";
 $user = "root";
 $pass = "";
@@ -23,51 +24,40 @@ if ($fromCheckout) {
   $voltarUrl = 'checkout.php';
 }
 
+// Função auxiliar para escapar JS strings em alertas
+function js_escape($s) {
+    return str_replace(["\\", "'", "\"", "\n", "\r"], ["\\\\","\\'","\\\"","\\n","\\r"], $s);
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   // ========================= CADASTRO =========================
   if (isset($_POST["cadastro"])) {
-    $nome = $_POST["nome"];
-    $email = $_POST["email"];
-    $senha = $_POST["senha"];
-    $confirmar = $_POST["confirmar_senha"];
+    $nome = trim($_POST["nome"] ?? '');
+    $email = trim($_POST["email"] ?? '');
+    $senha = $_POST["senha"] ?? '';
+    $confirmar = $_POST["confirmar_senha"] ?? '';
 
     if ($senha !== $confirmar) {
+      $msg = "Senhas não coincidem!";
       echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
-      echo "<script>
-        document.addEventListener('DOMContentLoaded', function() {
-          Swal.fire({
-            icon:'error',
-            title:'Senhas não coincidem!',
-            timer:1500,
-            showConfirmButton:false
-          });
-        });
-      </script>";
+      echo "<script>document.addEventListener('DOMContentLoaded', function(){ Swal.fire({icon:'error', title:'".js_escape($msg)."', timer:1500, showConfirmButton:false }); });</script>";
     } else {
-      // Verificar se e-mail já existe
-      $sql_check = "SELECT id FROM usuarios WHERE email = ?";
+      // Verificar se e-mail já existe em usuarios ou artistas
+      $sql_check = "SELECT 'u' AS tipo, id FROM usuarios WHERE email = ? UNION SELECT 'a' AS tipo, id FROM artistas WHERE email = ?";
       $stmt_check = $conn->prepare($sql_check);
-      $stmt_check->bind_param("s", $email);
+      $stmt_check->bind_param("ss", $email, $email);
       $stmt_check->execute();
       $result_check = $stmt_check->get_result();
 
       if ($result_check->num_rows > 0) {
+        $msg = "Este e-mail já está cadastrado!";
         echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
-        echo "<script>
-          document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-              icon:'error',
-              title:'Este e-mail já está cadastrado!',
-              timer:1500,
-              showConfirmButton:false
-            });
-          });
-        </script>";
+        echo "<script>document.addEventListener('DOMContentLoaded', function(){ Swal.fire({icon:'error', title:'".js_escape($msg)."', timer:1500, showConfirmButton:false }); });</script>";
       } else {
-        // Inserir novo usuário
+        // Inserir novo usuário em usuarios
         $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-        $sql = "INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO usuarios (nome, email, senha, ativo, data_cadastro) VALUES (?, ?, ?, 1, NOW())";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sss", $nome, $email, $senhaHash);
 
@@ -80,26 +70,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           $stmt_user->execute();
           $new_user = $stmt_user->get_result()->fetch_assoc();
 
+          // Salvar sessões compatíveis (cliente)
           $_SESSION["usuario"] = $new_user;
           $_SESSION["usuario_id"] = $new_user['id'];
-          
-          // CORREÇÃO: Usar sessão compatível com outras páginas
           $_SESSION["clientes"] = $new_user;
           $_SESSION["clientes_id"] = $new_user['id'];
+          $_SESSION["tipo_usuario"] = 'cliente';
+          $_SESSION["tipo_clientes"] = 'cliente';
 
-          // Verificar se é artista
-          $sql_artista = "SELECT id FROM artistas WHERE email = ? AND ativo = 1";
+          // Verificar se existe artista com mesmo email (caso queira vincular)
+          $sql_artista = "SELECT id, nome, email, imagem_perfil FROM artistas WHERE email = ? AND ativo = 1 LIMIT 1";
           $stmt_artista = $conn->prepare($sql_artista);
           $stmt_artista->bind_param("s", $email);
           $stmt_artista->execute();
-          $isArtista = $stmt_artista->get_result()->num_rows > 0;
+          $resArt = $stmt_artista->get_result();
+          $isArtista = $resArt->num_rows > 0;
 
           if ($isArtista) {
+            $dadosArtista = $resArt->fetch_assoc();
+            // salvar também a sessão de artista com os dados reais da tabela artistas
+            $_SESSION["tipo_usuario"] = 'artista';
             $_SESSION["tipo_artistas"] = 'artista';
+            $_SESSION["artistas"] = $dadosArtista;
+            $_SESSION["artistas_id"] = $dadosArtista['id'];
+
             $redirectUrl = 'artistahome.php';
             $mensagem = "Bem-vindo à sua galeria, artista $nome!";
           } else {
-            $_SESSION["tipo_clientes"] = 'cliente';
             $redirectUrl = '../index.php';
             $mensagem = "Cadastro realizado com sucesso, $nome!";
           }
@@ -109,30 +106,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           }
 
           echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
-          echo "<script>
-            document.addEventListener('DOMContentLoaded', function() {
-              Swal.fire({
-                icon: 'success',
-                title: 'Conta criada!',
-                text: '$mensagem',
-                confirmButtonText: 'Entrar'
-              }).then(() => {
-                window.location.href = '$redirectUrl';
-              });
-            });
-          </script>";
+          echo "<script>document.addEventListener('DOMContentLoaded', function(){ Swal.fire({icon:'success', title:'Conta criada!', text:'".js_escape($mensagem)."', confirmButtonText:'Entrar'}).then(()=>{ window.location.href='".js_escape($redirectUrl)."'; }); });</script>";
         } else {
           echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
-          echo "<script>
-            document.addEventListener('DOMContentLoaded', function() {
-              Swal.fire({
-                title: 'Erro!',
-                text: 'Não foi possível criar o usuário.',
-                icon: 'error',
-                confirmButtonText: 'OK'
-              });
-            });
-          </script>";
+          echo "<script>document.addEventListener('DOMContentLoaded', function(){ Swal.fire({title:'Erro!', text:'Não foi possível criar o usuário.', icon:'error', confirmButtonText:'OK'}); });</script>";
         }
       }
     }
@@ -140,121 +117,148 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   // ========================= LOGIN =========================
   if (isset($_POST["login"])) {
-    $email = $_POST["email"];
-    $senha = $_POST["senha"];
+    $email = trim($_POST["email"] ?? '');
+    $senha = $_POST["senha"] ?? '';
 
-    // CORREÇÃO: Buscar da tabela usuarios em vez de clientes
-    $sql = "SELECT * FROM usuarios WHERE email = ? AND ativo = 1";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    // 1) Tentar buscar na tabela usuarios
+    $sql_u = "SELECT *, 'usuario' AS origem FROM usuarios WHERE email = ? AND ativo = 1 LIMIT 1";
+    $stmt_u = $conn->prepare($sql_u);
+    $stmt_u->bind_param("s", $email);
+    $stmt_u->execute();
+    $res_u = $stmt_u->get_result();
 
-    if ($row = $result->fetch_assoc()) {
-      if (password_verify($senha, $row["senha"])) {
-        // CORREÇÃO: Configurar sessões compatíveis
+    $found = false;
+    $redirectUrl = '../index.php';
+    $mensagem = "Olá!";
+
+    if ($row = $res_u->fetch_assoc()) {
+      // Usuário encontrado na tabela usuarios
+      if (!empty($row['senha']) && password_verify($senha, $row['senha'])) {
+        $found = true;
+
+        // Sessões base para cliente
         $_SESSION["clientes"] = $row;
         $_SESSION["clientes_id"] = $row["id"];
         $_SESSION["usuario"] = $row;
         $_SESSION["usuario_id"] = $row["id"];
 
-        // VERIFICAÇÃO DO TIPO DE USUÁRIO - CORREÇÃO ADICIONADA
-        $redirectUrl = '../index.php'; // Padrão: cliente
-        $mensagem = "Olá, {$row['nome']}! Explore as novas obras da Verseal.";
-        
-        // Verificar se é admin
-        if ($email === 'admin@verseal.com' || $row['tipo'] === 'admin') {
+        // Verificar se é admin (email fixo ou coluna tipo)
+        if ($email === 'admin@verseal.com' || (isset($row['tipo']) && $row['tipo'] === 'admin')) {
           $_SESSION["tipo_usuario"] = 'admin';
           $_SESSION["admin"] = $row;
           $redirectUrl = 'admhome.php';
           $mensagem = "Bem-vindo ao painel administrativo, {$row['nome']}!";
-        } 
-        // Verificar se é artista
-        else {
-          $sql_artistas = "SELECT id FROM artistas WHERE email = ? AND ativo = 1";
-          $stmt_artistas = $conn->prepare($sql_artistas);
-          $stmt_artistas->bind_param("s", $email);
-          $stmt_artistas->execute();
-          $isArtistas = $stmt_artistas->get_result()->num_rows > 0;
+        } else {
+          // Verificar se existe artista com mesmo email (tabela artistas independente)
+          $sql_art = "SELECT * FROM artistas WHERE email = ? AND ativo = 1 LIMIT 1";
+          $stmt_art = $conn->prepare($sql_art);
+          $stmt_art->bind_param("s", $email);
+          $stmt_art->execute();
+          $res_art = $stmt_art->get_result();
 
-          if ($isArtistas) {
+          if ($dadosArt = $res_art->fetch_assoc()) {
+            // Artista existe: usar dados reais do artista na sessão artistas
+            $_SESSION["tipo_usuario"] = 'artista';
             $_SESSION["tipo_artistas"] = 'artista';
-            $_SESSION["artistas"] = $row;
+            // Guardar os dados do artista (tabela artistas)
+            $_SESSION["artistas"] = $dadosArt;
+            $_SESSION["artistas_id"] = $dadosArt['id'];
+
+            // Também manter dados do usuario (caso precise)
             $redirectUrl = 'artistahome.php';
-            $mensagem = "Bem-vindo de volta, artista {$row['nome']}!";
+            $mensagem = "Bem-vindo de volta, artista {$dadosArt['nome']}!";
           } else {
+            // Cliente comum
+            $_SESSION["tipo_usuario"] = 'cliente';
             $_SESSION["tipo_clientes"] = 'cliente';
+            $redirectUrl = '../index.php';
+            $mensagem = "Olá, {$row['nome']}! Explore as novas obras da Verseal.";
           }
         }
-
-        // Se veio do checkout, redireciona para checkout
-        if ($fromCheckout) {
-          $redirectUrl = 'checkout.php';
-        }
-
-        echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
-        echo "<script>
-          document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-              icon: 'success',
-              title: 'Login bem-sucedido!',
-              text: '$mensagem',
-              confirmButtonText: 'Continuar'
-            }).then(() => {
-              window.location.href = '$redirectUrl';
-            });
-          });
-        </script>";
       } else {
+        // senha incorreta para usuarios
+        $msg = "Senha incorreta!";
         echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
-        echo "<script>
-          document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-              icon:'error', 
-              title:'Senha incorreta!',
-              text:'Verifique seus dados e tente novamente.',
-              timer:2000,
-              showConfirmButton:false
-            });
-          });
-        </script>";
+        echo "<script>document.addEventListener('DOMContentLoaded', function(){ Swal.fire({icon:'error', title:'".js_escape($msg)."', text:'Verifique seus dados e tente novamente.', timer:2000, showConfirmButton:false }); });</script>";
       }
     } else {
-      echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
-      echo "<script>
-        document.addEventListener('DOMContentLoaded', function() {
-          Swal.fire({
-            icon:'error', 
-            title:'Usuário não encontrado!', 
-            timer:2000, 
-            showConfirmButton:false
-          });
-        });
-      </script>";
+      // 2) Se não achou em usuarios, tentar tabela artistas (login direto como artista)
+      $sql_a = "SELECT * FROM artistas WHERE email = ? AND ativo = 1 LIMIT 1";
+      $stmt_a = $conn->prepare($sql_a);
+      $stmt_a->bind_param("s", $email);
+      $stmt_a->execute();
+      $res_a = $stmt_a->get_result();
+
+      if ($artrow = $res_a->fetch_assoc()) {
+        // Verificar senha baseada na coluna 'senha' de artistas
+        if (!empty($artrow['senha']) && password_verify($senha, $artrow['senha'])) {
+          $found = true;
+
+          // Salvar sessão como artista (dados reais da tabela artistas)
+          $_SESSION["tipo_usuario"] = 'artista';
+          $_SESSION["tipo_artistas"] = 'artista';
+          $_SESSION["artistas"] = $artrow;
+          $_SESSION["artistas_id"] = $artrow['id'];
+
+          // opcional: sincronizar com 'usuario' se existir um usuário com mesmo email
+          $sql_user_by_email = "SELECT * FROM usuarios WHERE email = ? LIMIT 1";
+          $stmt_user_by_email = $conn->prepare($sql_user_by_email);
+          $stmt_user_by_email->bind_param("s", $email);
+          $stmt_user_by_email->execute();
+          $res_user_by_email = $stmt_user_by_email->get_result();
+          if ($userRow = $res_user_by_email->fetch_assoc()) {
+            $_SESSION["usuario"] = $userRow;
+            $_SESSION["usuario_id"] = $userRow['id'];
+            $_SESSION["clientes"] = $userRow;
+            $_SESSION["clientes_id"] = $userRow['id'];
+          }
+
+          $redirectUrl = 'artistahome.php';
+          $mensagem = "Bem-vindo de volta, artista {$artrow['nome']}!";
+        } else {
+          $msg = "Senha incorreta!";
+          echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
+          echo "<script>document.addEventListener('DOMContentLoaded', function(){ Swal.fire({icon:'error', title:'".js_escape($msg)."', text:'Verifique seus dados e tente novamente.', timer:2000, showConfirmButton:false }); });</script>";
+        }
+      } else {
+        // Usuário não encontrado em nenhuma tabela
+        $msg = "Usuário não encontrado!";
+        echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
+        echo "<script>document.addEventListener('DOMContentLoaded', function(){ Swal.fire({icon:'error', title:'".js_escape($msg)."', timer:2000, showConfirmButton:false }); });</script>";
+      }
     }
-  }
-}
+
+    // Se achou e validou senha com sucesso, redirecionar (somente se $found true e $redirectUrl definido)
+    if (!empty($found) && !empty($redirectUrl)) {
+      if ($fromCheckout) {
+        $redirectUrl = 'checkout.php';
+      }
+
+      echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
+      echo "<script>document.addEventListener('DOMContentLoaded', function(){ Swal.fire({icon:'success', title:'Login bem-sucedido!', text:'".js_escape($mensagem)."', confirmButtonText:'Continuar'}).then(()=>{ window.location.href='".js_escape($redirectUrl)."'; }); });</script>";
+    }
+  } // fim login
+} // fim POST
 
 $conn->close();
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Verseal - Login / Cadastro</title>
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap" rel="stylesheet" />
 
   <!-- CSS -->
   <link rel="stylesheet" href="../css/login.css" />
 
-  <!-- SweetAlert2 CSS -->
+  <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <style>
     .btn-voltar {
       position: fixed;
@@ -271,32 +275,15 @@ $conn->close();
       z-index: 1000;
       border: 2px solid #cc624e;
     }
+    .btn-voltar:hover { background: #cc624e; color: white; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(204,98,78,0.3); }
 
-    .btn-voltar:hover {
-      background: #cc624e;
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(204, 98, 78, 0.3);
-    }
-
-    @media (max-width: 768px) {
-      .btn-voltar {
-        top: 15px;
-        left: 15px;
-        padding: 8px 16px;
-        font-size: 0.9rem;
-      }
+    @media (max-width:768px) {
+      .btn-voltar { top:15px; left:15px; padding:8px 16px; font-size:0.9rem; }
     }
   </style>
 </head>
-
 <body>
-
-  <!-- Botão Voltar -->
   <a href="<?php echo $voltarUrl; ?>" class="btn-voltar">← Voltar</a>
-
-  <!-- Partículas no fundo -->
-  <div id="particles-js"></div>
 
   <main class="container" data-aos="zoom-in">
     <div class="tabs">
@@ -307,7 +294,6 @@ $conn->close();
     <!-- Formulário de Login -->
     <form id="loginForm" class="form active" method="POST" action="">
       <h2>Entrar</h2>
-
       <div class="campo">
         <input type="email" name="email" id="loginEmail" placeholder=" " required />
         <label for="loginEmail">Email</label>
@@ -317,8 +303,6 @@ $conn->close();
         <label for="loginSenha">Senha</label>
       </div>
       <button type="submit" name="login" class="botao-estilizado">Entrar</button>
-      
-      <!-- Acesso Admin -->
       <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 0.9rem;">
         <small style="color: #666;">Acesso administrativo: admin@verseal.com</small>
       </div>
@@ -348,16 +332,8 @@ $conn->close();
 
       <p>Você é um artista? <a href="cadastroArtista.php">Cadastre-se aqui</a></p>
     </form>
-
-    <div id="particles-js"></div>
   </main>
 
-  <!-- Particles.js -->
-  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-
-  <!-- Script login -->
   <script src="../js/login.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
-
 </html>

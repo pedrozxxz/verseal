@@ -78,6 +78,171 @@ $conn->close();
   <link rel="stylesheet" href="../css/artista.css">
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    /* Estilos do Modal */
+    .modal-mensagem {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-mensagem.active {
+      display: flex;
+    }
+
+    .modal-mensagem .modal-conteudo {
+      background: white;
+      border-radius: 15px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalAppear 0.3s ease;
+    }
+
+    @keyframes modalAppear {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-mensagem .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 25px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .modal-mensagem .modal-header h2 {
+      font-family: 'Playfair Display', serif;
+      color: #cc624e;
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .modal-mensagem .modal-body {
+      padding: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #cc624e;
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: flex-end;
+      margin-top: 25px;
+    }
+
+    .btn-cancelar {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    .btn-cancelar:hover {
+      background: #5a6268;
+    }
+
+    .btn-enviar {
+      background: #cc624e;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.3s;
+    }
+
+    .btn-enviar:hover {
+      background: #e07b67;
+    }
+
+    .btn-enviar:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .btn-fechar {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #666;
+      cursor: pointer;
+      padding: 5px;
+      transition: color 0.3s;
+    }
+
+    .btn-fechar:hover {
+      color: #cc624e;
+    }
+
+    /* Botão de mensagem nos cards */
+    .btn-mensagem-artista {
+      background: #cc624e;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .btn-mensagem-artista:hover {
+      background: #e07b67;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(204, 98, 78, 0.3);
+    }
+  </style>
 </head>
 
 <body>
@@ -224,13 +389,14 @@ $conn->close();
                   <?php endif; ?>
                 </div>
 
+                <!-- Botão de mensagem -->
                 <div class="artista-actions">
-                  <?php if ($usuarioLogado): ?>
+                  <?php if ($usuarioLogado && $tipoUsuario === "cliente"): ?>
                     <button class="btn-mensagem-artista"
                       onclick="abrirModalMensagem(<?php echo $artista['id']; ?>, '<?php echo htmlspecialchars($artista['nome']); ?>')">
                       <i class="fas fa-paper-plane"></i> Enviar Mensagem
                     </button>
-                  <?php else: ?>
+                  <?php elseif (!$usuarioLogado): ?>
                     <a href="login.php" class="btn-mensagem-artista">
                       <i class="fas fa-paper-plane"></i> Enviar Mensagem
                     </a>
@@ -243,6 +409,60 @@ $conn->close();
       </div>
     </div>
   </section>
+
+  <!-- MODAL DE MENSAGEM -->
+  <div id="modalMensagem" class="modal-mensagem">
+    <div class="modal-conteudo">
+      <div class="modal-header">
+        <h2 id="modalTitulo">Enviar Mensagem</h2>
+        <button class="btn-fechar" onclick="fecharModalMensagem()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="formMensagem" method="POST">
+          <input type="hidden" id="artista_id" name="artista_id">
+          
+          <div class="form-group">
+            <label for="cliente_nome">Seu Nome</label>
+            <input type="text" id="cliente_nome" name="cliente_nome" class="form-control" 
+                   value="<?php echo isset($_SESSION['clientes']['nome']) ? htmlspecialchars($_SESSION['clientes']['nome']) : ''; ?>" 
+                   required>
+          </div>
+
+          <div class="form-group">
+            <label for="cliente_email">Seu Email</label>
+            <input type="email" id="cliente_email" name="cliente_email" class="form-control"
+                   value="<?php echo isset($_SESSION['clientes']['email']) ? htmlspecialchars($_SESSION['clientes']['email']) : ''; ?>" 
+                   required>
+          </div>
+
+          <div class="form-group">
+            <label for="mensagem">Mensagem</label>
+            <textarea id="mensagem" name="mensagem" class="form-control" rows="6" 
+                      placeholder="Escreva sua mensagem para o artista..." required></textarea>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-cancelar" onclick="fecharModalMensagem()">Cancelar</button>
+            <button type="submit" class="btn-enviar">
+              <i class="fas fa-paper-plane"></i> Enviar Mensagem
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>&copy; 2025 Verseal. Todos os direitos reservados.</p>
+    <div class="social">
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#"><i class="fab fa-whatsapp"></i></a>
+    </div>
+  </footer>
 
   <script>
     // Dropdown do perfil
@@ -271,21 +491,119 @@ $conn->close();
       }
     });
 
+    // Funções do Modal de Mensagem
+    let artistaAtualId = null;
+    let artistaAtualNome = null;
+
     function abrirModalMensagem(artistaId, artistaNome) {
-      alert('Funcionalidade de mensagem para: ' + artistaNome);
-      // Aqui você pode implementar o modal de mensagem
+      artistaAtualId = artistaId;
+      artistaAtualNome = artistaNome;
+      
+      const modal = document.getElementById('modalMensagem');
+      const titulo = document.getElementById('modalTitulo');
+      const artistaIdInput = document.getElementById('artista_id');
+      
+      titulo.textContent = `Enviar Mensagem para ${artistaNome}`;
+      artistaIdInput.value = artistaId;
+      
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
     }
+
+    function fecharModalMensagem() {
+      const modal = document.getElementById('modalMensagem');
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+      
+      // Limpar formulário
+      document.getElementById('formMensagem').reset();
+    }
+
+    // Fechar modal ao clicar fora
+    document.getElementById('modalMensagem').addEventListener('click', function(e) {
+      if (e.target === this) {
+        fecharModalMensagem();
+      }
+    });
+
+    // Fechar modal com ESC
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        fecharModalMensagem();
+      }
+    });
+
+    // Envio do formulário - VERSÃO COM DEBUG
+document.getElementById('formMensagem').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const btnEnviar = this.querySelector('.btn-enviar');
+  
+  console.log('=== INICIANDO ENVIO ===');
+  console.log('Dados do formulário:');
+  for (let pair of formData.entries()) {
+    console.log(pair[0] + ': ' + pair[1]);
+  }
+  
+  // Desabilitar botão
+  btnEnviar.disabled = true;
+  btnEnviar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+  
+  console.log('Fazendo fetch para enviar_mensagem.php...');
+  
+  fetch('mensagem-para-artista.php', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => {
+    console.log('Status da resposta:', response.status);
+    console.log('OK?', response.ok);
+    return response.text().then(text => {
+      console.log('Resposta bruta:', text);
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        console.error('Erro ao parsear JSON:', e);
+        throw new Error('Resposta não é JSON: ' + text);
+      }
+    });
+  })
+  .then(data => {
+    console.log('Resposta parseada:', data);
+    if (data.success) {
+      Swal.fire({
+        title: 'Sucesso!',
+        text: data.message,
+        icon: 'success',
+        confirmButtonColor: '#cc624e'
+      }).then(() => {
+        fecharModalMensagem();
+      });
+    } else {
+      Swal.fire({
+        title: 'Erro!',
+        text: data.message,
+        icon: 'error',
+        confirmButtonColor: '#cc624e'
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Erro completo:', error);
+    Swal.fire({
+      title: 'Erro de Conexão!',
+      html: 'Erro ao enviar mensagem:<br>' + error.message,
+      icon: 'error',
+      confirmButtonColor: '#cc624e'
+    });
+  })
+  .finally(() => {
+    // Reabilitar botão
+    btnEnviar.disabled = false;
+    btnEnviar.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Mensagem';
+  });
+});
   </script>
 </body>
-
-<!-- FOOTER -->
-    <footer>
-        <p>&copy; 2025 Verseal. Todos os direitos reservados.</p>
-        <div class="social">
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-linkedin-in"></i></a>
-            <a href="#"><i class="fab fa-whatsapp"></i></a>
-        </div>
-    </footer>
-
 </html>

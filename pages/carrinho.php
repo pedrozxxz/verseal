@@ -1,10 +1,33 @@
 <?php
 session_start();
 
+// 🔹 SISTEMA DE NOTIFICAÇÕES - INÍCIO
+if (!isset($_SESSION['carrinho_notificacoes'])) {
+    $_SESSION['carrinho_notificacoes'] = [];
+}
+
+// Processar remoção de notificação
+if (isset($_GET['remover_notificacao']) && isset($_GET['produto_id'])) {
+    $produto_id = intval($_GET['produto_id']);
+    if (isset($_SESSION['carrinho_notificacoes'][$produto_id])) {
+        unset($_SESSION['carrinho_notificacoes'][$produto_id]);
+    }
+    header('Location: carrinho.php');
+    exit;
+}
+
+// Processar limpeza de todas as notificações
+if (isset($_GET['limpar_notificacoes'])) {
+    $_SESSION['carrinho_notificacoes'] = [];
+    header('Location: carrinho.php');
+    exit;
+}
+// 🔹 SISTEMA DE NOTIFICAÇÕES - FIM
+
 $host = "localhost";
-$usuario = "root"; // padrão do XAMPP
-$senha = ""; // padrão do XAMPP (sem senha)
-$banco = "verseal"; // nome do banco de dados
+$usuario = "root";
+$senha = "";
+$banco = "verseal";
 
 $conexao = new mysqli($host, $usuario, $senha, $banco);
 
@@ -125,6 +148,12 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
                 'desc' => $produto['desc'],
                 'dimensao' => $produto['dimensao']
             ];
+            
+            // 🔹 ADICIONAR NOTIFICAÇÃO AO ADICIONAR PRODUTO
+            $_SESSION['carrinho_notificacoes'][$item_id] = [
+                'nome' => $produto['nome'],
+                'timestamp' => time()
+            ];
         }
 
         echo json_encode(['success' => true, 'message' => 'Produto adicionado ao carrinho!']);
@@ -163,6 +192,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'desc' => $produto['desc'],
                 'dimensao' => $produto['dimensao']
             ];
+            
+            // 🔹 ADICIONAR NOTIFICAÇÃO AO ADICIONAR PRODUTO
+            $_SESSION['carrinho_notificacoes'][$item_id] = [
+                'nome' => $produto['nome'],
+                'timestamp' => time()
+            ];
         }
     } elseif ($acao === 'remover') {
         $_SESSION['carrinho'] = array_filter($_SESSION['carrinho'], function ($item) use ($item_id) {
@@ -194,6 +229,104 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/carrinho.css">
     <style>
+        /* 🔹 SISTEMA DE NOTIFICAÇÕES - INÍCIO */
+        .notificacao-carrinho {
+            position: relative;
+            display: inline-block;
+        }
+
+        .carrinho-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            min-width: 18px;
+            height: 18px;
+            text-align: center;
+            line-height: 1;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .lista-notificacoes {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #cc624e;
+        }
+
+        .notificacao-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .notificacao-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .notificacao-info {
+            flex: 1;
+        }
+
+        .notificacao-nome {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .notificacao-tempo {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .btn-remover-notificacao {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-remover-notificacao:hover {
+            background: #c0392b;
+        }
+
+        .btn-limpar-todas {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-limpar-todas:hover {
+            background: #7f8c8d;
+        }
+        /* 🔹 SISTEMA DE NOTIFICAÇÕES - FIM */
+
         /* Estilo para imagens que não carregam */
         .item-card img,
         .produto-card img {
@@ -236,7 +369,20 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
     <a href="./artistas.php">Artistas</a>
     <a href="./contato.php">Contato</a>
     
-    <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+    <!-- 🔹 ÍCONE DO CARRINHO COM NOTIFICAÇÃO -->
+    <div class="notificacao-carrinho">
+        <a href="./carrinho.php" class="icon-link">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="carrinho-badge" id="carrinhoBadge">
+                <?php 
+                $total_notificacoes = count($_SESSION['carrinho_notificacoes']);
+                if ($total_notificacoes > 0) {
+                    echo $total_notificacoes;
+                }
+                ?>
+            </span>
+        </a>
+    </div>
     
    <!-- Dropdown Perfil -->
 <div class="profile-dropdown">
@@ -301,10 +447,32 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
     <main class="pagina-carrinho">
         <h1 class="titulo-pagina">Carrinho</h1>
 
+        <!-- 🔹 SEÇÃO DE NOTIFICAÇÕES -->
+        <?php if (!empty($_SESSION['carrinho_notificacoes'])): ?>
+        <div class="lista-notificacoes">
+            <h3><i class="fas fa-bell"></i> Notificações Recentes</h3>
+            <?php foreach ($_SESSION['carrinho_notificacoes'] as $produto_id => $notificacao): ?>
+            <div class="notificacao-item">
+                <div class="notificacao-info">
+                    <div class="notificacao-nome"><?php echo htmlspecialchars($notificacao['nome']); ?></div>
+                    <div class="notificacao-tempo">Adicionado há <?php echo time() - $notificacao['timestamp']; ?> segundos</div>
+                </div>
+                <button class="btn-remover-notificacao" onclick="removerNotificacao(<?php echo $produto_id; ?>)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <?php endforeach; ?>
+            <button class="btn-limpar-todas" onclick="limparTodasNotificacoes()">
+                <i class="fas fa-trash"></i> Limpar Todas
+            </button>
+        </div>
+        <?php endif; ?>
+
         <!-- NOTIFICAÇÃO -->
         <div id="notificacao" class="notificacao"></div>
 
         <div id="carrinho-container">
+
             <?php if (empty($carrinho)): ?>
                 <div class="carrinho-vazio">
                     <i class="fas fa-shopping-cart"></i>
@@ -422,6 +590,31 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
     </footer>
 
     <script>
+// 🔹 SISTEMA DE NOTIFICAÇÕES - INÍCIO
+// Atualizar badge do carrinho
+function atualizarBadgeCarrinho() {
+    const badge = document.getElementById('carrinhoBadge');
+    const totalNotificacoes = <?php echo count($_SESSION['carrinho_notificacoes']); ?>;
+    
+    if (totalNotificacoes > 0) {
+        badge.textContent = totalNotificacoes;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+// Remover notificação individual
+function removerNotificacao(produtoId) {
+    window.location.href = `carrinho.php?remover_notificacao=1&produto_id=${produtoId}`;
+}
+
+// Limpar todas as notificações
+function limparTodasNotificacoes() {
+    window.location.href = 'carrinho.php?limpar_notificacoes=1';
+}
+// 🔹 SISTEMA DE NOTIFICAÇÕES - FIM
+
 // Notificação
 function mostrarNotificacao(mensagem, tipo='success') {
     const n = document.getElementById('notificacao');
@@ -437,6 +630,8 @@ function atualizarInterfaceCarrinho() {
         const doc = new DOMParser().parseFromString(html,'text/html');
         const novo = doc.getElementById('carrinho-container');
         if(novo) document.getElementById('carrinho-container').innerHTML = novo.innerHTML;
+        // Atualizar badge após atualizar interface
+        atualizarBadgeCarrinho();
     }).catch(e=>window.location.reload());
 }
 
@@ -454,16 +649,42 @@ function finalizarCompra() {
 
 // Adicionar
 function adicionarAoCarrinho(id){
-    const fd = new FormData(); fd.append('acao','adicionar'); fd.append('item_id',id);
-    fetch(window.location.href,{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest'}})
-    .then(r=>r.json()).then(d=>{ if(d.success) mostrarNotificacao(d.message,'success'); atualizarInterfaceCarrinho(); });
+    const fd = new FormData(); 
+    fd.append('acao','adicionar'); 
+    fd.append('item_id',id);
+    
+    fetch(window.location.href,{
+        method:'POST',
+        body:fd,
+        headers:{'X-Requested-With':'XMLHttpRequest'}
+    })
+    .then(r=>r.json())
+    .then(d=>{ 
+        if(d.success) {
+            mostrarNotificacao(d.message,'success'); 
+            atualizarInterfaceCarrinho();
+        }
+    });
 }
 
 // Remover
 function removerDoCarrinho(id){
-    const fd = new FormData(); fd.append('acao','remover'); fd.append('item_id',id);
-    fetch(window.location.href,{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest'}})
-    .then(r=>r.json()).then(d=>{ if(d.success) mostrarNotificacao(d.message,'info'); atualizarInterfaceCarrinho(); });
+    const fd = new FormData(); 
+    fd.append('acao','remover'); 
+    fd.append('item_id',id);
+    
+    fetch(window.location.href,{
+        method:'POST',
+        body:fd,
+        headers:{'X-Requested-With':'XMLHttpRequest'}
+    })
+    .then(r=>r.json())
+    .then(d=>{ 
+        if(d.success) {
+            mostrarNotificacao(d.message,'info'); 
+            atualizarInterfaceCarrinho();
+        }
+    });
 }
 
 // Dropdown perfil
@@ -471,12 +692,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const profileIcon = document.getElementById('profile-icon');
     const profileDropdown = document.getElementById('profile-dropdown');
     if(profileIcon && profileDropdown){
-        profileIcon.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); profileDropdown.style.display=(profileDropdown.style.display==='block'?'none':'block'); });
-        document.addEventListener('click', e=>{ if(!profileDropdown.contains(e.target) && e.target!==profileIcon) profileDropdown.style.display='none'; });
-        profileDropdown.addEventListener('click', e=>{ e.stopPropagation(); });
+        profileIcon.addEventListener('click', e=>{ 
+            e.preventDefault(); 
+            e.stopPropagation(); 
+            profileDropdown.style.display=(profileDropdown.style.display==='block'?'none':'block'); 
+        });
+        document.addEventListener('click', e=>{ 
+            if(!profileDropdown.contains(e.target) && e.target!==profileIcon) 
+                profileDropdown.style.display='none'; 
+        });
+        profileDropdown.addEventListener('click', e=>{ 
+            e.stopPropagation(); 
+        });
     }
+    
+    // Atualizar badge quando a página carregar
+    atualizarBadgeCarrinho();
 });
 </script>
 </body>
-
 </html>

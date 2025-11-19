@@ -1,4 +1,107 @@
-/* Página Carrinho */
+   .notificacao-carrinho {
+        position: relative;
+        display: inline-block;
+    }
+
+    .carrinho-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        min-width: 18px;
+        height: 18px;
+        text-align: center;
+        line-height: 1;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .lista-notificacoes {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-left: 4px solid #cc624e;
+    }
+
+    .notificacao-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .notificacao-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .notificacao-info {
+        flex: 1;
+    }
+
+    .notificacao-nome {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .notificacao-tempo {
+        font-size: 0.8rem;
+        color: #666;
+    }
+
+    .btn-remover-notificacao {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.8rem;
+    }
+
+    .btn-remover-notificacao:hover {
+        background: #c0392b;
+    }
+
+    .btn-limpar-todas {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .btn-limpar-todas:hover {
+        background: #7f8c8d;
+    }
+    /* 🔹 SISTEMA DE NOTIFICAÇÕES - FIM */
+
+    /* Estilo para imagens que não carregam */
+    .item-card img,
+    .produto-card img {
+        object-fit: cover;
+        height: 200px;
+        width: 100%;
+    }
 
 .pagina-carrinho {
   padding: 60px 7%;

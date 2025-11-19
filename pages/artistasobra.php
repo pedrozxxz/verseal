@@ -496,7 +496,7 @@ if (!is_array($produtosFiltrados)) {
             <i class="fas fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
             <h3>Nenhuma obra encontrada</h3>
             <p>Você ainda não possui obras cadastradas ou nenhuma obra corresponde aos filtros aplicados.</p>
-            <a href="adicionarobras.php" class="btn-adiconar-obra">              
+            <a href="adicionarobra.php" class="btn-adiconar-obra">              
               <i class="fas fa-plus"></i> Adicionar Primeira Obra
             </a>
           </div>
@@ -504,7 +504,7 @@ if (!is_array($produtosFiltrados)) {
           <?php foreach ($produtosFiltrados as $produto): ?>
           <div class="obra-card <?php echo $obraEditada == $produto['id'] ? 'obra-destaque' : ''; ?>" 
                id="obra-<?php echo $produto['id']; ?>">
-            <img src="<?php echo $produto['img']; ?>" alt="<?php echo $produto['nome']; ?>">
+<img src="../<?php echo $produto['img']; ?>" alt="<?php echo $produto['nome']; ?>">
             <h4>
               <?php echo $produto['nome']; ?>
               <?php if ($obraEditada == $produto['id']): ?>
@@ -567,7 +567,7 @@ if (!is_array($produtosFiltrados)) {
       // Preencher conteúdo
       modalBody.innerHTML = `
         <div class="modal-imagem">
-          <img src="${obra.img}" alt="${obra.nome}">
+          <img src="../${obra.img}" alt="${obra.nome}">
         </div>
         <div class="modal-info">
           <div class="info-item">

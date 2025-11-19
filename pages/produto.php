@@ -1,17 +1,20 @@
+
 <?php
 session_start();
+
+// 🔹 INICIALIZAR SISTEMA DE NOTIFICAÇÕES
+if (!isset($_SESSION['carrinho_notificacoes'])) {
+    $_SESSION['carrinho_notificacoes'] = [];
+}
 
 // Verificar se usuário está logado (cliente ou artista)
 $usuarioLogado = null;
 $tipoUsuario = null;
 
-// Verifica se há sessão de cliente (corrigido para "clientes" no plural)
 if (isset($_SESSION["clientes"])) {
     $usuarioLogado = $_SESSION["clientes"];
     $tipoUsuario = "cliente";
-}
-// Verifica se há sessão de artista (corrigido para "artistas" no plural)
-elseif (isset($_SESSION["artistas"])) {
+} elseif (isset($_SESSION["artistas"])) {
     $usuarioLogado = $_SESSION["artistas"];
     $tipoUsuario = "artista";
 }
@@ -29,7 +32,6 @@ if ($conn->connect_error) {
 }
 
 // Buscar TODOS os produtos (obras) do banco de dados
-// CORREÇÃO: Buscar diretamente da tabela produtos sem JOIN
 $sql_produtos = "
     SELECT p.* 
     FROM produtos p 
@@ -42,31 +44,21 @@ $produtos = [];
 
 if ($result_produtos && $result_produtos->num_rows > 0) {
     while ($produto = $result_produtos->fetch_assoc()) {
-        // CORREÇÃO: Processar corretamente a URL da imagem
+        // Processar corretamente a URL da imagem
         $imagem_url = '';
         if (!empty($produto['imagem_url'])) {
-            // Se a imagem já tem o caminho completo, usar como está
             if (strpos($produto['imagem_url'], '../') === 0) {
                 $imagem_url = $produto['imagem_url'];
-            } 
-            // Se é um caminho relativo sem ../, adicionar ../
-            elseif (strpos($produto['imagem_url'], 'img/') === 0) {
+            } elseif (strpos($produto['imagem_url'], 'img/') === 0) {
                 $imagem_url = '../' . $produto['imagem_url'];
-            }
-            // Se é um caminho de upload, adicionar ../
-            elseif (strpos($produto['imagem_url'], 'uploads/') === 0) {
+            } elseif (strpos($produto['imagem_url'], 'uploads/') === 0) {
                 $imagem_url = '../' . $produto['imagem_url'];
-            }
-            // Se já começa com img/uploads/, adicionar ../
-            elseif (strpos($produto['imagem_url'], 'img/uploads/') === 0) {
+            } elseif (strpos($produto['imagem_url'], 'img/uploads/') === 0) {
                 $imagem_url = '../' . $produto['imagem_url'];
-            }
-            // Para qualquer outro caso, usar como está
-            else {
+            } else {
                 $imagem_url = $produto['imagem_url'];
             }
         } else {
-            // Imagem padrão se não houver imagem
             $imagem_url = '../img/imagem2.png';
         }
 
@@ -77,7 +69,6 @@ if ($result_produtos && $result_produtos->num_rows > 0) {
             if (is_array($categorias_array)) {
                 $categorias = $categorias_array;
             } else {
-                // Fallback: tentar separar por vírgula se não for JSON válido
                 $categorias = array_map('trim', explode(',', $produto['categorias']));
             }
         }
@@ -85,7 +76,7 @@ if ($result_produtos && $result_produtos->num_rows > 0) {
         // Criar array do produto
         $produtos[] = [
             "id" => intval($produto['id']),
-            "img" => $imagem_url, // CORRIGIDO: Usar a URL processada
+            "img" => $imagem_url,
             "nome" => $produto['nome'] ?? 'Obra sem nome',
             "artista" => $produto['artista'] ?? 'Artista desconhecido',
             "preco" => floatval($produto['preco'] ?? 0),
@@ -101,11 +92,10 @@ if ($result_produtos && $result_produtos->num_rows > 0) {
         ];
     }
 } else {
-    // Se não encontrar produtos no banco, usar array vazio
     $produtos = [];
 }
 
-// Processar filtros se existirem
+// Processar filtros
 $filtroArtista = $_GET['artista'] ?? '';
 $filtroCategoria = $_GET['categoria'] ?? [];
 if (!is_array($filtroCategoria)) {
@@ -152,7 +142,6 @@ if ($ordenacao === 'preco_asc') {
         return $b['preco'] <=> $a['preco'];
     });
 } elseif ($ordenacao === 'recentes') {
-    // Ordenar por data de cadastro
     usort($produtosFiltrados, function($a, $b) {
         if (!empty($a['data_cadastro']) && !empty($b['data_cadastro'])) {
             return strtotime($b['data_cadastro']) <=> strtotime($a['data_cadastro']);
@@ -166,19 +155,59 @@ $conn->close();
 
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Verseal - Obras de Arte</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/produto.css">
-  <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
+    /* 🔹 SISTEMA DE NOTIFICAÇÕES */
+    .notificacao-carrinho {
+        position: relative;
+        display: inline-block;
+    }
+
+    .carrinho-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        min-width: 18px;
+        height: 18px;
+        text-align: center;
+        line-height: 1;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .badge-bounce {
+        animation: bounce 0.5s ease;
+    }
+
+    @keyframes bounce {
+        0%, 20%, 60%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        80% { transform: translateY(-5px); }
+    }
+
     /* Modal Detalhes da Obra */
     .modal-detalhes {
       display: none;
@@ -209,14 +238,8 @@ $conn->close();
     }
 
     @keyframes modalAppear {
-      from {
-        opacity: 0;
-        transform: scale(0.8);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
     }
 
     .modal-header {
@@ -465,9 +488,22 @@ $conn->close();
     <a href="./artistas.php">Artistas</a>
     <a href="./contato.php">Contato</a>
     
-    <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+    <!-- 🔹 ÍCONE DO CARRINHO COM NOTIFICAÇÃO -->
+    <div class="notificacao-carrinho">
+        <a href="./carrinho.php" class="icon-link">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="carrinho-badge" id="carrinhoBadge">
+                <?php 
+                $total_notificacoes = count($_SESSION['carrinho_notificacoes']);
+                if ($total_notificacoes > 0) {
+                    echo $total_notificacoes;
+                }
+                ?>
+            </span>
+        </a>
+    </div>
     
-    <!-- Dropdown Perfil CORRIGIDO -->
+    <!-- Dropdown Perfil -->
     <div class="profile-dropdown">
       <a href="#" class="icon-link" id="profile-icon">
         <i class="fas fa-user"></i>
@@ -480,10 +516,8 @@ $conn->close();
               <span id="user-name">
                 <?php 
                 if ($tipoUsuario === "cliente") {
-                  // Verifica a estrutura do array de cliente
                   echo htmlspecialchars(is_array($usuarioLogado) ? $usuarioLogado['nome'] : $usuarioLogado);
                 } elseif ($tipoUsuario === "artista") {
-                  // Verifica a estrutura do array de artista
                   echo htmlspecialchars(is_array($usuarioLogado) ? ($usuarioLogado['nome_artistico'] ?? $usuarioLogado['nome']) : $usuarioLogado);
                 }
                 ?>
@@ -583,7 +617,6 @@ $conn->close();
         <h3>Filtro</h3>
 
         <form method="GET">
-          <!-- Manter o filtro de artista se existir -->
           <?php if (!empty($filtroArtista)): ?>
             <input type="hidden" name="artista" value="<?php echo htmlspecialchars($filtroArtista); ?>">
           <?php endif; ?>
@@ -676,6 +709,34 @@ $conn->close();
     // Dados das obras
     const obras = <?php echo json_encode($produtos); ?>;
 
+    // 🔹 SISTEMA DE NOTIFICAÇÕES
+    function atualizarBadgeCarrinho() {
+        const badge = document.getElementById('carrinhoBadge');
+        const totalNotificacoes = <?php echo count($_SESSION['carrinho_notificacoes']); ?>;
+        
+        if (totalNotificacoes > 0) {
+            badge.textContent = totalNotificacoes;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    function incrementarBadgeCarrinho() {
+        const badge = document.getElementById('carrinhoBadge');
+        let currentCount = parseInt(badge.textContent) || 0;
+        currentCount++;
+        
+        badge.textContent = currentCount;
+        badge.style.display = 'flex';
+        
+        // Animação de destaque
+        badge.classList.add('badge-bounce');
+        setTimeout(() => {
+            badge.classList.remove('badge-bounce');
+        }, 500);
+    }
+
     // Função para mostrar detalhes da obra
     function mostrarDetalhes(obraId) {
       const obra = obras.find(o => o.id === obraId);
@@ -685,10 +746,8 @@ $conn->close();
       const modalTitulo = document.getElementById('modalTitulo');
       const modalBody = document.getElementById('modalBody');
 
-      // Preencher título
       modalTitulo.textContent = obra.nome;
 
-      // Preencher conteúdo
       modalBody.innerHTML = `
         <div class="modal-imagem">
           <img src="${obra.img}" alt="${obra.nome}" onerror="this.onerror=null; this.src='../img/imagem2.png';">
@@ -737,35 +796,18 @@ $conn->close();
         </div>
       `;
 
-      // Mostrar modal
       modal.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
 
-    // Função para fechar modal
     function fecharModal() {
       const modal = document.getElementById('modalDetalhes');
       modal.classList.remove('active');
       document.body.style.overflow = 'auto';
     }
 
-    // Fechar modal ao clicar fora
-    document.getElementById('modalDetalhes').addEventListener('click', function(e) {
-      if (e.target === this) {
-        fecharModal();
-      }
-    });
-
-    // Fechar modal com ESC
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        fecharModal();
-      }
-    });
-
     // Função para adicionar produto ao carrinho
     function adicionarAoCarrinho(itemId) {
-      // Mostrar loading
       const btn = event?.target || document.querySelector(`.btn-comprar-modal`);
       const originalText = btn.innerHTML;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adicionando...';
@@ -789,11 +831,13 @@ $conn->close();
         return response.json();
       })
       .then(data => {
-        // Restaurar botão
         btn.innerHTML = originalText;
         btn.disabled = false;
 
         if (data.success) {
+          // 🔹 ATUALIZAR BADGE IMEDIATAMENTE
+          incrementarBadgeCarrinho();
+          
           Swal.fire({
             icon: 'success',
             title: 'Obra adicionada!',
@@ -812,7 +856,6 @@ $conn->close();
       })
       .catch(error => {
         console.error('Erro:', error);
-        // Restaurar botão
         btn.innerHTML = originalText;
         btn.disabled = false;
         
@@ -823,52 +866,65 @@ $conn->close();
         });
       });
     }
- // Dropdown do perfil
+
+    // Event listeners
+    document.getElementById('modalDetalhes').addEventListener('click', function(e) {
+      if (e.target === this) {
+        fecharModal();
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        fecharModal();
+      }
+    });
+
+    // Dropdown do perfil
     document.addEventListener('DOMContentLoaded', function () {
       const profileIcon = document.getElementById('profile-icon');
       const profileDropdown = document.getElementById('profile-dropdown');
 
-      profileIcon.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
-      });
+      if (profileIcon && profileDropdown) {
+        profileIcon.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+        });
 
-      // Fechar dropdown ao clicar fora
-      document.addEventListener('click', function (e) {
-        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
-          profileDropdown.style.display = 'none';
-        }
-      });
+        document.addEventListener('click', function (e) {
+          if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
+            profileDropdown.style.display = 'none';
+          }
+        });
 
-      // Prevenir fechamento ao clicar dentro do dropdown
-      profileDropdown.addEventListener('click', function (e) {
-        e.stopPropagation();
-      });
+        profileDropdown.addEventListener('click', function (e) {
+          e.stopPropagation();
+        });
+      }
 
       // Menu Hamburguer Desktop
       const menuToggleDesktop = document.getElementById('menu-toggle-desktop');
       const menuContentDesktop = document.querySelector('.menu-content-desktop');
 
-      // Fechar menu ao clicar fora
       document.addEventListener('click', function(e) {
         if (!e.target.closest('.hamburger-menu-desktop')) {
           menuToggleDesktop.checked = false;
         }
       });
 
-      // Fechar menu ao clicar em um item (exceto Cliente)
       const menuItems = document.querySelectorAll('.menu-item');
       menuItems.forEach(item => {
         item.addEventListener('click', function(e) {
-          // Não fecha o menu se for o item Cliente
           if (!this.querySelector('i').classList.contains('fa-user')) {
             menuToggleDesktop.checked = false;
           }
         });
       });
+
+      // Atualizar badge quando a página carregar
+      atualizarBadgeCarrinho();
     });
   </script>
-
 </body>
 </html>

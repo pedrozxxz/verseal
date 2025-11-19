@@ -1,32 +1,28 @@
 <?php
-session_start();
-require_once '../config/database.php'; // Arquivo de conexão com o banco
+require_once 'config.php';
 
-$usuarioLogado = $_SESSION["usuario"] ?? null;
-
-// Buscar dados do artista logado do banco de dados
-$artista = null;
-if ($usuarioLogado && isset($usuarioLogado['nome'])) {
-    try {
-        $stmt = $pdo->prepare("SELECT * FROM artistas WHERE nome = ? AND ativo = 1");
-        $stmt->execute([$usuarioLogado['nome']]);
-        $artista = $stmt->fetch(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log("Erro ao buscar artista: " . $e->getMessage());
-    }
+// Verificar se está logado (como artista ou usuário)
+if (!isArtista() && !isUsuario()) {
+    header("Location: login.php");
+    exit();
 }
+// Buscar dados do artista usando nossa função unificada
+$artista = getUsuarioLogado($conn);
 
-// Se não encontrou no banco, usar dados padrão
+// Se não encontrou o artista no banco, usar dados padrão
 if (!$artista) {
     $artista = [
-        "nome" => $usuarioLogado['nome'] ?? "Artista",
+        "nome" => $_SESSION["artistas"]['nome'] ?? "Artista",
         "descricao" => "Artista que busca autonomia no mercado artístico, expondo seus desenhos manuais e digitais para Verseal.",
         "telefone" => "",
         "email" => "",
         "instagram" => "",
-        "foto_perfil" => "../img/jamile.jpg"
+        "imagem_perfil" => "../img/jamile.jpg"
     ];
 }
+
+// Fechar conexão
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -130,6 +126,31 @@ if (!$artista) {
       margin-bottom: 15px;
     }
 
+    .btn-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .btn-completo {
+      display: inline-block;
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #e07b67, #cc624e);
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 15px rgba(224, 123, 103, 0.3);
+    }
+
+    .btn-completo:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(224, 123, 103, 0.4);
+    }
+
     @media (max-width: 768px) {
       section {
         flex-direction: column;
@@ -166,11 +187,15 @@ if (!$artista) {
     </div>
 
     <div class="profile-dropdown">
-      <a href="./perfil.php" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
+      <a href="./artistaperfil.php" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
       <div class="dropdown-content" id="profile-dropdown">
-          <div class="user-info"><p>Seja bem-vindo, <?php echo htmlspecialchars($usuarioLogado['nome'] ?? 'Artista'); ?>!</p></div>
+          <div class="user-info">
+            <p>Seja bem-vindo, <?php echo htmlspecialchars($artista['nome'] ?? 'Artista'); ?>!</p>
+            <small>Artista</small>
+          </div>
           <div class="dropdown-divider"></div>
           <a href="./artistaperfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+          <a href="./editarbiografia.php" class="dropdown-item"><i class="fas fa-edit"></i> Editar Biografia</a>
           <div class="dropdown-divider"></div>
           <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
       </div>
@@ -180,37 +205,50 @@ if (!$artista) {
 
   <!-- SEÇÃO BIOGRAFIA -->
   <section>
-    <img src="<?php echo !empty($artista['foto_perfil']) ? $artista['foto_perfil'] : '../img/jamile.jpg'; ?>" 
-         alt="<?php echo htmlspecialchars($artista['nome']); ?>">
+<img src="<?php echo getImagemComTimestamp($artista['imagem_perfil'] ?? ''); ?>" 
+     alt="<?php echo htmlspecialchars($artista['nome']); ?>"
+     id="foto-perfil-artista">
     <div class="bio-texto">
       <h1>SOBRE</h1>
       <h2><?php echo htmlspecialchars($artista['nome']); ?></h2>
+      
       <div class="bio-item">
-        <p><?php echo htmlspecialchars($artista['descricao']); ?></p>
-        <?php if (!empty($usuarioLogado)): ?>
-          <a class="btn-editar" href="editarbiografia.php?campo=descricao">Editar Descrição</a>
+        <p><?php echo nl2br(htmlspecialchars($artista['descricao'] ?? 'Artista que busca autonomia no mercado artístico, expondo seus desenhos manuais e digitais para Verseal.')); ?></p>
+        <?php if (isArtista()): ?>
+          <a class="btn-editar" href="editarbiografia.php">Editar Descrição</a>
         <?php endif; ?>
       </div>
 
       <h3>Contato</h3>
+      
       <div class="bio-item">
-        <p>Telefone: <?php echo !empty($artista['telefone']) ? htmlspecialchars($artista['telefone']) : 'Não informado'; ?></p>
-        <?php if (!empty($usuarioLogado)): ?>
-          <a class="btn-editar" href="editarbiografia.php?campo=telefone">Editar Telefone</a>
+        <p><strong>Telefone:</strong> <?php echo !empty($artista['telefone']) ? htmlspecialchars($artista['telefone']) : 'Não informado'; ?></p>
+        <?php if (isArtista()): ?>
+          <a class="btn-editar" href="editarbiografia.php">Editar Telefone</a>
         <?php endif; ?>
       </div>
+      
       <div class="bio-item">
-        <p>Email: <?php echo !empty($artista['email']) ? htmlspecialchars($artista['email']) : 'Não informado'; ?></p>
-        <?php if (!empty($usuarioLogado)): ?>
-          <a class="btn-editar" href="editarbiografia.php?campo=email">Editar Email</a>
+        <p><strong>Email:</strong> <?php echo !empty($artista['email']) ? htmlspecialchars($artista['email']) : 'Não informado'; ?></p>
+        <?php if (isArtista()): ?>
+          <a class="btn-editar" href="editarbiografia.php">Editar Email</a>
         <?php endif; ?>
       </div>
+      
       <div class="bio-item">
-        <p>Instagram: <?php echo !empty($artista['instagram']) ? htmlspecialchars($artista['instagram']) : 'Não informado'; ?></p>
-        <?php if (!empty($usuarioLogado)): ?>
-          <a class="btn-editar" href="editarbiografia.php?campo=instagram">Editar Instagram</a>
+        <p><strong>Instagram:</strong> <?php echo !empty($artista['instagram']) ? htmlspecialchars($artista['instagram']) : 'Não informado'; ?></p>
+        <?php if (isArtista()): ?>
+          <a class="btn-editar" href="editarbiografia.php">Editar Instagram</a>
         <?php endif; ?>
       </div>
+
+      <?php if (isArtista()): ?>
+      <div class="btn-container">
+        <a href="editarbiografia.php" class="btn-completo">
+          <i class="fas fa-edit"></i> Editar Biografia Completa
+        </a>
+      </div>
+      <?php endif; ?>
     </div>
   </section>
 
@@ -237,7 +275,32 @@ if (!$artista) {
           e.stopPropagation();
         });
       }
+
+      // Forçar recarregamento da imagem para evitar cache
+      const fotoPerfil = document.getElementById('foto-perfil-artista');
+      if (fotoPerfil) {
+        // Adiciona um timestamp para evitar cache
+        const src = fotoPerfil.src;
+        if (src && !src.includes('?')) {
+          fotoPerfil.src = src + '?t=' + new Date().getTime();
+        }
+      }
     });
+
+    // Verificar se há parâmetros de sucesso na URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === '1') {
+      Swal.fire({
+        icon: 'success',
+        title: 'Sucesso!',
+        text: 'Biografia atualizada com sucesso!',
+        timer: 3000,
+        showConfirmButton: false
+      });
+      
+      // Remover o parâmetro da URL sem recarregar a página
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   </script>
 </body>
 </html>
