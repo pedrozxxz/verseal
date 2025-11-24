@@ -100,15 +100,16 @@ $conn->close();
       );
       margin: 0;
       padding: 0;
+      font-family: 'Open Sans', sans-serif;
     }
 
     /* CONTAINER PRINCIPAL */
     .edit-obra-container {
       max-width: 1100px;
-      margin: 100px auto;
+      margin: 100px auto 50px;
       background: #ffffff;
       border-radius: 25px;
-      padding: 50px 70px;
+      padding: 60px 70px;
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
       display: flex;
       align-items: flex-start;
@@ -131,33 +132,75 @@ $conn->close();
       text-align: center;
       font-weight: bold;
       letter-spacing: 2px;
+      z-index: 1;
     }
 
-    /* FOTO */
+    /* FOTO AREA */
     .foto-area {
       flex: 1;
       text-align: center;
+      padding: 20px;
+      background: #fdf9f8;
+      border-radius: 20px;
+      border: 2px dashed #f0dcd0;
     }
 
     .foto-area img {
-      width: 320px;
+      width: 100%;
+      max-width: 320px;
       height: 320px;
       object-fit: cover;
-      border-radius: 20px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-      margin-bottom: 15px;
-      border: 2px dashed #e07b67;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      border: 2px solid #e07b67;
     }
 
-    .foto-area input[type="file"] {
-      display: block;
-      margin: 10px auto;
-      font-size: 0.9rem;
-      color: #444;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
       width: 100%;
+      max-width: 250px;
+    }
+
+    .file-input-button {
+      display: block;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #e07b67, #cc624e);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(204, 98, 78, 0.3);
+      width: 100%;
+    }
+
+    .file-input-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(204, 98, 78, 0.4);
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .file-name {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: #666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* FORMULÁRIO */
@@ -165,21 +208,27 @@ $conn->close();
       flex: 1.2;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
     form label {
       font-weight: 600;
       color: #444;
       font-size: 1rem;
-      margin-bottom: 5px;
+      margin-bottom: 0;
     }
 
     form input,
     form textarea,
     form select {
       width: 100%;
-      padding: 12px 15px;
+      padding: 14px 16px;
       border: 2px solid #f0dcd0;
       border-radius: 12px;
       font-size: 1rem;
@@ -188,75 +237,260 @@ $conn->close();
       transition: all 0.3s ease;
       background: #fdf9f8;
       box-sizing: border-box;
+      font-family: 'Open Sans', sans-serif;
     }
 
     form input:focus,
     form textarea:focus,
     form select:focus {
       border-color: #e07b67;
-      box-shadow: 0 0 8px rgba(224, 123, 103, 0.3);
+      box-shadow: 0 0 0 3px rgba(224, 123, 103, 0.1);
+      background: #fff;
     }
 
     form textarea {
-      height: 100px;
+      height: 120px;
       resize: vertical;
+      line-height: 1.5;
+    }
+
+    /* GRID PARA CAMPOS MENORES */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
     }
 
     /* CHECKBOXES */
     .categorias-group {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 12px;
       margin-top: 5px;
     }
 
     .categoria-checkbox {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .categoria-checkbox:hover {
+      background: #f0dcd0;
+    }
+
+    .categoria-checkbox input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #e07b67;
+    }
+
+    .categoria-checkbox label {
+      font-weight: 500;
+      color: #555;
+      cursor: pointer;
+      margin: 0;
     }
 
     /* BOTÃO SALVAR */
+    .form-actions {
+      text-align: center;
+      margin-top: 30px;
+    }
+
     button[type="submit"] {
-      align-self: center;
-      margin-top: 20px;
-      padding: 12px 40px;
+      padding: 15px 50px;
       background: linear-gradient(135deg, #e07b67, #cc624e);
       color: #fff;
       border: none;
       border-radius: 30px;
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 8px 20px rgba(204, 98, 78, 0.4);
       transition: all 0.3s ease;
-      width: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
     }
 
     button[type="submit"]:hover {
       transform: translateY(-3px);
       background: linear-gradient(135deg, #cc624e, #e07b67);
-      box-shadow: 0 10px 25px rgba(224, 123, 103, 0.5);
+      box-shadow: 0 12px 25px rgba(224, 123, 103, 0.5);
     }
 
     /* Preview da imagem */
     #imagePreview {
-      max-width: 100%;
-      max-height: 300px;
+      width: 100%;
+      max-width: 320px;
+      height: 320px;
+      object-fit: cover;
+      border-radius: 15px;
       display: none;
-      margin-top: 10px;
-      border-radius: 10px;
+      margin-bottom: 20px;
+      border: 2px solid #e07b67;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    @media (max-width: 768px) {
+    .preview-placeholder {
+      width: 100%;
+      max-width: 320px;
+      height: 320px;
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #6c757d;
+      border: 2px dashed #dee2e6;
+      margin-bottom: 20px;
+    }
+
+    .preview-placeholder i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: #adb5bd;
+    }
+
+    .preview-placeholder span {
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    /* HEADER STYLES */
+    header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* RESPONSIVIDADE */
+    @media (max-width: 968px) {
       .edit-obra-container {
         flex-direction: column;
-        padding: 30px;
+        padding: 40px 30px;
         margin: 80px 20px;
+        gap: 40px;
       }
+
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
       .categorias-group {
         grid-template-columns: 1fr;
       }
+
+      .edit-obra-container::before {
+        font-size: 1.8rem;
+        padding: 12px 30px;
+        top: -30px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .edit-obra-container {
+        padding: 30px 20px;
+        margin: 70px 15px;
+      }
+
+      .edit-obra-container::before {
+        font-size: 1.5rem;
+        padding: 10px 25px;
+        top: -25px;
+      }
+
+      form input,
+      form textarea,
+      form select {
+        padding: 12px 14px;
+      }
+    }
+
+    /* ESTILOS PARA O DROPDOWN DO PERFIL */
+    .profile-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .profile-dropdown .icon-link {
+      color: #333;
+      text-decoration: none;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.3s;
+    }
+
+    .profile-dropdown .icon-link:hover {
+      color: #e07b67;
+    }
+
+    .profile-dropdown .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background: white;
+      min-width: 280px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      border-radius: 10px;
+      z-index: 1000;
+      padding: 15px 0;
+    }
+
+    .profile-dropdown .dropdown-content.show {
+      display: block;
+    }
+
+    .user-info {
+      padding: 0 15px 10px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    .user-info p {
+      margin: 0;
+      font-weight: 600;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: #eee;
+      margin: 10px 0;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 15px;
+      color: #333;
+      text-decoration: none;
+      transition: background 0.3s;
+      font-size: 0.9rem;
+    }
+
+    .dropdown-item:hover {
+      background: #f8f9fa;
+    }
+
+    .dropdown-item.logout-btn {
+      color: #dc3545;
+    }
+
+    .dropdown-item.logout-btn:hover {
+      background: #ffe6e6;
     }
   </style>
 </head>
@@ -271,31 +505,6 @@ $conn->close();
       <a href="artistasobra.php"><i class="fas fa-palette"></i> Obras</a>
       <a href="artistabiografia.php"><i class="fas fa-user"></i> Quem eu sou?</a>
 
-      <!-- Menu hamburguer -->
-      <div class="hamburger-menu-desktop">
-        <input type="checkbox" id="menu-toggle-desktop">
-        <label for="menu-toggle-desktop" class="hamburger-desktop">
-          <i class="fas fa-bars"></i>
-          <span>ACESSO</span>
-        </label>
-        <div class="menu-content-desktop">
-          <div class="menu-section">
-            <a href="../index.php" class="menu-item">
-              <i class="fas fa-user"></i>
-              <span>Cliente</span>
-            </a>
-            <a href="./admhome.php" class="menu-item">
-              <i class="fas fa-user-shield"></i>
-              <span>ADM</span>
-            </a>
-            <a href="./artistahome.php" class="menu-item active">
-              <i class="fas fa-palette"></i>
-              <span>Artista</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
       <!-- Perfil -->
       <div class="profile-dropdown">
         <a href="#" class="icon-link" id="profile-icon">
@@ -303,7 +512,7 @@ $conn->close();
         </a>
         <div class="dropdown-content" id="profile-dropdown">
           <div class="user-info">
-            <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars(is_array($usuarioLogado) ? $usuarioLogado['nome'] : $usuarioLogado); ?></span>!</p>
+            <p>Bem-vindo, <span id="user-name"><?php echo htmlspecialchars(is_array($usuarioLogado) ? $usuarioLogado['nome'] : $usuarioLogado); ?></span>!</p>
           </div>
           <div class="dropdown-divider"></div>
           <a href="artistabiografia.php" class="dropdown-item">
@@ -323,59 +532,92 @@ $conn->close();
 
   <!-- FORMULÁRIO DE ADIÇÃO DE OBRA -->
   <div class="edit-obra-container">
-    <form action="" method="post" enctype="multipart/form-data">
-
-      <div class="foto-area">
-        <img src="../img/placeholder-obra.jpg" alt="Preview da obra" id="imagePreview">
+    <div class="foto-area">
+      <div id="previewContainer">
+        <div class="preview-placeholder" id="previewPlaceholder">
+          <i class="fas fa-image"></i>
+          <span>Preview da imagem</span>
+        </div>
+        <img src="" alt="Preview da obra" id="imagePreview">
+      </div>
+      
+      <div class="file-input-wrapper">
+        <div class="file-input-button">
+          <i class="fas fa-upload"></i> Escolher Imagem
+        </div>
         <input type="file" name="imagem" id="imagemInput" accept="image/*">
-        <small>Selecione uma imagem para a obra</small>
+      </div>
+      <span id="file-name" class="file-name">Nenhum arquivo selecionado</span>
+      <small style="color: #666; display: block; margin-top: 8px;">Formatos: JPG, PNG, GIF (Máx. 5MB)</small>
+    </div>
+
+    <form action="" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="nome">Nome da Obra</label>
+        <input type="text" name="nome" id="nome" placeholder="Digite o nome da obra..." required>
       </div>
 
-      <label for="nome">Nome da Obra</label>
-      <input type="text" name="nome" id="nome" placeholder="Digite o nome da obra..." required>
+      <div class="form-group">
+        <label for="preco">Preço (R$)</label>
+        <input type="number" name="preco" id="preco" placeholder="0.00" step="0.01" min="0" required>
+      </div>
 
-      <label for="preco">Preço (R$)</label>
-      <input type="number" name="preco" id="preco" placeholder="0.00" step="0.01" min="0" required>
+      <div class="form-group">
+        <label for="descricao">Descrição da Obra</label>
+        <textarea name="descricao" id="descricao" placeholder="Descreva sua obra..." required></textarea>
+      </div>
 
-      <label for="descricao">Descrição da Obra</label>
-      <textarea name="descricao" id="descricao" placeholder="Descreva sua obra..." required></textarea>
-
-      <label for="tecnica">Técnica/Estilo</label>
-      <input type="text" name="tecnica" id="tecnica" placeholder="Ex: Pintura a óleo, Digital..." required>
-
-      <label for="dimensoes">Dimensões</label>
-      <input type="text" name="dimensoes" id="dimensoes" placeholder="Ex: 50x70cm" required>
-
-      <label for="ano">Ano de Criação</label>
-      <input type="number" name="ano" id="ano" placeholder="2024" min="1900" max="2030" required>
-
-      <label for="material">Material</label>
-      <input type="text" name="material" id="material" placeholder="Ex: Tinta acrílica, Tela..." required>
-
-      <label>Categorias</label>
-      <div class="categorias-group">
-        <div class="categoria-checkbox">
-          <input type="checkbox" name="categorias[]" value="manual" id="cat_manual">
-          <label for="cat_manual">Manual</label>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tecnica">Técnica/Estilo</label>
+          <input type="text" name="tecnica" id="tecnica" placeholder="Ex: Pintura a óleo, Digital..." required>
         </div>
-        <div class="categoria-checkbox">
-          <input type="checkbox" name="categorias[]" value="digital" id="cat_digital">
-          <label for="cat_digital">Digital</label>
-        </div>
-        <div class="categoria-checkbox">
-          <input type="checkbox" name="categorias[]" value="preto e branco" id="cat_pb">
-          <label for="cat_pb">Preto e Branco</label>
-        </div>
-        <div class="categoria-checkbox">
-          <input type="checkbox" name="categorias[]" value="colorido" id="cat_colorido">
-          <label for="cat_colorido">Colorido</label>
+
+        <div class="form-group">
+          <label for="dimensoes">Dimensões</label>
+          <input type="text" name="dimensoes" id="dimensoes" placeholder="Ex: 50x70cm" required>
         </div>
       </div>
 
-      <button type="submit">
-        <i class="fas fa-plus"></i> Adicionar Obra
-      </button>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ano">Ano de Criação</label>
+          <input type="number" name="ano" id="ano" placeholder="2024" min="1900" max="2030" required>
+        </div>
 
+        <div class="form-group">
+          <label for="material">Material</label>
+          <input type="text" name="material" id="material" placeholder="Ex: Tinta acrílica, Tela..." required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Categorias</label>
+        <div class="categorias-group">
+          <div class="categoria-checkbox">
+            <input type="checkbox" name="categorias[]" value="manual" id="cat_manual">
+            <label for="cat_manual">Manual</label>
+          </div>
+          <div class="categoria-checkbox">
+            <input type="checkbox" name="categorias[]" value="digital" id="cat_digital">
+            <label for="cat_digital">Digital</label>
+          </div>
+          <div class="categoria-checkbox">
+            <input type="checkbox" name="categorias[]" value="preto e branco" id="cat_pb">
+            <label for="cat_pb">Preto e Branco</label>
+          </div>
+          <div class="categoria-checkbox">
+            <input type="checkbox" name="categorias[]" value="colorido" id="cat_colorido">
+            <label for="cat_colorido">Colorido</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit">
+          <i class="fas fa-plus"></i> Adicionar Obra
+        </button>
+      </div>
     </form>
   </div>
 
@@ -384,16 +626,36 @@ $conn->close();
     document.getElementById('imagemInput').addEventListener('change', function(e) {
       const file = e.target.files[0];
       const preview = document.getElementById('imagePreview');
+      const placeholder = document.getElementById('previewPlaceholder');
+      const fileName = document.getElementById('file-name');
       
       if (file) {
+        // Verificar tamanho do arquivo (máximo 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          alert('A imagem deve ter no máximo 5MB');
+          this.value = '';
+          fileName.textContent = 'Arquivo muito grande (máx. 5MB)';
+          fileName.style.color = '#e74c3c';
+          return;
+        }
+        
+        fileName.textContent = file.name;
+        fileName.style.color = '#27ae60';
+        
         const reader = new FileReader();
         
         reader.onload = function(e) {
           preview.src = e.target.result;
           preview.style.display = 'block';
+          placeholder.style.display = 'none';
         }
         
         reader.readAsDataURL(file);
+      } else {
+        preview.style.display = 'none';
+        placeholder.style.display = 'flex';
+        fileName.textContent = 'Nenhum arquivo selecionado';
+        fileName.style.color = '#666';
       }
     });
 
@@ -414,6 +676,28 @@ $conn->close();
             profileDropdown.style.display = 'none';
           }
         });
+
+        profileDropdown.addEventListener('click', function(e) {
+          e.stopPropagation();
+        });
+      }
+    });
+
+    // Validação do formulário
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const preco = document.getElementById('preco').value;
+      const ano = document.getElementById('ano').value;
+      
+      if (parseFloat(preco) <= 0) {
+        e.preventDefault();
+        alert('Por favor, insira um preço válido maior que zero.');
+        return;
+      }
+      
+      if (parseInt(ano) < 1900 || parseInt(ano) > 2030) {
+        e.preventDefault();
+        alert('Por favor, insira um ano válido entre 1900 e 2030.');
+        return;
       }
     });
   </script>

@@ -32,38 +32,58 @@ elseif (isset($_SESSION["artista"])) {
 </head>
 
 <body>
+<?php
+// header.php
+require_once 'config.php';
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verseal - Plataforma Artística</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+
+<body>
 <header>
     <div class="logo">Verseal</div>
     <nav>
       <a href="artistahome.php"><i class="fas fa-home"></i> Início</a>
       <a href="artistasobra.php"><i class="fas fa-palette"></i> Obras</a>
       <a href="artistabiografia.php"><i class="fas fa-user"></i> Quem eu sou?</a>
-    
-    <div class="hamburger-menu-desktop">
-      <input type="checkbox" id="menu-toggle-desktop">
-      <label for="menu-toggle-desktop" class="hamburger-desktop"><i class="fas fa-bars"></i><span>ACESSO</span></label>
-      <div class="menu-content-desktop">
-        <div class="menu-section">
-          <a href="../index.php" class="menu-item"><i class="fas fa-user"></i><span>Cliente</span></a>
-          <a href="./admhome.php" class="menu-item"><i class="fas fa-user-shield"></i><span>ADM</span></a>
-          <a href="./artistahome.php" class="menu-item"><i class="fas fa-palette"></i><span>Artista</span></a>
-        </div>
-      </div>
-    </div>
+  
 
-    <div class="profile-dropdown">
-      <a href="./perfil.php" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
-      <div class="dropdown-content" id="profile-dropdown">
-          <div class="user-info"><p>Seja bem-vindo, <?php echo htmlspecialchars($usuarioLogado); ?>!</p></div>
-          <div class="dropdown-divider"></div>
-          <a href="./artistaperfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-          <div class="dropdown-divider"></div>
-          <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+     <div class="profile-dropdown">
+  <a href="#" class="icon-link" id="profile-icon">
+    <i class="fas fa-user"></i>
+  </a>
+  <div class="dropdown-content" id="profile-dropdown">
+    <?php if (isset($usuarioLogado) && !empty($usuarioLogado['nome'])): ?>
+      <div class="user-info">
+        <p>Bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado['nome']); ?></span>!</p>
+        <small><?php echo $tipoUsuario === 'artista' ? 'Artista' : 'Usuário'; ?></small>
       </div>
-    </div>
+      <div class="dropdown-divider"></div>
+      <a href="./artistaperfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+      <?php if ($tipoUsuario === 'artista'): ?>
+        <a href="./editarbiografia.php" class="dropdown-item"><i class="fas fa-edit"></i> Editar Biografia</a>
+      <?php endif; ?>
+      <div class="dropdown-divider"></div>
+      <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+    <?php else: ?>
+      <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+      <div class="dropdown-divider"></div>
+      <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+      <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+    <?php endif; ?>
+  </div>
+</div>
   </nav>
 </header>
-
   <section class="hero">
     <div class="hero-content">
       <h1>ARTE QUE TRANSFORMA.</h1>
