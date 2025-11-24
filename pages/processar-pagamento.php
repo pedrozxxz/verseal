@@ -13,8 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $valor_total = 0;
 
     if (!empty($carrinho) && is_array($carrinho)) {
-        $valor_total = array_sum(array_map(fn($item) => $item["preco"] * $item["qtd"], $carrinho));
+        // CORREÇÃO: Usar apenas o preço sem quantidade (como no checkout)
+        $valor_total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
     }
+
+    // DEBUG: Verificar os dados antes de salvar
+    error_log("Valor total calculado: " . $valor_total);
+    error_log("Carrinho: " . print_r($carrinho, true));
 
     $_SESSION['dados_pedido'] = [
         'cliente' => [
@@ -34,8 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'pagamento' => [
             'metodo' => $meio_pagamento,
             'valor_total' => $valor_total
-        ]
+        ],
+        'itens' => $carrinho // Adicionando os itens para debug
     ];
+
+    // DEBUG: Verificar sessão salva
+    error_log("Dados pedido salvos: " . print_r($_SESSION['dados_pedido'], true));
 
     // Redirecionamentos
     if ($meio_pagamento === 'pix') {

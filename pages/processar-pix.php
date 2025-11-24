@@ -1,16 +1,38 @@
 <?php
 session_start();
 
+// DEBUG: Verificar toda a sessão
+error_log("SESSION completa: " . print_r($_SESSION, true));
+
 // Verificar se há dados do pedido na sessão
 if (!isset($_SESSION['dados_pedido'])) {
+    error_log("ERRO: dados_pedido não encontrado na sessão");
     header('Location: checkout.php');
     exit;
 }
 
 // Usar dados da sessão
 $dados_pedido = $_SESSION['dados_pedido'];
-$valor_total = $dados_pedido['pagamento']['valor_total'];
-$nome_cliente = $dados_pedido['cliente']['nome'];
+$valor_total = $dados_pedido['pagamento']['valor_total'] ?? 0;
+$nome_cliente = $dados_pedido['cliente']['nome'] ?? 'Cliente';
+
+// DEBUG: Verificar dados específicos
+error_log("Valor total no PIX: " . $valor_total);
+error_log("Nome cliente no PIX: " . $nome_cliente);
+error_log("Dados pedido completo: " . print_r($dados_pedido, true));
+
+// VERIFICAÇÃO DA SESSÃO PARA NAVBAR
+$usuarioLogado = null;
+if (isset($_SESSION["clientes"])) {
+    $usuarioLogado = $_SESSION["clientes"];
+    $tipoUsuario = "cliente";
+} elseif (isset($_SESSION["artistas"])) {
+    $usuarioLogado = $_SESSION["artistas"];
+    $tipoUsuario = "artista";
+} elseif (isset($_SESSION["usuario"])) {
+    $usuarioLogado = $_SESSION["usuario"];
+    $tipoUsuario = "usuario";
+}
 
 // Gerar dados do pedido
 $pedido_id = 'VS' . date('YmdHis') . rand(100, 999);
@@ -40,6 +62,9 @@ function generatePixCode($valor, $pedido_id) {
     }
     return $codigo;
 }
+
+// Gerar QR Code usando uma API online (exemplo com QR Server)
+$qr_code_url = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . urlencode($codigo_pix);
 ?>
 
 <!DOCTYPE html>
@@ -80,6 +105,11 @@ function generatePixCode($valor, $pedido_id) {
             margin: 0 auto;
             border: 1px solid #ddd;
             padding: 10px;
+        }
+        
+        .qrcode img {
+            width: 100%;
+            height: auto;
         }
         
         .codigo-pix {
@@ -123,33 +153,54 @@ function generatePixCode($valor, $pedido_id) {
         .instrucoes li {
             margin-bottom: 10px;
         }
-        
-        header {
-            background: white;
-            padding: 1rem 7%;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+        /* Estilos para o dropdown */
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
         }
         
-        .logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #cc624e;
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 220px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            z-index: 1000;
+            padding: 10px 0;
         }
         
-        nav {
+        .dropdown-content.show {
+            display: block;
+        }
+        
+        .user-info {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .dropdown-item {
             display: flex;
-            gap: 2rem;
             align-items: center;
-        }
-        
-        nav a {
+            gap: 10px;
+            padding: 10px 15px;
             text-decoration: none;
             color: #333;
-            font-weight: 500;
         }
         
-        nav a:hover {
+        .dropdown-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: #eee;
+            margin: 5px 0;
+        }
+        
+        .logout-btn {
             color: #cc624e;
         }
     </style>
@@ -161,7 +212,43 @@ function generatePixCode($valor, $pedido_id) {
     <nav>
         <a href="../index.php">Início</a>
         <a href="./produto.php">Obras</a>
-        <a href="./carrinho.php">Carrinho</a>
+        <a href="./sobre.php">Sobre</a>
+        <a href="./artistas.php">Artistas</a>
+        <a href="./contato.php">Contato</a>
+        <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+        
+        <div class="profile-dropdown">
+            <a href="#" class="icon-link" id="profile-icon"><i class="fas fa-user"></i></a>
+            <div class="dropdown-content" id="profile-dropdown">
+                <?php if ($usuarioLogado): ?>
+                    <div class="user-info">
+                        <p>Seja bem-vindo, 
+                            <span id="user-name">
+                                <?php 
+                                if (is_array($usuarioLogado)) {
+                                    echo htmlspecialchars($usuarioLogado['nome'] ?? $usuarioLogado['nome_artistico'] ?? 'Usuário');
+                                } else {
+                                    echo htmlspecialchars($usuarioLogado);
+                                }
+                                ?>
+                            </span>!
+                        </p>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+                <?php else: ?>
+                    <div class="user-info">
+                        <p>Faça login para acessar seu perfil</p>
+                    </div>
+                    
+                    <div class="dropdown-divider"></div>
+                    <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+                    <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+                <?php endif; ?>
+            </div>
+        </div>
     </nav>
 </header>
 
@@ -171,16 +258,15 @@ function generatePixCode($valor, $pedido_id) {
     <div class="status-pedido">
         <h3>Pedido: <?php echo htmlspecialchars($pedido_id); ?></h3>
         <p>Status: <strong>Aguardando pagamento</strong></p>
+        <p>Cliente: <strong><?php echo htmlspecialchars($nome_cliente); ?></strong></p>
         <p>Valor: <strong>R$ <?php echo number_format($valor_total, 2, ',', '.'); ?></strong></p>
     </div>
 
     <div class="qrcode-container">
         <h3>Escaneie o QR Code</h3>
         <div class="qrcode">
-            <!-- QR Code simulado -->
-            <div style="width: 200px; height: 200px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                <i class="fas fa-qrcode" style="font-size: 4rem; color: #666;"></i>
-            </div>
+            <!-- QR Code real gerado via API -->
+            <img src="<?php echo $qr_code_url; ?>" alt="QR Code PIX">
         </div>
         
         <p>Ou use o código PIX:</p>
@@ -216,6 +302,16 @@ function generatePixCode($valor, $pedido_id) {
     </div>
 </main>
 
+<!-- RODAPÉ -->
+<footer>
+    <p>&copy; 2025 Verseal. Todos os direitos reservados.</p>
+    <div class="social">
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#"><i class="fab fa-whatsapp"></i></a>
+    </div>
+</footer>
+
 <script>
 function copiarCodigoPix() {
     const codigo = document.getElementById('codigo-pix').textContent;
@@ -246,6 +342,24 @@ setTimeout(() => {
         location.reload();
     }
 }, 30000);
+
+// Dropdown do perfil
+const profileIcon = document.getElementById("profile-icon");
+const profileDropdown = document.getElementById("profile-dropdown");
+
+if (profileIcon && profileDropdown) {
+    profileIcon.addEventListener("click", (e) => {
+        e.preventDefault();
+        profileDropdown.classList.toggle("show");
+    });
+
+    // Fechar dropdown ao clicar fora
+    document.addEventListener("click", (e) => {
+        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
+            profileDropdown.classList.remove("show");
+        }
+    });
+}
 </script>
 
 </body>
