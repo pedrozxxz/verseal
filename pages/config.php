@@ -66,4 +66,25 @@ function getImagemComTimestamp($caminho_imagem) {
     
     return $caminho_completo;
 }
+
+// ========== VERIFICAÇÃO DO USUÁRIO LOGADO ==========
+// Verificar se usuário está logado (cliente ou artista)
+$usuarioLogado = null;
+$tipoUsuario = null;
+
+// Verifica se há sessão de artista
+if (isArtista()) {
+    $usuarioLogado = $_SESSION["artistas"];
+    $tipoUsuario = "artista";
+}
+// Verifica se há sessão de usuário comum
+elseif (isUsuario()) {
+    // Se for string, converter para array
+    if (is_string($_SESSION["usuario"])) {
+        $usuarioLogado = ['nome' => $_SESSION["usuario"]];
+    } else {
+        $usuarioLogado = $_SESSION["usuario"];
+    }
+    $tipoUsuario = "usuario";
+}
 ?>
