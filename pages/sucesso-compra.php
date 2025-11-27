@@ -1,13 +1,12 @@
 <?php
 session_start();
 
-// Habilitar exibição de erros para debug
+// Habilitar exibição de erros
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Verificar se há um pedido na sessão
 if (!isset($_SESSION['ultimo_pedido'])) {
-    // Se não há pedido, redirecionar para a página inicial
     header('Location: ../index.php');
     exit;
 }
@@ -15,7 +14,7 @@ if (!isset($_SESSION['ultimo_pedido'])) {
 $pedido = $_SESSION['ultimo_pedido'];
 $usuarioLogado = null;
 
-// Verificar sessão do usuário de forma mais abrangente
+// Verificar sessão do usuário
 if (isset($_SESSION["clientes"])) {
     $usuarioLogado = $_SESSION["clientes"];
     $tipoUsuario = "cliente";
@@ -26,6 +25,11 @@ if (isset($_SESSION["clientes"])) {
     $usuarioLogado = $_SESSION["usuario"];
     $tipoUsuario = "usuario";
 }
+
+// Limpar dados temporários após exibição
+$pedido_exibido = $pedido;
+unset($_SESSION['dados_pedido']);
+// Não limpar ultimo_pedido para poder mostrar na página
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">

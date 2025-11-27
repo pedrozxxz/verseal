@@ -586,6 +586,46 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
             }, 3000);
         }
 
+        // Validação do formulário
+document.getElementById('form-checkout').addEventListener('submit', function(e) {
+    const meioPagamento = document.getElementById('meio-pagamento').value;
+    
+    if (meioPagamento === 'cartao') {
+        const camposCartao = [
+            document.querySelector('input[name="numero_cartao"]'),
+            document.querySelector('input[name="nome_cartao"]'),
+            document.querySelector('input[name="validade"]'),
+            document.querySelector('input[name="cvv"]')
+        ];
+        
+        let camposVazios = [];
+        
+        camposCartao.forEach(campo => {
+            if (!campo.value.trim()) {
+                camposVazios.push(campo.name);
+                campo.style.borderColor = '#dc3545';
+            } else {
+                campo.style.borderColor = '';
+            }
+        });
+        
+        if (camposVazios.length > 0) {
+            e.preventDefault();
+            alert('Preencha todos os dados do cartão de crédito antes de finalizar a compra.');
+            return false;
+        }
+        
+        // Validação básica do número do cartão
+        const numeroCartao = document.querySelector('input[name="numero_cartao"]').value.replace(/\s/g, '');
+        if (numeroCartao.length < 13) {
+            e.preventDefault();
+            alert('Número do cartão inválido. Verifique os dados.');
+            return false;
+        }
+    }
+    
+    return true;
+});
         // REMOVA COMPLETAMENTE qualquer validação do formulário
         // Não há event listener para o submit - o formulário envia normalmente
     </script>
