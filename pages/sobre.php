@@ -1,6 +1,11 @@
 <?php
 session_start();
 
+// 🔹 INICIALIZAR SISTEMA DE NOTIFICAÇÕES
+if (!isset($_SESSION['carrinho_notificacoes'])) {
+    $_SESSION['carrinho_notificacoes'] = [];
+}
+
 // Verificar se usuário está logado (cliente ou artista)
 $usuarioLogado = null;
 $tipoUsuario = null;
@@ -96,6 +101,49 @@ elseif (isset($_SESSION["artistas"])) {
     .logout-btn:hover {
       background: #f8d7da;
     }
+
+    /* 🔹 SISTEMA DE NOTIFICAÇÕES - IGUAL ÀS OUTRAS PÁGINAS */
+    .notificacao-carrinho {
+        position: relative;
+        display: inline-block;
+    }
+
+    .carrinho-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        min-width: 18px;
+        height: 18px;
+        text-align: center;
+        line-height: 1;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .badge-bounce {
+        animation: bounce 0.5s ease;
+    }
+
+    @keyframes bounce {
+        0%, 20%, 60%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        80% { transform: translateY(-5px); }
+    }
   </style>
 </head>
 <body>
@@ -108,7 +156,20 @@ elseif (isset($_SESSION["artistas"])) {
     <a href="./artistas.php">Artistas</a>
     <a href="./contato.php">Contato</a>
     
-    <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+    <!-- 🔹 ÍCONE DO CARRINHO COM NOTIFICAÇÃO -->
+    <div class="notificacao-carrinho">
+        <a href="./carrinho.php" class="icon-link">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="carrinho-badge" id="carrinhoBadge">
+                <?php 
+                $total_notificacoes = count($_SESSION['carrinho_notificacoes']);
+                if ($total_notificacoes > 0) {
+                    echo $total_notificacoes;
+                }
+                ?>
+            </span>
+        </a>
+    </div>
     
     <!-- Dropdown Perfil CORRIGIDO -->
     <div class="profile-dropdown">
@@ -259,6 +320,34 @@ elseif (isset($_SESSION["artistas"])) {
 </footer>
 
 <script>
+  // 🔹 SISTEMA DE NOTIFICAÇÕES - IGUAL ÀS OUTRAS PÁGINAS
+  function atualizarBadgeCarrinho() {
+      const badge = document.getElementById('carrinhoBadge');
+      const totalNotificacoes = <?php echo count($_SESSION['carrinho_notificacoes']); ?>;
+      
+      if (totalNotificacoes > 0) {
+          badge.textContent = totalNotificacoes;
+          badge.style.display = 'flex';
+      } else {
+          badge.style.display = 'none';
+      }
+  }
+
+  function incrementarBadgeCarrinho() {
+      const badge = document.getElementById('carrinhoBadge');
+      let currentCount = parseInt(badge.textContent) || 0;
+      currentCount++;
+      
+      badge.textContent = currentCount;
+      badge.style.display = 'flex';
+      
+      // Animação de destaque
+      badge.classList.add('badge-bounce');
+      setTimeout(() => {
+          badge.classList.remove('badge-bounce');
+      }, 500);
+  }
+
   // Dropdown do perfil CORRIGIDO
   document.addEventListener('DOMContentLoaded', function () {
     const profileIcon = document.getElementById('profile-icon');
@@ -283,6 +372,9 @@ elseif (isset($_SESSION["artistas"])) {
         e.stopPropagation();
       });
     }
+
+    // Atualizar badge quando a página carregar
+    atualizarBadgeCarrinho();
   });
 
   // Fade-in on scroll

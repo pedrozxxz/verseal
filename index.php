@@ -29,7 +29,6 @@ elseif (isset($_SESSION["artistas"])) {
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    
     .fade-in {
       opacity: 0;
       transform: translateY(40px);
@@ -39,7 +38,50 @@ elseif (isset($_SESSION["artistas"])) {
       opacity: 1;
       transform: translateY(0);
     }
-  </style>
+
+    /* 🔹 SISTEMA DE NOTIFICAÇÕES - IGUAL À PÁGINA DE PRODUTO */
+    .notificacao-carrinho {
+        position: relative;
+        display: inline-block;
+    }
+
+    .carrinho-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        min-width: 18px;
+        height: 18px;
+        text-align: center;
+        line-height: 1;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .badge-bounce {
+        animation: bounce 0.5s ease;
+    }
+
+    @keyframes bounce {
+        0%, 20%, 60%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        80% { transform: translateY(-5px); }
+    }
+</style>
 </head>
 
 <body>
@@ -222,6 +264,40 @@ elseif (isset($_SESSION["artistas"])) {
     });
   </script>
 
+<script>
+    // 🔹 SISTEMA DE NOTIFICAÇÕES - IGUAL À PÁGINA DE PRODUTO
+    function atualizarBadgeCarrinho() {
+        const badge = document.getElementById('carrinhoBadge');
+        const totalNotificacoes = <?php echo count($_SESSION['carrinho_notificacoes']); ?>;
+        
+        if (totalNotificacoes > 0) {
+            badge.textContent = totalNotificacoes;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    function incrementarBadgeCarrinho() {
+        const badge = document.getElementById('carrinhoBadge');
+        let currentCount = parseInt(badge.textContent) || 0;
+        currentCount++;
+        
+        badge.textContent = currentCount;
+        badge.style.display = 'flex';
+        
+        // Animação de destaque
+        badge.classList.add('badge-bounce');
+        setTimeout(() => {
+            badge.classList.remove('badge-bounce');
+        }, 500);
+    }
+
+    // Atualizar badge quando a página carregar
+    document.addEventListener('DOMContentLoaded', function() {
+        atualizarBadgeCarrinho();
+    });
+</script>
 
 <script>
   // Animação ao rolar a página

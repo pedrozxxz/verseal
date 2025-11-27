@@ -1,6 +1,11 @@
 <?php
 session_start();
 
+// 🔹 INICIALIZAR SISTEMA DE NOTIFICAÇÕES
+if (!isset($_SESSION['carrinho_notificacoes'])) {
+    $_SESSION['carrinho_notificacoes'] = [];
+}
+
 // Conexão com o banco
 $host = "localhost";
 $user = "root";
@@ -239,6 +244,49 @@ $conn->close();
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(204, 98, 78, 0.3);
     }
+
+    /* 🔹 SISTEMA DE NOTIFICAÇÕES - IGUAL ÀS OUTRAS PÁGINAS */
+    .notificacao-carrinho {
+        position: relative;
+        display: inline-block;
+    }
+
+    .carrinho-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        min-width: 18px;
+        height: 18px;
+        text-align: center;
+        line-height: 1;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .badge-bounce {
+        animation: bounce 0.5s ease;
+    }
+
+    @keyframes bounce {
+        0%, 20%, 60%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        80% { transform: translateY(-5px); }
+    }
   </style>
 </head>
 
@@ -253,7 +301,20 @@ $conn->close();
       <a href="./artistas.php">Artistas</a>
       <a href="./contato.php">Contato</a>
 
-      <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+      <!-- 🔹 ÍCONE DO CARRINHO COM NOTIFICAÇÃO -->
+      <div class="notificacao-carrinho">
+          <a href="./carrinho.php" class="icon-link">
+              <i class="fas fa-shopping-cart"></i>
+              <span class="carrinho-badge" id="carrinhoBadge">
+                  <?php 
+                  $total_notificacoes = count($_SESSION['carrinho_notificacoes']);
+                  if ($total_notificacoes > 0) {
+                      echo $total_notificacoes;
+                  }
+                  ?>
+              </span>
+          </a>
+      </div>
 
       <!-- Dropdown Perfil -->
       <div class="profile-dropdown">
@@ -462,6 +523,34 @@ $conn->close();
   </footer>
 
   <script>
+    // 🔹 SISTEMA DE NOTIFICAÇÕES - IGUAL ÀS OUTRAS PÁGINAS
+    function atualizarBadgeCarrinho() {
+        const badge = document.getElementById('carrinhoBadge');
+        const totalNotificacoes = <?php echo count($_SESSION['carrinho_notificacoes']); ?>;
+        
+        if (totalNotificacoes > 0) {
+            badge.textContent = totalNotificacoes;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    function incrementarBadgeCarrinho() {
+        const badge = document.getElementById('carrinhoBadge');
+        let currentCount = parseInt(badge.textContent) || 0;
+        currentCount++;
+        
+        badge.textContent = currentCount;
+        badge.style.display = 'flex';
+        
+        // Animação de destaque
+        badge.classList.add('badge-bounce');
+        setTimeout(() => {
+            badge.classList.remove('badge-bounce');
+        }, 500);
+    }
+
     // Dropdown do perfil
     document.addEventListener('DOMContentLoaded', function () {
       const profileIcon = document.getElementById('profile-icon');
@@ -486,6 +575,9 @@ $conn->close();
           e.stopPropagation();
         });
       }
+
+      // Atualizar badge quando a página carregar
+      atualizarBadgeCarrinho();
     });
 
     // Funções do Modal de Mensagem
@@ -531,76 +623,76 @@ $conn->close();
     });
 
     // Envio do formulário - VERSÃO COM DEBUG
-document.getElementById('formMensagem').addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  const formData = new FormData(this);
-  const btnEnviar = this.querySelector('.btn-enviar');
-  
-  console.log('=== INICIANDO ENVIO ===');
-  console.log('Dados do formulário:');
-  for (let pair of formData.entries()) {
-    console.log(pair[0] + ': ' + pair[1]);
-  }
-  
-  // Desabilitar botão
-  btnEnviar.disabled = true;
-  btnEnviar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-  
-  console.log('Fazendo fetch para enviar_mensagem.php...');
-  
-  fetch('mensagem-para-artista.php', {
-    method: 'POST',
-    body: formData
-  })
-  .then(response => {
-    console.log('Status da resposta:', response.status);
-    console.log('OK?', response.ok);
-    return response.text().then(text => {
-      console.log('Resposta bruta:', text);
-      try {
-        return JSON.parse(text);
-      } catch (e) {
-        console.error('Erro ao parsear JSON:', e);
-        throw new Error('Resposta não é JSON: ' + text);
+    document.getElementById('formMensagem').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const btnEnviar = this.querySelector('.btn-enviar');
+      
+      console.log('=== INICIANDO ENVIO ===');
+      console.log('Dados do formulário:');
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
       }
-    });
-  })
-  .then(data => {
-    console.log('Resposta parseada:', data);
-    if (data.success) {
-      Swal.fire({
-        title: 'Sucesso!',
-        text: data.message,
-        icon: 'success',
-        confirmButtonColor: '#cc624e'
-      }).then(() => {
-        fecharModalMensagem();
+      
+      // Desabilitar botão
+      btnEnviar.disabled = true;
+      btnEnviar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+      
+      console.log('Fazendo fetch para enviar_mensagem.php...');
+      
+      fetch('mensagem-para-artista.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        console.log('Status da resposta:', response.status);
+        console.log('OK?', response.ok);
+        return response.text().then(text => {
+          console.log('Resposta bruta:', text);
+          try {
+            return JSON.parse(text);
+          } catch (e) {
+            console.error('Erro ao parsear JSON:', e);
+            throw new Error('Resposta não é JSON: ' + text);
+          }
+        });
+      })
+      .then(data => {
+        console.log('Resposta parseada:', data);
+        if (data.success) {
+          Swal.fire({
+            title: 'Sucesso!',
+            text: data.message,
+            icon: 'success',
+            confirmButtonColor: '#cc624e'
+          }).then(() => {
+            fecharModalMensagem();
+          });
+        } else {
+          Swal.fire({
+            title: 'Erro!',
+            text: data.message,
+            icon: 'error',
+            confirmButtonColor: '#cc624e'
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Erro completo:', error);
+        Swal.fire({
+          title: 'Erro de Conexão!',
+          html: 'Erro ao enviar mensagem:<br>' + error.message,
+          icon: 'error',
+          confirmButtonColor: '#cc624e'
+        });
+      })
+      .finally(() => {
+        // Reabilitar botão
+        btnEnviar.disabled = false;
+        btnEnviar.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Mensagem';
       });
-    } else {
-      Swal.fire({
-        title: 'Erro!',
-        text: data.message,
-        icon: 'error',
-        confirmButtonColor: '#cc624e'
-      });
-    }
-  })
-  .catch(error => {
-    console.error('Erro completo:', error);
-    Swal.fire({
-      title: 'Erro de Conexão!',
-      html: 'Erro ao enviar mensagem:<br>' + error.message,
-      icon: 'error',
-      confirmButtonColor: '#cc624e'
     });
-  })
-  .finally(() => {
-    // Reabilitar botão
-    btnEnviar.disabled = false;
-    btnEnviar.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Mensagem';
-  });
-});
   </script>
 </body>
 </html>
