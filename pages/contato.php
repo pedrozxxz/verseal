@@ -319,20 +319,23 @@ $conn->close();
 
       <?php if ($tipoUsuario === "cliente"): ?>
         <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
+      <?php elseif ($tipoUsuario === "artista"): ?>
+        <a href="./artistahome.php" class="dropdown-item"><i class="fas fa-palette"></i> Meu Perfil</a>
       <?php endif; ?>
 
       <div class="dropdown-divider"></div>
-      <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+      <a href="logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
 
     <?php else: ?>
-            <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
-            <div class="dropdown-divider"></div>
-            <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-            <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
-          <?php endif; ?>
-        </div>
+      <div class="user-info">
+        <p>Faça login para acessar seu perfil</p>
       </div>
-
+      <div class="dropdown-divider"></div>
+      <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+      <a href="./cadastro.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+    <?php endif; ?>
+  </div>
+</div>
     </nav>
   </header>
 

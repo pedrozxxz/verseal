@@ -6,8 +6,8 @@ if (!isset($_SESSION['carrinho_notificacoes'])) {
     $_SESSION['carrinho_notificacoes'] = [];
 }
 
-// Verificar se o usuário está logado - CORREÇÃO AQUI
-if (!isset($_SESSION["usuario"])) {
+// **CORREÇÃO: Verificar se o usuário está logado (cliente)**
+if (!isset($_SESSION["clientes"])) {
     header("Location: login.php");
     exit();
 }
@@ -23,39 +23,24 @@ if ($conn->connect_error) {
     die("Falha na conexão: " . $conn->connect_error);
 }
 
-// CORREÇÃO: Verificar se $_SESSION["usuario"] é array ou string
-if (is_array($_SESSION["usuario"])) {
-    $usuario_nome = $_SESSION["usuario"]['nome'];
-    $usuario_id = $_SESSION["usuario"]['id'] ?? null;
-} else {
-    // Se for string, usar como nome
-    $usuario_nome = $_SESSION["usuario"];
-    $usuario_id = null;
-}
+// **CORREÇÃO: Usar a sessão de clientes corretamente**
+$usuarioLogado = $_SESSION["clientes"];
+$usuario_id = $usuarioLogado['id'];
+$usuario_nome = $usuarioLogado['nome'];
 
-// Buscar dados do usuário - CORREÇÃO AQUI
-$sql = "SELECT * FROM usuarios WHERE nome = ?";
+// Buscar dados do usuário da tabela clientes
+$sql = "SELECT * FROM clientes WHERE id = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $usuario_nome);
+$stmt->bind_param("i", $usuario_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $usuario = $result->fetch_assoc();
 
-// Se não encontrou pelo nome e temos ID, tentar pelo ID
-if (!$usuario && $usuario_id) {
+// Se não encontrou na tabela clientes, tentar na tabela usuarios
+if (!$usuario) {
     $sql = "SELECT * FROM usuarios WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $usuario_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $usuario = $result->fetch_assoc();
-}
-
-// Se ainda não encontrou, tentar buscar o primeiro usuário com esse nome
-if (!$usuario) {
-    $sql = "SELECT * FROM usuarios WHERE nome = ? LIMIT 1";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $usuario_nome);
     $stmt->execute();
     $result = $stmt->get_result();
     $usuario = $result->fetch_assoc();
@@ -67,7 +52,6 @@ if (!$usuario) {
     header("Location: login.php");
     exit();
 }
-
 
 // Processar atualização do perfil
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["atualizar_perfil"])) {
@@ -155,22 +139,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["atualizar_perfil"])) {
         $update_values[] = $usuario['id'];
         $update_types .= "i";
         
-        $sql_update = "UPDATE usuarios SET " . implode(", ", $update_fields) . " WHERE id = ?";
-        $stmt_update = $conn->prepare($sql_update);
-        $stmt_update->bind_param($update_types, ...$update_values);
-        
-        if ($stmt_update->execute()) {
-            $_SESSION["usuario"] = $nome;
-            $success_message = "Perfil atualizado com sucesso!";
-            // Atualizar dados locais
-            $usuario['nome'] = $nome;
-            $usuario['email'] = $email;
-            $usuario['telefone'] = $telefone;
-            $usuario['endereco'] = $endereco;
-            $usuario['foto_perfil'] = $foto_perfil;
-        } else {
-            $error_message = "Erro ao atualizar perfil: " . $conn->error;
-        }
+        $sql_update = "UPDATE clientes SET " . implode(", ", $update_fields) . " WHERE id = ?";
+$stmt_update = $conn->prepare($sql_update);
+$stmt_update->bind_param($update_types, ...$update_values);
+
+if ($stmt_update->execute()) {
+    $_SESSION["clientes"]['nome'] = $nome;
+    $success_message = "Perfil atualizado com sucesso!";
+    // Atualizar dados locais
+    $usuario['nome'] = $nome;
+    $usuario['email'] = $email;
+    $usuario['telefone'] = $telefone;
+    $usuario['endereco'] = $endereco;
+    $usuario['foto_perfil'] = $foto_perfil;
+} else {
+    // Se falhar na tabela clientes, tentar na tabela usuarios
+    $sql_update = "UPDATE usuarios SET " . implode(", ", $update_fields) . " WHERE id = ?";
+    $stmt_update = $conn->prepare($sql_update);
+    $stmt_update->bind_param($update_types, ...$update_values);
+    
+    if ($stmt_update->execute()) {
+        $_SESSION["clientes"]['nome'] = $nome;
+        $success_message = "Perfil atualizado com sucesso!";
+        // Atualizar dados locais
+        $usuario['nome'] = $nome;
+        $usuario['email'] = $email;
+        $usuario['telefone'] = $telefone;
+        $usuario['endereco'] = $endereco;
+        $usuario['foto_perfil'] = $foto_perfil;
+    } else {
+        $error_message = "Erro ao atualizar perfil: " . $conn->error;
     }
 }
 
@@ -353,15 +351,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"])) {
         </a>
     </div>
     
-    <div class="profile-dropdown">
-  <a href="perfil.php" class="icon-link" id="profile-icon">
+  <div class="profile-dropdown">
+  <a href="#" class="icon-link" id="profile-icon">
     <i class="fas fa-user"></i>
   </a>
-  </a>
   <div class="dropdown-content" id="profile-dropdown">
-    <?php if (isset($usuario) && !empty($usuario['nome'])): ?>
+    <?php if (isset($usuarioLogado)): ?>
       <div class="user-info">
-        <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuario['nome']); ?></span>!</p>
+        <p>Seja bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado['nome']); ?></span>!</p>
       </div>
       <div class="dropdown-divider"></div>
       <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
@@ -371,7 +368,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"])) {
       <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
       <div class="dropdown-divider"></div>
       <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-      <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+      <a href="./cadastro.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
     <?php endif; ?>
   </div>
 </div>
@@ -392,7 +389,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"])) {
                 <div class="info-usuario">
                     <div class="avatar">
                         <?php if (!empty($usuario['foto_perfil'])): ?>
-                            <img src="../uploads/usuarios/<?php echo htmlspecialchars($usuario['foto_perfil']); ?>" alt="Foto de perfil" id="avatar-img">
+<img src="../uploads/usuarios/<?php echo htmlspecialchars($usuario['foto_perfil']); ?>" alt="Foto de perfil" id="avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <?php else: ?>
                             <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #e07b67, #cc624e); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
                                 <i class="fas fa-user"></i>

@@ -5,15 +5,20 @@ session_start();
 $usuarioLogado = null;
 $tipoUsuario = null;
 
-// Verifica se há sessão de cliente (corrigido para "clientes" no plural)
-if (isset($_SESSION["clientes"])) {
+// Verifica se há sessão de cliente
+if (isset($_SESSION["clientes"]) && is_array($_SESSION["clientes"])) {
     $usuarioLogado = $_SESSION["clientes"];
     $tipoUsuario = "cliente";
 }
-// Verifica se há sessão de artista (corrigido para "artistas" no plural)
-elseif (isset($_SESSION["artistas"])) {
+// Verifica se há sessão de artista
+elseif (isset($_SESSION["artistas"]) && is_array($_SESSION["artistas"])) {
     $usuarioLogado = $_SESSION["artistas"];
     $tipoUsuario = "artista";
+}
+
+// Inicializar carrinho de notificações se não existir
+if (!isset($_SESSION['carrinho_notificacoes'])) {
+    $_SESSION['carrinho_notificacoes'] = [];
 }
 ?>
 <!DOCTYPE html>
@@ -39,7 +44,7 @@ elseif (isset($_SESSION["artistas"])) {
       transform: translateY(0);
     }
 
-    /* 🔹 SISTEMA DE NOTIFICAÇÕES - IGUAL À PÁGINA DE PRODUTO */
+    /* 🔹 SISTEMA DE NOTIFICAÇÕES */
     .notificacao-carrinho {
         position: relative;
         display: inline-block;
@@ -81,76 +86,146 @@ elseif (isset($_SESSION["artistas"])) {
         40% { transform: translateY(-10px); }
         80% { transform: translateY(-5px); }
     }
-</style>
+
+    /* Dropdown styles */
+    .profile-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background: white;
+      min-width: 220px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      z-index: 1000;
+      padding: 10px 0;
+    }
+
+    .dropdown-content.show {
+      display: block;
+    }
+
+    .user-info {
+      padding: 10px 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .user-info p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #333;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 15px;
+      text-decoration: none;
+      color: #333;
+      transition: background 0.3s;
+    }
+
+    .dropdown-item:hover {
+      background: #f8f9fa;
+    }
+
+    .dropdown-item i {
+      margin-right: 10px;
+      width: 16px;
+      text-align: center;
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: #eee;
+      margin: 5px 0;
+    }
+
+    .logout-btn {
+      color: #dc3545;
+    }
+
+    .logout-btn:hover {
+      background: #f8d7da;
+    }
+  </style>
 </head>
 
 <body>
 
   <!-- HEADER -->
-   <header>
-  <div class="logo">Verseal</div>
-  <nav>
-    <a href="#">Início</a>
-    <a href="pages/produto.php">Obras</a>
-    <a href="pages/sobre.php">Sobre</a>
-    <a href="pages/artistas.php">Artistas</a>
-    <a href="pages/contato.php">Contato</a>
-    
-    <!-- 🔹 ÍCONE DO CARRINHO COM NOTIFICAÇÃO -->
-    <div class="notificacao-carrinho">
-        <a href="pages/carrinho.php" class="icon-link">
-            <i class="fas fa-shopping-cart"></i>
-            <span class="carrinho-badge" id="carrinhoBadge">
-                <?php 
-                $total_notificacoes = count($_SESSION['carrinho_notificacoes']);
-                if ($total_notificacoes > 0) {
-                    echo $total_notificacoes;
-                }
-                ?>
-            </span>
+  <header>
+    <div class="logo">Verseal</div>
+    <nav>
+      <a href="#">Início</a>
+      <a href="pages/produto.php">Obras</a>
+      <a href="pages/sobre.php">Sobre</a>
+      <a href="pages/artistas.php">Artistas</a>
+      <a href="pages/contato.php">Contato</a>
+      
+      <!-- 🔹 ÍCONE DO CARRINHO COM NOTIFICAÇÃO -->
+      <div class="notificacao-carrinho">
+          <a href="pages/carrinho.php" class="icon-link">
+              <i class="fas fa-shopping-cart"></i>
+              <span class="carrinho-badge" id="carrinhoBadge">
+                  <?php 
+                  $total_notificacoes = count($_SESSION['carrinho_notificacoes']);
+                  if ($total_notificacoes > 0) {
+                      echo $total_notificacoes;
+                  }
+                  ?>
+              </span>
+          </a>
+      </div>
+      
+      <!-- Dropdown Perfil CORRIGIDO -->
+      <div class="profile-dropdown">
+        <a href="#" class="icon-link" id="profile-icon">
+          <i class="fas fa-user"></i>
         </a>
-    </div>
-    
-   <!-- Dropdown Perfil -->
-<div class="profile-dropdown">
-  <a href="#" class="icon-link" id="profile-icon">
-    <i class="fas fa-user"></i>
-  </a>
-  <div class="dropdown-content" id="profile-dropdown">
-    <?php if ($usuarioLogado): ?>
-      <div class="user-info">
-        <p>
-          Seja bem-vindo, 
-          <span id="user-name">
-            <?php 
-            if ($tipoUsuario === "cliente") {
-              echo htmlspecialchars($usuarioLogado['nome']);
-            } elseif ($tipoUsuario === "artista") {
-              echo htmlspecialchars($usuarioLogado['nome_artistico']);
-            }
-            ?>
-          </span>!
-        </p>
+        <div class="dropdown-content" id="profile-dropdown">
+          <?php if ($usuarioLogado): ?>
+            <div class="user-info">
+              <p>
+                Seja bem-vindo, 
+                <span id="user-name">
+                  <?php 
+                  if ($tipoUsuario === "cliente") {
+                    echo htmlspecialchars($usuarioLogado['nome']);
+                  } elseif ($tipoUsuario === "artista") {
+                    echo htmlspecialchars($usuarioLogado['nome_artistico']);
+                  }
+                  ?>
+                </span>!
+              </p>
+            </div>
+            <div class="dropdown-divider"></div>
+
+            <?php if ($tipoUsuario === "cliente"): ?>
+              <a href="pages/perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
+            <?php elseif ($tipoUsuario === "artista"): ?>
+              <a href="pages/artistahome.php" class="dropdown-item"><i class="fas fa-palette"></i> Meu Perfil</a>
+            <?php endif; ?>
+
+            <div class="dropdown-divider"></div>
+            <a href="logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+
+          <?php else: ?>
+            <div class="user-info">
+              <p>Faça login para acessar seu perfil</p>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a href="pages/login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+            <a href="pages/cadastro.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+          <?php endif; ?>
+        </div>
       </div>
-      <div class="dropdown-divider"></div>
-
-      <?php if ($tipoUsuario === "cliente"): ?>
-        <a href="pages/perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
-      <?php endif; ?>
-
-      <div class="dropdown-divider"></div>
-      <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
-
-    <?php else: ?>
-          <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
-          <div class="dropdown-divider"></div>
-          <a href="pages/login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-          <a href="pages/login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
-        <?php endif; ?>
-      </div>
-    </div>
-  </nav>
-</header>
+    </nav>
+  </header>
 
   <!-- HERO -->
   <section class="hero">
@@ -187,6 +262,7 @@ elseif (isset($_SESSION["artistas"])) {
       </div>
     </div>
   </section>
+
   <!-- RODAPÉ -->
   <footer>
     <p>&copy; 2025 Verseal. Todos os direitos reservados.</p>
@@ -217,55 +293,35 @@ elseif (isset($_SESSION["artistas"])) {
       zoom: 1
     });
 
-    // Dropdown do perfil
+    // Dropdown do perfil CORRIGIDO
     document.addEventListener('DOMContentLoaded', function () {
       const profileIcon = document.getElementById('profile-icon');
       const profileDropdown = document.getElementById('profile-dropdown');
+      
+      if (profileIcon && profileDropdown) {
+        profileIcon.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          profileDropdown.classList.toggle('show');
+        });
 
-      profileIcon.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
-      });
-
-      // Fechar dropdown ao clicar fora
-      document.addEventListener('click', function (e) {
-        if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
-          profileDropdown.style.display = 'none';
-        }
-      });
-
-      // Prevenir fechamento ao clicar dentro do dropdown
-      profileDropdown.addEventListener('click', function (e) {
-        e.stopPropagation();
-      });
-
-      // Menu Hamburguer Desktop
-      const menuToggleDesktop = document.getElementById('menu-toggle-desktop');
-      const menuContentDesktop = document.querySelector('.menu-content-desktop');
-
-      // Fechar menu ao clicar fora
-      document.addEventListener('click', function(e) {
-        if (!e.target.closest('.hamburger-menu-desktop')) {
-          menuToggleDesktop.checked = false;
-        }
-      });
-
-      // Fechar menu ao clicar em um item (exceto Cliente)
-      const menuItems = document.querySelectorAll('.menu-item');
-      menuItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-          // Não fecha o menu se for o item Cliente
-          if (!this.querySelector('i').classList.contains('fa-user')) {
-            menuToggleDesktop.checked = false;
+        // Fechar dropdown ao clicar fora
+        document.addEventListener('click', function (e) {
+          if (!profileIcon.contains(e.target) && !profileDropdown.contains(e.target)) {
+            profileDropdown.classList.remove('show');
           }
         });
-      });
+
+        // Prevenir fechamento ao clicar dentro do dropdown
+        profileDropdown.addEventListener('click', function (e) {
+          e.stopPropagation();
+        });
+      }
     });
   </script>
 
-<script>
-    // 🔹 SISTEMA DE NOTIFICAÇÕES - IGUAL À PÁGINA DE PRODUTO
+  <script>
+    // 🔹 SISTEMA DE NOTIFICAÇÕES
     function atualizarBadgeCarrinho() {
         const badge = document.getElementById('carrinhoBadge');
         const totalNotificacoes = <?php echo count($_SESSION['carrinho_notificacoes']); ?>;
@@ -297,24 +353,24 @@ elseif (isset($_SESSION["artistas"])) {
     document.addEventListener('DOMContentLoaded', function() {
         atualizarBadgeCarrinho();
     });
-</script>
+  </script>
 
-<script>
-  // Animação ao rolar a página
-  document.addEventListener('DOMContentLoaded', () => {
-    const elementos = document.querySelectorAll('.fade-in');
+  <script>
+    // Animação ao rolar a página
+    document.addEventListener('DOMContentLoaded', () => {
+      const elementos = document.querySelectorAll('.fade-in');
 
-    const observador = new IntersectionObserver((entradas) => {
-      entradas.forEach(entrada => {
-        if (entrada.isIntersecting) {
-          entrada.target.classList.add('show');
-          observador.unobserve(entrada.target);
-        }
-      });
-    }, { threshold: 0.2 });
+      const observador = new IntersectionObserver((entradas) => {
+        entradas.forEach(entrada => {
+          if (entrada.isIntersecting) {
+            entrada.target.classList.add('show');
+            observador.unobserve(entrada.target);
+          }
+        });
+      }, { threshold: 0.2 });
 
-    elementos.forEach(el => observador.observe(el));
-  });
-</script>
+      elementos.forEach(el => observador.observe(el));
+    });
+  </script>
 </body>
 </html>
