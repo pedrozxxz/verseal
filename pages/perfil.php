@@ -1,5 +1,11 @@
+pagina perfil
 <?php
 session_start();
+
+// 🔹 INICIALIZAR SISTEMA DE NOTIFICAÇÕES
+if (!isset($_SESSION['carrinho_notificacoes'])) {
+    $_SESSION['carrinho_notificacoes'] = [];
+}
 
 // Verificar se o usuário está logado - CORREÇÃO AQUI
 if (!isset($_SESSION["usuario"])) {
@@ -214,6 +220,114 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"])) {
   <link rel="stylesheet" href="../css/perfil.css">
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    /* 🔹 SISTEMA DE NOTIFICAÇÕES - IGUAL À PÁGINA SOBRE */
+    .notificacao-carrinho {
+        position: relative;
+        display: inline-block;
+    }
+
+    .carrinho-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        min-width: 18px;
+        height: 18px;
+        text-align: center;
+        line-height: 1;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .badge-bounce {
+        animation: bounce 0.5s ease;
+    }
+
+    @keyframes bounce {
+        0%, 20%, 60%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        80% { transform: translateY(-5px); }
+    }
+
+    /* 🔹 ESTILOS PARA PREVIEW DA FOTO */
+    .foto-preview {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+        border: 3px solid #e07b67;
+        transition: all 0.3s ease;
+        margin: 0 auto 15px;
+    }
+
+    .foto-preview:hover {
+        border-color: #cc624e;
+        transform: scale(1.05);
+    }
+
+    .foto-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .foto-preview .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .foto-preview:hover .overlay {
+        opacity: 1;
+    }
+
+    .btn-upload {
+        background: #e07b67;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .btn-upload:hover {
+        background: #cc624e;
+    }
+
+    .file-input {
+        display: none;
+    }
+</style>
 </head>
 <body>
 <header>
@@ -225,7 +339,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"])) {
     <a href="./artistas.php">Artistas</a>
     <a href="./contato.php">Contato</a>
     
-    <a href="./carrinho.php" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+    <!-- 🔹 ÍCONE DO CARRINHO COM NOTIFICAÇÃO -->
+    <div class="notificacao-carrinho">
+        <a href="./carrinho.php" class="icon-link">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="carrinho-badge" id="carrinhoBadge">
+                <?php 
+                $total_notificacoes = count($_SESSION['carrinho_notificacoes']);
+                if ($total_notificacoes > 0) {
+                    echo $total_notificacoes;
+                }
+                ?>
+            </span>
+        </a>
+    </div>
     
     <div class="profile-dropdown">
   <a href="perfil.php" class="icon-link" id="profile-icon">
@@ -266,13 +393,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"])) {
                 <div class="info-usuario">
                     <div class="avatar">
                         <?php if (!empty($usuario['foto_perfil'])): ?>
-                            <img src="../uploads/usuarios/<?php echo htmlspecialchars($usuario['foto_perfil']); ?>" alt="Foto de perfil">
+                            <img src="../uploads/usuarios/<?php echo htmlspecialchars($usuario['foto_perfil']); ?>" alt="Foto de perfil" id="avatar-img">
                         <?php else: ?>
-                            <i class="fas fa-user"></i>
+                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #e07b67, #cc624e); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                                <i class="fas fa-user"></i>
+                            </div>
                         <?php endif; ?>
                     </div>
-                    <h3><?php echo htmlspecialchars($usuario['nome']); ?>
-</h3>
+                    <h3 id="user-name-sidebar"><?php echo htmlspecialchars($usuario['nome']); ?></h3>
                     <p>Membro desde <?php echo date('m/Y', strtotime($usuario['data_cadastro'] ?? 'now')); ?></p>
                 </div>
 
@@ -293,7 +421,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"])) {
                             <?php if (!empty($usuario['foto_perfil'])): ?>
                                 <img src="../uploads/usuarios/<?php echo htmlspecialchars($usuario['foto_perfil']); ?>" alt="Foto de perfil" id="foto-preview-img">
                             <?php else: ?>
-                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #e07b67, #cc624e); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                                <div id="default-avatar" style="width: 100%; height: 100%; background: linear-gradient(135deg, #e07b67, #cc624e); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
                                     <i class="fas fa-user"></i>
                                 </div>
                             <?php endif; ?>
@@ -326,7 +454,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"])) {
                         </div>
                     <?php endif; ?>
 
-                    <form method="POST" action="" enctype="multipart/form-data">
+                    <form method="POST" action="" enctype="multipart/form-data" id="form-perfil">
                         <input type="file" id="foto_perfil" name="foto_perfil" class="file-input" accept="image/*" onchange="previewImage(this)">
                         
                         <div class="form-group">
@@ -410,69 +538,143 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"])) {
     </footer>
 
     <script>
-        // Adicionar máscara para telefone
-        document.getElementById('telefone')?.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length <= 11) {
-                value = value.replace(/(\d{2})(\d)/, '($1) $2');
-                value = value.replace(/(\d{5})(\d)/, '$1-$2');
-                e.target.value = value;
-            }
-        });
+// 🔹 SISTEMA DE NOTIFICAÇÕES - IGUAL À PÁGINA SOBRE
+function atualizarBadgeCarrinho() {
+    const badge = document.getElementById('carrinhoBadge');
+    const totalNotificacoes = <?php echo count($_SESSION['carrinho_notificacoes']); ?>;
+    
+    if (totalNotificacoes > 0) {
+        badge.textContent = totalNotificacoes;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
 
-        // Preview da imagem
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('foto-preview-img');
-                    if (preview) {
-                        preview.src = e.target.result;
-                    } else {
-                        // Criar imagem se não existir
-                        const fotoPreview = document.querySelector('.foto-preview');
-                        fotoPreview.innerHTML = `
-                            <img src="${e.target.result}" alt="Foto de perfil" id="foto-preview-img">
-                            <div class="overlay">
-                                <i class="fas fa-camera"></i>
-                            </div>
-                        `;
-                    }
+function incrementarBadgeCarrinho() {
+    const badge = document.getElementById('carrinhoBadge');
+    let currentCount = parseInt(badge.textContent) || 0;
+    currentCount++;
+    
+    badge.textContent = currentCount;
+    badge.style.display = 'flex';
+    
+    // Animação de destaque
+    badge.classList.add('badge-bounce');
+    setTimeout(() => {
+        badge.classList.remove('badge-bounce');
+    }, 500);
+}
+
+// Atualizar badge quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    atualizarBadgeCarrinho();
+});
+
+// 🔹 PREVIEW DA IMAGEM EM TEMPO REAL
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            // Atualizar preview na seção de foto
+            const previewImg = document.getElementById('foto-preview-img');
+            const defaultAvatar = document.getElementById('default-avatar');
+            
+            if (previewImg) {
+                previewImg.src = e.target.result;
+            } else {
+                // Se não existe a tag img, criar uma
+                if (defaultAvatar) {
+                    defaultAvatar.style.display = 'none';
                 }
-                reader.readAsDataURL(input.files[0]);
+                
+                const fotoPreview = document.querySelector('.foto-preview');
+                const newImg = document.createElement('img');
+                newImg.id = 'foto-preview-img';
+                newImg.src = e.target.result;
+                newImg.alt = 'Preview da foto';
+                newImg.style.width = '100%';
+                newImg.style.height = '100%';
+                newImg.style.objectFit = 'cover';
+                
+                fotoPreview.insertBefore(newImg, fotoPreview.firstChild);
+            }
+            
+            // Atualizar também o avatar no menu lateral
+            const avatarImg = document.getElementById('avatar-img');
+            if (avatarImg) {
+                avatarImg.src = e.target.result;
+            } else {
+                const avatarDiv = document.querySelector('.avatar');
+                const newAvatarImg = document.createElement('img');
+                newAvatarImg.id = 'avatar-img';
+                newAvatarImg.src = e.target.result;
+                newAvatarImg.alt = 'Foto de perfil';
+                newAvatarImg.style.width = '100%';
+                newAvatarImg.style.height = '100%';
+                newAvatarImg.style.objectFit = 'cover';
+                newAvatarImg.style.borderRadius = '50%';
+                
+                // Remover conteúdo atual do avatar
+                while (avatarDiv.firstChild) {
+                    avatarDiv.removeChild(avatarDiv.firstChild);
+                }
+                avatarDiv.appendChild(newAvatarImg);
             }
         }
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 
-        // Validar tamanho do arquivo
-        document.getElementById('foto_perfil')?.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file && file.size > 2 * 1024 * 1024) { // 2MB
-                alert('O arquivo é muito grande. Por favor, selecione uma imagem menor que 2MB.');
-                e.target.value = '';
+// 🔹 VALIDAÇÃO DO TAMANHO DO ARQUIVO
+document.getElementById('foto_perfil').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const fileSize = file.size / 1024 / 1024; // Tamanho em MB
+        if (fileSize > 2) {
+            alert('O arquivo é muito grande. Por favor, selecione uma imagem de até 2MB.');
+            this.value = ''; // Limpa o input
+            return false;
+        }
+        
+        // Verificar tipo de arquivo
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Por favor, selecione apenas imagens nos formatos JPG, PNG ou GIF.');
+            this.value = ''; // Limpa o input
+            return false;
+        }
+    }
+});
+</script>
+
+<script>
+// Dropdown do perfil - IGUAL À PÁGINA SOBRE
+document.addEventListener('DOMContentLoaded', function () {
+    const profileIcon = document.getElementById('profile-icon');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    
+    if (profileIcon && profileDropdown) {
+        profileIcon.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            profileDropdown.classList.toggle('show');
+        });
+
+        // Fechar dropdown ao clicar fora
+        document.addEventListener('click', function (e) {
+            if (!profileIcon.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('show');
             }
         });
-   <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.waves.min.js"></script>
-<<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const profileIcon = document.getElementById('profile-icon');
-  const profileDropdown = document.getElementById('profile-dropdown');
 
-  profileIcon.addEventListener('click', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
-  });
-
-  document.addEventListener('click', function (e) {
-    if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
-      profileDropdown.style.display = 'none';
+        // Prevenir fechamento ao clicar dentro do dropdown
+        profileDropdown.addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
     }
-  });
-
-  profileDropdown.addEventListener('click', function (e) {
-    e.stopPropagation();
-  });
 });
 </script>
 </body>
