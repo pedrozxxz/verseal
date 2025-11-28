@@ -397,39 +397,47 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
             </div>
             
             <!-- Dropdown Perfil -->
-            <div class="profile-dropdown">
-                <a href="#" class="icon-link" id="profile-icon">
-                    <i class="fas fa-user"></i>
-                </a>
-                <div class="dropdown-content" id="profile-dropdown">
-                    <?php if ($usuarioLogado): ?>
-                        <div class="user-info">
-                            <p>Seja bem-vindo, 
-                                <span id="user-name">
-                                    <?php 
-                                    if ($tipoUsuario === "cliente") {
-                                        echo htmlspecialchars($usuarioLogado['nome']);
-                                    } elseif ($tipoUsuario === "artista") {
-                                        echo htmlspecialchars($usuarioLogado['nome_artistico']);
-                                    }
-                                    ?>
-                                </span>!
-                            </p>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <?php if ($tipoUsuario === "cliente"): ?>
-                            <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
-                        <?php endif; ?>
-                        <div class="dropdown-divider"></div>
-                        <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
-                    <?php else: ?>
-                        <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
-                        <div class="dropdown-divider"></div>
-                        <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-                        <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
-                    <?php endif; ?>
-                </div>
-            </div>
+          <div class="profile-dropdown">
+  <a href="#" class="icon-link" id="profile-icon">
+    <i class="fas fa-user"></i>
+  </a>
+  <div class="dropdown-content" id="profile-dropdown">
+    <?php if ($usuarioLogado): ?>
+      <div class="user-info">
+        <p>
+          Seja bem-vindo, 
+          <span id="user-name">
+            <?php 
+            if ($tipoUsuario === "cliente") {
+              echo htmlspecialchars($usuarioLogado['nome']);
+            } elseif ($tipoUsuario === "artista") {
+              echo htmlspecialchars($usuarioLogado['nome_artistico']);
+            }
+            ?>
+          </span>!
+        </p>
+      </div>
+      <div class="dropdown-divider"></div>
+
+      <?php if ($tipoUsuario === "cliente"): ?>
+        <a href="./perfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Ver Perfil</a>
+      <?php elseif ($tipoUsuario === "artista"): ?>
+        <a href="./artistahome.php" class="dropdown-item"><i class="fas fa-palette"></i> Meu Perfil</a>
+      <?php endif; ?>
+
+      <div class="dropdown-divider"></div>
+      <a href="logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+
+    <?php else: ?>
+      <div class="user-info">
+        <p>Faça login para acessar seu perfil</p>
+      </div>
+      <div class="dropdown-divider"></div>
+      <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+      <a href="./cadastro.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+    <?php endif; ?>
+  </div>
+</div>
         </nav>
     </header>
 
