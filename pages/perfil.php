@@ -1,4 +1,3 @@
-pagina perfil
 <?php
 session_start();
 

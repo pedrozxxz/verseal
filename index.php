@@ -90,7 +90,7 @@ elseif (isset($_SESSION["artistas"])) {
    <header>
   <div class="logo">Verseal</div>
   <nav>
-    <a href="pages/index.php">Início</a>
+    <a href="#">Início</a>
     <a href="pages/produto.php">Obras</a>
     <a href="pages/sobre.php">Sobre</a>
     <a href="pages/artistas.php">Artistas</a>
