@@ -623,76 +623,56 @@ $conn->close();
     });
 
     // Envio do formulário - VERSÃO COM DEBUG
-    document.getElementById('formMensagem').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(this);
-      const btnEnviar = this.querySelector('.btn-enviar');
-      
-      console.log('=== INICIANDO ENVIO ===');
-      console.log('Dados do formulário:');
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-      }
-      
-      // Desabilitar botão
-      btnEnviar.disabled = true;
-      btnEnviar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-      
-      console.log('Fazendo fetch para enviar_mensagem.php...');
-      
-      fetch('mensagem-para-artista.php', {
+   // Envio do formulário - VERSÃO ATUALIZADA
+document.getElementById('formMensagem').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const btnEnviar = this.querySelector('.btn-enviar');
+    
+    // Desabilitar botão
+    btnEnviar.disabled = true;
+    btnEnviar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+    
+    fetch('mensagem-para-artista.php', {
         method: 'POST',
         body: formData
-      })
-      .then(response => {
-        console.log('Status da resposta:', response.status);
-        console.log('OK?', response.ok);
-        return response.text().then(text => {
-          console.log('Resposta bruta:', text);
-          try {
-            return JSON.parse(text);
-          } catch (e) {
-            console.error('Erro ao parsear JSON:', e);
-            throw new Error('Resposta não é JSON: ' + text);
-          }
-        });
-      })
-      .then(data => {
-        console.log('Resposta parseada:', data);
+    })
+    .then(response => response.json())
+    .then(data => {
         if (data.success) {
-          Swal.fire({
-            title: 'Sucesso!',
-            text: data.message,
-            icon: 'success',
-            confirmButtonColor: '#cc624e'
-          }).then(() => {
-            fecharModalMensagem();
-          });
+            Swal.fire({
+                title: 'Sucesso!',
+                text: data.message,
+                icon: 'success',
+                confirmButtonColor: '#cc624e'
+            }).then(() => {
+                fecharModalMensagem();
+            });
         } else {
-          Swal.fire({
-            title: 'Erro!',
-            text: data.message,
-            icon: 'error',
-            confirmButtonColor: '#cc624e'
-          });
+            Swal.fire({
+                title: 'Erro!',
+                text: data.message,
+                icon: 'error',
+                confirmButtonColor: '#cc624e'
+            });
         }
-      })
-      .catch(error => {
+    })
+    .catch(error => {
         console.error('Erro completo:', error);
         Swal.fire({
-          title: 'Erro de Conexão!',
-          html: 'Erro ao enviar mensagem:<br>' + error.message,
-          icon: 'error',
-          confirmButtonColor: '#cc624e'
+            title: 'Erro de Conexão!',
+            text: 'Erro ao enviar mensagem. Tente novamente.',
+            icon: 'error',
+            confirmButtonColor: '#cc624e'
         });
-      })
-      .finally(() => {
+    })
+    .finally(() => {
         // Reabilitar botão
         btnEnviar.disabled = false;
         btnEnviar.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Mensagem';
-      });
     });
+});
   </script>
 </body>
 </html>

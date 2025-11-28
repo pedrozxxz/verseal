@@ -73,9 +73,9 @@ if ($result_obras) {
             }
         }
 
-        $produtos[$obra['id']] = [
+        $produtos[] = [ // 🔹 CORREÇÃO: Mudar para array numérico em vez de associativo por ID
             "id" => intval($obra['id']),
-            "img" => $imagem_url, // 🔹 AGORA COM O CAMINHO CORRETO
+            "img" => $imagem_url,
             "nome" => $obra['nome'] ?? '',
             "artista" => $obra['artista'] ?? '',
             "preco" => floatval($obra['preco'] ?? 0),
@@ -86,6 +86,7 @@ if ($result_obras) {
             "material" => $obra['material'] ?? '',
             "categoria" => $categorias,
             "data_cadastro" => $obra['data_cadastro'] ?? '',
+            "data_criacao" => $obra['data_cadastro'] ?? '', // 🔹 CORREÇÃO: Adicionar data_criacao
             "estoque" => intval($obra['estoque'] ?? 0),
             "disponivel" => boolval($obra['ativo'] ?? true)
         ];
@@ -94,25 +95,31 @@ if ($result_obras) {
 
 // Processar filtros
 $filtroCategoria = $_GET['categoria'] ?? [];
+if (!is_array($filtroCategoria)) {
+    $filtroCategoria = [];
+}
 $ordenacao = $_GET['ordenacao'] ?? 'recentes';
 $obraEditada = $_GET['obra_editada'] ?? null;
+$obraNova = $_GET['obra_nova'] ?? null;
 
 // Garantir que $produtos seja um array
 if (!is_array($produtos)) {
     $produtos = [];
 }
 
-// Filtrar produtos (apenas os do usuário logado)
+// 🔹 CORREÇÃO: Filtrar produtos
 $produtosFiltrados = $produtos;
 
-// Filtro por categoria
+// Filtro por categoria - CORREÇÃO
 if (!empty($filtroCategoria) && is_array($filtroCategoria)) {
     $produtosFiltrados = array_filter($produtosFiltrados, function($produto) use ($filtroCategoria) {
         if (!isset($produto['categoria']) || !is_array($produto['categoria'])) {
             return false;
         }
-        foreach ($filtroCategoria as $categoria) {
-            if (in_array($categoria, $produto['categoria'])) {
+        
+        // Verificar se alguma categoria do filtro está presente na obra
+        foreach ($filtroCategoria as $categoriaFiltro) {
+            if (in_array($categoriaFiltro, $produto['categoria'])) {
                 return true;
             }
         }
@@ -120,7 +127,7 @@ if (!empty($filtroCategoria) && is_array($filtroCategoria)) {
     });
 }
 
-// Ordenação
+// 🔹 CORREÇÃO: Ordenação melhorada
 if ($ordenacao === 'preco_asc') {
     usort($produtosFiltrados, function($a, $b) {
         return ($a['preco'] ?? 0) <=> ($b['preco'] ?? 0);
@@ -130,20 +137,19 @@ if ($ordenacao === 'preco_asc') {
         return ($b['preco'] ?? 0) <=> ($a['preco'] ?? 0);
     });
 } elseif ($ordenacao === 'recentes') {
-    usort($produtosFiltrados, function($a, $b) use ($obraEditada) {
-        if ($obraEditada) {
-            if (($a['id'] ?? 0) == $obraEditada) return -1;
-            if (($b['id'] ?? 0) == $obraEditada) return 1;
-        }
-        $timeA = isset($a['data_criacao']) ? strtotime($a['data_criacao']) : 0;
-        $timeB = isset($b['data_criacao']) ? strtotime($b['data_criacao']) : 0;
+    usort($produtosFiltrados, function($a, $b) {
+        // 🔹 CORREÇÃO: Usar data_cadastro para ordenação
+        $timeA = isset($a['data_cadastro']) ? strtotime($a['data_cadastro']) : 0;
+        $timeB = isset($b['data_cadastro']) ? strtotime($b['data_cadastro']) : 0;
         return $timeB <=> $timeA;
     });
 }
-$obraNova = $_GET['obra_nova'] ?? null;
+
+// 🔹 CORREÇÃO: Destacar obra nova ou editada
 if ($obraNova) {
-    $obraEditada = $obraNova; 
+    $obraEditada = $obraNova;
 }
+
 // Garantir que produtosFiltrados seja array
 if (!is_array($produtosFiltrados)) {
     $produtosFiltrados = [];
@@ -151,6 +157,9 @@ if (!is_array($produtosFiltrados)) {
 
 // Configurações para o header
 $tipoUsuario = 'artista';
+
+// 🔹 CORREÇÃO: Fechar conexão
+$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -187,7 +196,8 @@ $tipoUsuario = 'artista';
     .preco-destaque { font-size: 1.5rem; font-weight: bold; color: #cc624e; }
     .descricao-completa { grid-column: 1 / -1; background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 10px; }
     .modal-actions { grid-column: 1 / -1; display: flex; gap: 15px; margin-top: 20px; }
-     .nenhuma-obra {
+    
+    .nenhuma-obra {
         text-align: center;
         padding: 60px 40px;
         background: #f8f9fa;
@@ -287,7 +297,8 @@ $tipoUsuario = 'artista';
             font-size: 0.95rem;
         }
     }
-       .info-usuario {
+    
+    .info-usuario {
         background: #e7f3ff;
         padding: 20px;
         border-radius: 10px;
@@ -366,9 +377,41 @@ $tipoUsuario = 'artista';
             justify-content: center;
         }
     }
-    .obra-destaque { border: 2px solid #cc624e; box-shadow: 0 4px 15px rgba(204, 98, 78, 0.3); transform: scale(1.02); transition: all 0.3s ease; }
-    .badge-editado { background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; }
-    .mensagem-sucesso { background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #c3e6cb; }
+    
+    .obra-destaque { 
+        border: 2px solid #cc624e; 
+        box-shadow: 0 4px 15px rgba(204, 98, 78, 0.3); 
+        transform: scale(1.02); 
+        transition: all 0.3s ease; 
+        position: relative;
+    }
+    
+    .badge-editado { 
+        background: #28a745; 
+        color: white; 
+        padding: 4px 8px; 
+        border-radius: 12px; 
+        font-size: 0.8rem; 
+        margin-left: 10px; 
+    }
+    
+    .badge-nova {
+        background: #17a2b8;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        margin-left: 10px;
+    }
+    
+    .mensagem-sucesso { 
+        background: #d4edda; 
+        color: #155724; 
+        padding: 15px; 
+        border-radius: 5px; 
+        margin-bottom: 20px; 
+        border: 1px solid #c3e6cb; 
+    }
     
     /* 🔹 CORREÇÃO: ESTILOS PARA IMAGENS */
     .obra-card img {
@@ -385,6 +428,42 @@ $tipoUsuario = 'artista';
       justify-content: center;
       color: #6c757d;
       font-size: 0.9rem;
+    }
+    
+    /* 🔹 NOVO: Estilo para indicadores de filtro ativo */
+    .filtros-ativos {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #cc624e;
+    }
+    
+    .filtro-ativo {
+        display: inline-block;
+        background: #cc624e;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        margin-right: 8px;
+        margin-bottom: 5px;
+    }
+    
+    .btn-limpar-filtros {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        margin-top: 10px;
+        display: inline-block;
+    }
+    
+    .btn-limpar-filtros:hover {
+        background: #5a6268;
     }
     
     @media (max-width: 768px) {
@@ -443,6 +522,9 @@ $tipoUsuario = 'artista';
             <strong>Visualizando apenas suas obras</strong>
             <span style="display: block; margin-top: 5px;">
                 Você está vendo <?php echo count($produtos); ?> obra(s) cadastrada(s) em sua conta.
+                <?php if (!empty($filtroCategoria)): ?>
+                <br><small><strong>Filtro ativo:</strong> <?php echo count($produtosFiltrados); ?> obra(s) correspondem</small>
+                <?php endif; ?>
             </span>
         </div>
     </div>
@@ -451,13 +533,50 @@ $tipoUsuario = 'artista';
     </a>
 </div>
 
+    <!-- 🔹 CORREÇÃO: Mostrar filtros ativos -->
+    <?php if (!empty($filtroCategoria) || $obraEditada || $obraNova): ?>
+    <div class="filtros-ativos">
+        <strong>Filtros ativos:</strong>
+        <?php if (!empty($filtroCategoria)): ?>
+            <?php foreach ($filtroCategoria as $categoria): ?>
+                <span class="filtro-ativo"><?php echo htmlspecialchars($categoria); ?></span>
+            <?php endforeach; ?>
+        <?php endif; ?>
+        
+        <?php if ($obraEditada): ?>
+            <span class="filtro-ativo">Obra em destaque</span>
+        <?php endif; ?>
+        
+        <?php if ($ordenacao !== 'recentes'): ?>
+            <span class="filtro-ativo">Ordenação: <?php echo $ordenacao === 'preco_asc' ? 'Menor Preço' : 'Maior Preço'; ?></span>
+        <?php endif; ?>
+        
+        <a href="?" class="btn-limpar-filtros">
+            <i class="fas fa-times"></i> Limpar Todos os Filtros
+        </a>
+    </div>
+    <?php endif; ?>
+
     <!-- Mensagem de obra editada -->
-    <?php if ($obraEditada && isset($produtos[$obraEditada])): ?>
+    <?php if ($obraEditada): ?>
     <div class="mensagem-sucesso">
       <i class="fas fa-check-circle"></i> 
-      <strong>Obra atualizada com sucesso!</strong>
+      <strong>
+          <?php echo $obraNova ? 'Obra adicionada com sucesso!' : 'Obra atualizada com sucesso!'; ?>
+      </strong>
       <span style="margin-left: 15px;">
-        A obra "<?php echo htmlspecialchars($produtos[$obraEditada]['nome']); ?>" foi editada e aparece em destaque.
+        <?php 
+        $obraDestaque = null;
+        foreach ($produtos as $prod) {
+            if ($prod['id'] == $obraEditada) {
+                $obraDestaque = $prod;
+                break;
+            }
+        }
+        if ($obraDestaque): ?>
+            A obra "<?php echo htmlspecialchars($obraDestaque['nome']); ?>" foi 
+            <?php echo $obraNova ? 'adicionada' : 'editada'; ?> e aparece em destaque.
+        <?php endif; ?>
       </span>
     </div>
     <?php endif; ?>
@@ -497,6 +616,10 @@ $tipoUsuario = 'artista';
           <?php if ($obraEditada): ?>
             <input type="hidden" name="obra_editada" value="<?php echo $obraEditada; ?>">
           <?php endif; ?>
+          
+          <?php if ($ordenacao !== 'recentes'): ?>
+            <input type="hidden" name="ordenacao" value="<?php echo $ordenacao; ?>">
+          <?php endif; ?>
 
           <div class="filtro-box">
             <p>Categoria</p>
@@ -522,10 +645,13 @@ $tipoUsuario = 'artista';
             </label>
           </div>
 
-          <button type="submit" class="btn-aplicar-filtros">Aplicar Filtros</button>
-          <?php if (!empty($filtroCategoria) || $obraEditada): ?>
-            <a href="?<?php echo $obraEditada ? 'obra_editada=' . $obraEditada : ''; ?>" class="btn-limpar-filtros" style="margin-top: 10px; display: inline-block;">
-              Limpar Filtros
+          <button type="submit" class="btn-aplicar-filtros">
+            <i class="fas fa-filter"></i> Aplicar Filtros
+          </button>
+          
+          <?php if (!empty($filtroCategoria) || $obraEditada || $ordenacao !== 'recentes'): ?>
+            <a href="?" class="btn-limpar-filtros" style="margin-top: 10px; display: inline-block;">
+              <i class="fas fa-times"></i> Limpar Filtros
             </a>
           <?php endif; ?>
         </form>
@@ -537,8 +663,14 @@ $tipoUsuario = 'artista';
           <div class="nenhuma-obra">
             <i class="fas fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
             <h3>Nenhuma obra encontrada</h3>
-            <p>Você ainda não possui obras cadastradas ou nenhuma obra corresponde aos filtros aplicados.</p>
-            <a href="adicionarobra.php" class="btn-adiconar-obra">              
+            <p>
+                <?php if (!empty($filtroCategoria)): ?>
+                    Nenhuma obra corresponde aos filtros aplicados. Tente ajustar os filtros.
+                <?php else: ?>
+                    Você ainda não possui obras cadastradas.
+                <?php endif; ?>
+            </p>
+            <a href="adicionarobra.php" class="btn-adicionar-primeira">              
               <i class="fas fa-plus"></i> Adicionar Primeira Obra
             </a>
           </div>
@@ -553,7 +685,9 @@ $tipoUsuario = 'artista';
             <h4>
               <?php echo $produto['nome']; ?>
               <?php if ($obraEditada == $produto['id']): ?>
-                <span class="badge-editado">Editada</span>
+                <span class="<?php echo $obraNova ? 'badge-nova' : 'badge-editado'; ?>">
+                    <?php echo $obraNova ? 'NOVA' : 'EDITADA'; ?>
+                </span>
               <?php endif; ?>
             </h4>
             <p>Por <?php echo $produto['artista']; ?></p>
@@ -594,13 +728,20 @@ $tipoUsuario = 'artista';
   </footer>
 
 <script>
-    // Dados das obras
-    const obras = <?php echo json_encode($produtos); ?>;
+    // 🔹 CORREÇÃO: Dados das obras - converter para objeto por ID para fácil acesso
+    const obrasArray = <?php echo json_encode($produtos); ?>;
+    const obras = {};
+    obrasArray.forEach(obra => {
+        obras[obra.id] = obra;
+    });
 
     // Função para mostrar detalhes da obra
     function mostrarDetalhes(obraId) {
       const obra = obras[obraId];
-      if (!obra) return;
+      if (!obra) {
+          console.error('Obra não encontrada:', obraId);
+          return;
+      }
 
       const modal = document.getElementById('modalDetalhes');
       const modalTitulo = document.getElementById('modalTitulo');
@@ -625,28 +766,32 @@ $tipoUsuario = 'artista';
           </div>
           <div class="info-item">
             <span class="info-label">Dimensões:</span>
-            <span class="info-value">${obra.dimensao}</span>
+            <span class="info-value">${obra.dimensao || 'Não informado'}</span>
           </div>
           <div class="info-item">
             <span class="info-label">Técnica:</span>
-            <span class="info-value">${obra.tecnica}</span>
+            <span class="info-value">${obra.tecnica || 'Não informado'}</span>
           </div>
           <div class="info-item">
             <span class="info-label">Ano:</span>
-            <span class="info-value">${obra.ano}</span>
+            <span class="info-value">${obra.ano || 'Não informado'}</span>
           </div>
           <div class="info-item">
             <span class="info-label">Material:</span>
-            <span class="info-value">${obra.material}</span>
+            <span class="info-value">${obra.material || 'Não informado'}</span>
           </div>
           <div class="info-item">
             <span class="info-label">Estoque:</span>
-            <span class="info-value">${obra.estoque} unidades</span>
+            <span class="info-value">${obra.estoque || 0} unidades</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Categorias:</span>
+            <span class="info-value">${Array.isArray(obra.categoria) ? obra.categoria.join(', ') : 'Não informado'}</span>
           </div>
         </div>
         <div class="descricao-completa">
           <h4>Descrição da Obra</h4>
-          <p>${obra.desc}</p>
+          <p>${obra.desc || 'Esta obra não possui descrição.'}</p>
         </div>
         <div class="modal-actions">
           <a href="editar_obra2.php?id=${obra.id}" class="btn-editar-modal" style="
@@ -687,81 +832,70 @@ $tipoUsuario = 'artista';
     }
 
     // Função para confirmar exclusão no modal
-function confirmarExclusaoModal(obraId) {
-    const obra = obras[obraId];
-    if (!obra) {
-        console.error('Obra não encontrada:', obraId);
-        return;
+    function confirmarExclusaoModal(obraId) {
+        const obra = obras[obraId];
+        if (!obra) {
+            console.error('Obra não encontrada:', obraId);
+            return;
+        }
+
+        Swal.fire({
+            title: 'Tem certeza?',
+            html: `Você está prestes a excluir a obra:<br><strong>"${obra.nome}"</strong><br><br>Esta ação não pode ser desfeita!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sim, excluir!',
+            cancelButtonText: 'Cancelar',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                const dados = new URLSearchParams();
+                dados.append('acao', 'excluir');
+                dados.append('obra_id', obraId);
+
+                return fetch('excluirobra.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: dados
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`Erro ${response.status}: ${response.statusText}\nResposta: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) {
+                        throw new Error(data.message || 'Erro desconhecido do servidor');
+                    }
+                    return data;
+                })
+                .catch(error => {
+                    console.error('Erro completo:', error);
+                    Swal.showValidationMessage(`Falha na comunicação com o servidor: ${error.message}`);
+                });
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Excluída!',
+                    text: 'A obra foi excluída com sucesso.',
+                    icon: 'success',
+                    confirmButtonColor: '#cc624e'
+                }).then(() => {
+                    fecharModal();
+                    // Recarregar a página para atualizar a lista
+                    window.location.reload();
+                });
+            }
+        });
     }
 
-    console.log('Preparando exclusão da obra:', obraId, obra.nome);
-
-    Swal.fire({
-        title: 'Tem certeza?',
-        html: `Você está prestes a excluir a obra:<br><strong>"${obra.nome}"</strong><br><br>Esta ação não pode ser desfeita!`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Sim, excluir!',
-        cancelButtonText: 'Cancelar',
-        showLoaderOnConfirm: true,
-        preConfirm: () => {
-            console.log('Enviando requisição para excluirobra.php');
-            
-            // Criar os dados para enviar
-            const dados = new URLSearchParams();
-            dados.append('acao', 'excluir');
-            dados.append('obra_id', obraId);
-
-            return fetch('excluirobra.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: dados
-            })
-            .then(response => {
-                console.log('Status da resposta:', response.status, response.statusText);
-                if (!response.ok) {
-                    // Se a resposta não for OK, tentar ler o texto do erro
-                    return response.text().then(text => {
-                        throw new Error(`Erro ${response.status}: ${response.statusText}\nResposta: ${text}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Resposta JSON:', data);
-                if (!data.success) {
-                    throw new Error(data.message || 'Erro desconhecido do servidor');
-                }
-                return data;
-            })
-            .catch(error => {
-                console.error('Erro completo:', error);
-                Swal.showValidationMessage(`
-                    Falha na comunicação com o servidor:<br>
-                    ${error.message}
-                `);
-            });
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            console.log('Exclusão confirmada com sucesso');
-            Swal.fire({
-                title: 'Excluída!',
-                text: 'A obra foi excluída com sucesso.',
-                icon: 'success',
-                confirmButtonColor: '#cc624e'
-            }).then(() => {
-                fecharModal();
-                // Recarregar a página para atualizar a lista
-                window.location.reload();
-            });
-        }
-    });
-}
     // Fechar modal
     function fecharModal() {
       const modal = document.getElementById('modalDetalhes');
@@ -795,7 +929,7 @@ function confirmarExclusaoModal(obraId) {
             profileDropdown.style.display === 'block' ? 'none' : 'block';
         });
 
-                document.addEventListener('click', function (e) {
+        document.addEventListener('click', function (e) {
           if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
             profileDropdown.style.display = 'none';
           }
@@ -806,7 +940,7 @@ function confirmarExclusaoModal(obraId) {
         });
       }
 
-      // Mostrar mensagem de sucesso se obra foi editada
+      // 🔹 CORREÇÃO: Mostrar mensagem de sucesso se obra foi editada/novo
       <?php if ($obraEditada): ?>
       setTimeout(() => {
         const obraEditadaElement = document.getElementById('obra-<?php echo $obraEditada; ?>');
@@ -815,6 +949,12 @@ function confirmarExclusaoModal(obraId) {
             behavior: 'smooth', 
             block: 'center'
           });
+          
+          // Adicionar animação de destaque
+          obraEditadaElement.style.animation = 'pulse 2s ease-in-out 3';
+          setTimeout(() => {
+            obraEditadaElement.style.animation = '';
+          }, 6000);
         }
       }, 800);
       <?php endif; ?>

@@ -126,7 +126,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["atualizar_perfil"])) {
     
     $stmt_check->close();
 }
+// Buscar mensagens recebidas
+$sql_mensagens = "
+    SELECT * FROM mensagens_artistas 
+    WHERE artista_id = ? 
+    ORDER BY data_envio DESC
+";
+$stmt_mensagens = $conn->prepare($sql_mensagens);
+$stmt_mensagens->bind_param("i", $artista_id);
+$stmt_mensagens->execute();
+$result_mensagens = $stmt_mensagens->get_result();
+$mensagens = [];
 
+while ($mensagem = $result_mensagens->fetch_assoc()) {
+    $mensagens[] = $mensagem;
+}
+
+// Contar mensagens não lidas
+$sql_nao_lidas = "SELECT COUNT(*) as total FROM mensagens_artistas WHERE artista_id = ? AND lida = 0";
+$stmt_nao_lidas = $conn->prepare($sql_nao_lidas);
+$stmt_nao_lidas->bind_param("i", $artista_id);
+$stmt_nao_lidas->execute();
+$result_nao_lidas = $stmt_nao_lidas->get_result();
+$total_nao_lidas = $result_nao_lidas->fetch_assoc()['total'];
+
+// Marcar mensagens como lidas quando acessadas
+if (isset($_GET['ler_mensagens'])) {
+    $sql_marcar_lidas = "UPDATE mensagens_artistas SET lida = 1 WHERE artista_id = ? AND lida = 0";
+    $stmt_marcar = $conn->prepare($sql_marcar_lidas);
+    $stmt_marcar->bind_param("i", $artista_id);
+    $stmt_marcar->execute();
+    $total_nao_lidas = 0;
+}
 // ALTERAR SENHA (apenas para usuários comuns)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["alterar_senha"]) && $usuario['tipo'] === 'usuario') {
     $senha_atual = $_POST["senha_atual"];
@@ -281,6 +312,12 @@ require_once 'config.php';
             <ul class="menu-links">
                 <li><a href="artistaperfil.php" class="ativo"><i class="fas fa-user-circle"></i> Meu Perfil</a></li>
                 <?php if ($usuario['tipo'] === 'artista'): ?>
+                    <li><a href="artistaperfil.php?aba=mensagens">
+                    <i class="fas fa-envelope"></i> Mensagens
+                    <?php if ($total_nao_lidas > 0): ?>
+                        <span class="mensagens-badge"><?php echo $total_nao_lidas; ?></span>
+                    <?php endif; ?>
+                </a></li>
                 <li><a href="editarbiografia.php"><i class="fas fa-edit"></i> Editar Biografia</a></li>
                 <?php endif; ?>
                 <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
