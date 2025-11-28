@@ -5,7 +5,8 @@ error_log("Sessão usuario: " . print_r($_SESSION["usuario"] ?? 'Não definido',
 error_log("Tipo: " . gettype($_SESSION["usuario"] ?? 'null'));
 // Verificar se o usuário está logado
 if (!isset($_SESSION["usuario"]) || !is_array($_SESSION["usuario"])) {
-    header("Location: login.php");
+    // header("Location: login.php");
+    echo"teste";  
     exit();
 }
 
