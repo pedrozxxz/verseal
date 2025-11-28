@@ -199,6 +199,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           $_SESSION["tipo_artistas"] = 'artista';
           $_SESSION["artistas"] = $artrow;
           $_SESSION["artistas_id"] = $artrow['id'];
+// GARANTIR QUE O ARTISTA TENHA AS MESMAS SESSÕES DO CLIENTE
+// tentar achar usuário com mesmo email
+$sql_user_sync = "SELECT * FROM usuarios WHERE email = ? LIMIT 1";
+$stmt_user_sync = $conn->prepare($sql_user_sync);
+$stmt_user_sync->bind_param("s", $email);
+$stmt_user_sync->execute();
+$res_user_sync = $stmt_user_sync->get_result();
+
+if ($userData = $res_user_sync->fetch_assoc()) {
+    // Se existir usuário vinculado, copia as sessões completas
+    $_SESSION["usuario"] = $userData;
+    $_SESSION["usuario_id"] = $userData['id'];
+    $_SESSION["clientes"] = $userData;
+    $_SESSION["clientes_id"] = $userData['id'];
+} else {
+    // Se NÃO existir usuário em 'usuarios', cria uma versão mínima apenas para evitar erro
+    $_SESSION["usuario"] = [
+        "id" => $artrow["id"],
+        "nome" => $artrow["nome"],
+        "email" => $artrow["email"],
+        "origem" => "artista"
+    ];
+    $_SESSION["usuario_id"] = $artrow["id"];
+    $_SESSION["clientes"] = $_SESSION["usuario"];
+    $_SESSION["clientes_id"] = $artrow["id"];
+}
 
           // opcional: sincronizar com 'usuario' se existir um usuário com mesmo email
           $sql_user_by_email = "SELECT * FROM usuarios WHERE email = ? LIMIT 1";

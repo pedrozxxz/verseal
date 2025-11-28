@@ -1,18 +1,17 @@
 <?php
 session_start();
 
-// Verificar se usuário está logado (cliente ou artista)
 $usuarioLogado = null;
 $tipoUsuario = null;
 
-// Verifica se há sessão de cliente
-if (isset($_SESSION["cliente"])) {
-    $usuarioLogado = $_SESSION["cliente"];
+// Cliente
+if (isset($_SESSION["cliente"]) || isset($_SESSION["usuario"])) {
+    $usuarioLogado = $_SESSION["cliente"] ?? $_SESSION["usuario"];
     $tipoUsuario = "cliente";
 }
-// Verifica se há sessão de artista
-elseif (isset($_SESSION["artista"])) {
-    $usuarioLogado = $_SESSION["artista"];
+// Artista
+elseif (isset($_SESSION["artistas"])) {
+    $usuarioLogado = $_SESSION["artistas"];
     $tipoUsuario = "artista";
 }
 ?>
@@ -36,19 +35,6 @@ elseif (isset($_SESSION["artista"])) {
 // header.php
 require_once 'config.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Verseal - Plataforma Artística</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
-  <link rel="stylesheet" href="../css/style.css" />
-</head>
-
-<body>
 <header>
     <div class="logo">Verseal</div>
     <nav>
