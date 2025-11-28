@@ -41,6 +41,11 @@ unset($_SESSION['dados_pedido']);
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
   <link rel="stylesheet" href="../css/style.css">
   <style>
+    .pagina-sucesso h1::before,
+    .pagina-sucesso h1::after {
+        content: none !important;
+        display: none !important;
+    }
     .pagina-sucesso {
       padding: 80px 7%;
       text-align: center;
@@ -50,26 +55,22 @@ unset($_SESSION['dados_pedido']);
       justify-content: center;
       align-items: center;
     }
-    
     .icone-sucesso {
       font-size: 4rem;
       color: #28a745;
-      margin-bottom: 20px;
+      margin-bottom: -30px;
     }
-    
     .pagina-sucesso h1 {
       font-family: 'Playfair Display', serif;
       color: #28a745;
       margin-bottom: 20px;
     }
-    
     .pagina-sucesso p {
       font-size: 1.1rem;
       color: #666;
       margin-bottom: 30px;
       max-width: 500px;
     }
-    
     .btn-voltar {
       background: #cc624e;
       color: white;
@@ -80,11 +81,9 @@ unset($_SESSION['dados_pedido']);
       display: inline-block;
       transition: background 0.3s;
     }
-    
     .btn-voltar:hover {
       background: #e07b67;
     }
-
     .info-pedido {
       background: #f8f9fa;
       padding: 20px;
