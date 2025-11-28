@@ -5,8 +5,7 @@ error_log("Sessão usuario: " . print_r($_SESSION["usuario"] ?? 'Não definido',
 error_log("Tipo: " . gettype($_SESSION["usuario"] ?? 'null'));
 // Verificar se o usuário está logado
 if (!isset($_SESSION["usuario"]) || !is_array($_SESSION["usuario"])) {
-    // header("Location: login.php");
-    echo"teste";  
+    header("Location: login.php");
     exit();
 }
 
@@ -42,16 +41,41 @@ $stmt_obras->bind_param("s", $nomeArtista);
 $stmt_obras->execute();
 $result_obras = $stmt_obras->get_result();
 $produtos = [];
+
 if ($result_obras) {
     while ($obra = $result_obras->fetch_assoc()) {
+        // 🔹 CORREÇÃO: TRATAMENTO DO CAMINHO DA IMAGEM (igual ao produto.php)
+        $imagem_url = '';
+        if (!empty($obra['imagem_url'])) {
+            if (strpos($obra['imagem_url'], '../') === 0) {
+                $imagem_url = $obra['imagem_url'];
+            } elseif (strpos($obra['imagem_url'], 'img/') === 0) {
+                $imagem_url = '../' . $obra['imagem_url'];
+            } elseif (strpos($obra['imagem_url'], 'uploads/') === 0) {
+                $imagem_url = '../' . $obra['imagem_url'];
+            } elseif (strpos($obra['imagem_url'], 'img/uploads/') === 0) {
+                $imagem_url = '../' . $obra['imagem_url'];
+            } else {
+                $imagem_url = $obra['imagem_url'];
+            }
+        } else {
+            $imagem_url = '../img/imagem2.png'; // imagem padrão
+        }
+
+        // Processar categorias
         $categorias = [];
         if (!empty($obra['categorias'])) {
-            $categorias = explode(',', $obra['categorias']); // transforma string em array
+            $categorias_array = json_decode($obra['categorias'], true);
+            if (is_array($categorias_array)) {
+                $categorias = $categorias_array;
+            } else {
+                $categorias = array_map('trim', explode(',', $obra['categorias']));
+            }
         }
 
         $produtos[$obra['id']] = [
             "id" => intval($obra['id']),
-            "img" => $obra['imagem_url'] ?? '',
+            "img" => $imagem_url, // 🔹 AGORA COM O CAMINHO CORRETO
             "nome" => $obra['nome'] ?? '',
             "artista" => $obra['artista'] ?? '',
             "preco" => floatval($obra['preco'] ?? 0),
@@ -61,10 +85,13 @@ if ($result_obras) {
             "ano" => intval($obra['ano'] ?? 0),
             "material" => $obra['material'] ?? '',
             "categoria" => $categorias,
-            "data_cadastro" => $obra['data_cadastro'] ?? ''
+            "data_cadastro" => $obra['data_cadastro'] ?? '',
+            "estoque" => intval($obra['estoque'] ?? 0),
+            "disponivel" => boolval($obra['ativo'] ?? true)
         ];
     }
 }
+
 // Processar filtros
 $filtroCategoria = $_GET['categoria'] ?? [];
 $ordenacao = $_GET['ordenacao'] ?? 'recentes';
@@ -121,6 +148,9 @@ if ($obraNova) {
 if (!is_array($produtosFiltrados)) {
     $produtosFiltrados = [];
 }
+
+// Configurações para o header
+$tipoUsuario = 'artista';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -340,6 +370,23 @@ if (!is_array($produtosFiltrados)) {
     .badge-editado { background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; }
     .mensagem-sucesso { background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #c3e6cb; }
     
+    /* 🔹 CORREÇÃO: ESTILOS PARA IMAGENS */
+    .obra-card img {
+      object-fit: cover;
+      height: 250px;
+      width: 100%;
+    }
+
+    .img-error {
+      background: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+    
     @media (max-width: 768px) {
       .modal-body { grid-template-columns: 1fr; gap: 20px; }
       .modal-conteudo { width: 95%; margin: 20px; }
@@ -348,43 +395,6 @@ if (!is_array($produtosFiltrados)) {
 </head>
 
 <body>
-<?php
-// header.php
-require_once 'config.php';
-?>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Verseal - Plataforma Artística</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
-  <link rel="stylesheet" href="../css/style.css" />
-</head>
-
-<body>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Verseal - Área do Artista</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-    integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="../css/style.css" />
-  <link rel="stylesheet" href="../css/artistahome.css" />
-</head>
-
-<body>
-<?php
-// config.php deve conter apenas configurações, não HTML
-require_once 'config.php';
-?>
 <header>
     <div class="logo">Verseal</div>
     <nav>
@@ -409,7 +419,7 @@ require_once 'config.php';
         <a href="./editarbiografia.php" class="dropdown-item"><i class="fas fa-edit"></i> Editar Biografia</a>
       <?php endif; ?>
       <div class="dropdown-divider"></div>
-      <a href="./artistalogout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+      <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
     <?php else: ?>
       <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
       <div class="dropdown-divider"></div>
@@ -536,7 +546,10 @@ require_once 'config.php';
           <?php foreach ($produtosFiltrados as $produto): ?>
           <div class="obra-card <?php echo $obraEditada == $produto['id'] ? 'obra-destaque' : ''; ?>" 
                id="obra-<?php echo $produto['id']; ?>">
-<img src="../<?php echo $produto['img']; ?>" alt="<?php echo $produto['nome']; ?>">
+            <!-- 🔹 CORREÇÃO: IMAGEM COM TRATAMENTO DE ERRO -->
+            <img src="<?php echo $produto['img']; ?>" 
+                 alt="<?php echo $produto['nome']; ?>"
+                 onerror="this.onerror=null; this.src='../img/imagem2.png'; this.classList.add('img-error');">
             <h4>
               <?php echo $produto['nome']; ?>
               <?php if ($obraEditada == $produto['id']): ?>
@@ -599,7 +612,7 @@ require_once 'config.php';
       // Preencher conteúdo
       modalBody.innerHTML = `
         <div class="modal-imagem">
-          <img src="../${obra.img}" alt="${obra.nome}">
+          <img src="${obra.img}" alt="${obra.nome}" onerror="this.onerror=null; this.src='../img/imagem2.png';">
         </div>
         <div class="modal-info">
           <div class="info-item">
@@ -625,6 +638,10 @@ require_once 'config.php';
           <div class="info-item">
             <span class="info-label">Material:</span>
             <span class="info-value">${obra.material}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Estoque:</span>
+            <span class="info-value">${obra.estoque} unidades</span>
           </div>
         </div>
         <div class="descricao-completa">
@@ -778,7 +795,7 @@ function confirmarExclusaoModal(obraId) {
             profileDropdown.style.display === 'block' ? 'none' : 'block';
         });
 
-        document.addEventListener('click', function (e) {
+                document.addEventListener('click', function (e) {
           if (!profileDropdown.contains(e.target) && e.target !== profileIcon) {
             profileDropdown.style.display = 'none';
           }
