@@ -86,6 +86,13 @@ if (isset($_SESSION["clientes"])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
     <link rel="stylesheet" href="../css/style.css">
     <style>
+        .codigo-barras {
+            white-space: normal !important; 
+            overflow-wrap: break-word;
+            word-break: break-all;
+            max-width: 100%;
+            display: block;
+        }
         .pagina-boleto {
             padding: 40px 7%;
             max-width: 600px;
@@ -399,9 +406,6 @@ if (isset($_SESSION["clientes"])) {
     </div>
 
     <div class="botoes-acao">
-        <button class="btn-pagar" onclick="simularPagamento()">
-            <i class="fas fa-check-circle"></i> Simular Pagamento
-        </button>
         <button class="btn-imprimir" onclick="window.location.href='../index.php'">
             <i class="fas fa-home"></i> Voltar ao Início
         </button>
@@ -430,36 +434,6 @@ function copiarLinhaDigitavel() {
     navigator.clipboard.writeText(linha).then(() => {
         alert('Linha digitável copiada!');
     });
-}
-
-function simularPagamento() {
-    if (confirm('Deseja simular o pagamento deste boleto? O status do pedido será atualizado para "Pago".')) {
-        // Simular requisição AJAX para atualizar status
-        fetch('simular-pagamento.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                pedido_id: '<?php echo $pedido_id; ?>',
-                acao: 'simular_pagamento'
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Pagamento simulado com sucesso! Status do pedido atualizado.');
-                // Redirecionar para página de sucesso
-                window.location.href = 'sucesso-compra.php';
-            } else {
-                alert('Erro ao simular pagamento: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            alert('Erro ao simular pagamento. Tente novamente.');
-        });
-    }
 }
 
 // Configuração de impressão
