@@ -57,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       } else {
         // Inserir novo usuário em usuarios
         $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-        $sql = "INSERT INTO usuarios (nome, email, senha, ativo, data_cadastro) VALUES (?, ?, ?, 1, NOW())";
+        $sql = "INSERT INTO usuarios (nome, email, senha, ativo) VALUES (?, ?, ?, NOW())";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sss", $nome, $email, $senhaHash);
 

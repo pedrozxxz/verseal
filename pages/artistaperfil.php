@@ -197,6 +197,26 @@ require_once 'config.php';
 </head>
 
 <body>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verseal - Área do Artista</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/artistahome.css" />
+</head>
+
+<body>
+<?php
+// config.php deve conter apenas configurações, não HTML
+require_once 'config.php';
+?>
 <header>
     <div class="logo">Verseal</div>
     <nav>
@@ -221,7 +241,7 @@ require_once 'config.php';
         <a href="./editarbiografia.php" class="dropdown-item"><i class="fas fa-edit"></i> Editar Biografia</a>
       <?php endif; ?>
       <div class="dropdown-divider"></div>
-      <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+      <a href="./artistalogout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
     <?php else: ?>
       <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
       <div class="dropdown-divider"></div>
