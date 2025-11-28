@@ -366,7 +366,7 @@ $total = array_sum(array_map(fn($item) => $item["preco"], $carrinho));
         .notificacao.success { background: #4CAF50; }
         .notificacao.error { background: #f44336; }
         .notificacao.warning { background: #ff9800; }
-        .notificacao.info { background: #2196F3; }
+        .notificacao.info { background: #f44336; }
     </style>
 </head>
 <body>
