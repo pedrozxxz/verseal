@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+
 // 🔹 INICIALIZAR SISTEMA DE NOTIFICAÇÕES
 if (!isset($_SESSION['carrinho_notificacoes'])) {
     $_SESSION['carrinho_notificacoes'] = [];

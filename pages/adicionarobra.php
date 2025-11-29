@@ -568,7 +568,8 @@ $conn->close();
 
   <!-- FORMULÁRIO DE ADIÇÃO DE OBRA -->
   <div class="edit-obra-container">
-    <div class="foto-area">
+    <form action="" method="post" enctype="multipart/form-data">
+      <div class="foto-area">
       <div id="previewContainer">
         <div class="preview-placeholder" id="previewPlaceholder">
           <i class="fas fa-image"></i>
@@ -587,7 +588,6 @@ $conn->close();
       <small style="color: #666; display: block; margin-top: 8px;">Formatos: JPG, PNG, GIF (Máx. 5MB)</small>
     </div>
 
-    <form action="" method="post" enctype="multipart/form-data">
       <div class="form-group">
         <label for="nome">Nome da Obra</label>
         <input type="text" name="nome" id="nome" placeholder="Digite o nome da obra..." required>
