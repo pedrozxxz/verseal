@@ -787,6 +787,10 @@ $conn->close();
             <span class="info-label">Categorias:</span>
             <span class="info-value">${Array.isArray(obra.categoria) ? obra.categoria.join(', ') : 'Não informado'}</span>
           </div>
+          <div class="info-item">
+            <span class="info-label">Disponível:</span>
+            <span class="info-value">${obra.disponivel || 'Não informado'}</span>
+          </div>
         </div>
         <div class="descricao-completa">
           <h4>Descrição da Obra</h4>

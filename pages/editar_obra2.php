@@ -106,14 +106,196 @@ if (isset($obra['imagem_url']) && !empty($obra['imagem_url'])) {
 <link rel="stylesheet" href="../css/adicionar-obras.css" />
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
-.btn-salvar { background: #cc624e; color: white; border: none; padding:12px 30px; border-radius:8px; cursor:pointer; font-size:1rem; display:inline-flex; align-items:center; gap:8px; transition:background 0.3s; }
-.btn-salvar:hover { background:#e07b67; }
-.btn-excluir { background:#dc3545; color:white; border:none; padding:12px 30px; border-radius:8px; cursor:pointer; font-size:1rem; display:inline-flex; align-items:center; gap:8px; transition:background 0.3s; }
-.btn-excluir:hover { background:#c82333; }
-.btn-cancelar { background:#6c757d; color:white; border:none; padding:12px 30px; border-radius:8px; cursor:pointer; font-size:1rem; display:inline-flex; align-items:center; gap:8px; transition:background 0.3s; }
-.btn-cancelar:hover { background:#5a6268; }
-.botoes-acoes { display:flex; gap:15px; justify-content:center; margin-top:30px; }
-.mensagem-erro { background:#f8d7da; color:#721c24; padding:10px; border-radius:5px; margin-bottom:15px; border:1px solid #f5c6cb; }
+/* Estilos para os botões - SIMÉTRICOS E HARMONIOSOS */
+.btn-base {
+    border: none;
+    padding: 14px 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    min-width: 200px;
+    text-decoration: none;
+    font-family: 'Open Sans', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-salvar { 
+    background: linear-gradient(135deg, #cc624e, #d97360); 
+    color: white; 
+    box-shadow: 0 4px 12px rgba(204, 98, 78, 0.3);
+}
+
+.btn-salvar:hover { 
+    background: linear-gradient(135deg, #e07b67, #e88572);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(204, 98, 78, 0.4);
+}
+
+.btn-excluir { 
+    background: linear-gradient(135deg, #dc3545, #e04a59);
+    color: white;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-excluir:hover { 
+    background: linear-gradient(135deg, #c82333, #d42e3e);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+}
+
+.btn-cancelar { 
+    background: linear-gradient(135deg, #6c757d, #7a8288);
+    color: white;
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.btn-cancelar:hover { 
+    background: linear-gradient(135deg, #5a6268, #686f75);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+}
+
+/* Container dos botões - CENTRALIZADO E SIMÉTRICO */
+.botoes-acoes { 
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+    padding: 20px 0;
+    flex-wrap: wrap;
+}
+
+/* ESTILOS PARA O TEXTAREA DA DESCRIÇÃO - IGUAL AOS OUTROS INPUTS */
+.form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Open Sans', sans-serif;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.5;
+    color: #333;
+    box-sizing: border-box;
+}
+
+/* Estilização consistente para todos os inputs, selects e textarea */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Open Sans', sans-serif;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    color: #333;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #cc624e;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(204, 98, 78, 0.1);
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+    border-color: #cc624e;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #999;
+}
+
+/* Labels dos formulários */
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.95rem;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+    .botoes-acoes {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn-base {
+        min-width: 250px;
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+/* Efeito de clique nos botões */
+.btn-base:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Ícones dos botões */
+.btn-base i {
+    font-size: 1.1rem;
+}
+
+.mensagem-erro { 
+    background: #f8d7da; 
+    color: #721c24; 
+    padding: 12px 16px; 
+    border-radius: 6px; 
+    margin-bottom: 20px; 
+    border: 1px solid #f5c6cb;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mensagem-erro i {
+    font-size: 1.2rem;
+}
+
+/* Melhorias na área de upload */
+.upload-area {
+    transition: all 0.3s ease;
+    border: 2px dashed #ddd;
+}
+
+.upload-area:hover {
+    border-color: #cc624e;
+    background-color: #f9f9f9;
+}
+
+/* Estilo para o título da página */
+.adicionar-obras h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+}
 </style>
 </head>
 <body>
@@ -230,9 +412,9 @@ foreach($tecnicas as $t): ?>
 </div>
 
 <div class="botoes-acoes">
-<button type="submit" class="btn-salvar"><i class="fas fa-save"></i> SALVAR ALTERAÇÕES</button>
-<button type="button" class="btn-excluir" onclick="confirmarExclusao(<?php echo $obraId; ?>)"><i class="fas fa-trash"></i> EXCLUIR OBRA</button>
-<button type="button" class="btn-cancelar" onclick="window.location.href='artistasobra.php'"><i class="fas fa-times"></i> CANCELAR</button>
+    <button type="submit" class="btn-base btn-salvar"><i class="fas fa-save"></i> SALVAR ALTERAÇÕES</button>
+    <button type="button" class="btn-base btn-excluir" onclick="confirmarExclusao(<?php echo $obraId; ?>)"><i class="fas fa-trash"></i> EXCLUIR OBRA</button>
+    <a href="artistasobra.php" class="btn-base btn-cancelar"><i class="fas fa-times"></i> CANCELAR</a>
 </div>
 
 </form>
@@ -271,22 +453,69 @@ function confirmarExclusao(obraId) {
         confirmButtonColor: '#dc3545',
         cancelButtonColor: '#6c757d',
         confirmButtonText: 'Sim, excluir!',
-        cancelButtonText: 'Cancelar'
+        cancelButtonText: 'Cancelar',
+        buttonsStyling: true,
+        customClass: {
+            confirmButton: 'btn-alert-confirm',
+            cancelButton: 'btn-alert-cancel'
+        }
     }).then((result) => {
         if (result.isConfirmed) {
+            // Mostrar loading
+            Swal.fire({
+                title: 'Excluindo...',
+                text: 'Por favor, aguarde',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             const formData = new FormData();
             formData.append('acao', 'excluir');
             formData.append('obra_id', obraId);
 
-            fetch('excluir_obra.php', { method:'POST', body: formData })
-            .then(res => res.json())
+            fetch('excluir_obra.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Erro na rede');
+                }
+                return res.json();
+            })
             .then(data => {
                 if(data.success){
-                    Swal.fire('Excluída!','A obra foi excluída com sucesso.','success').then(()=>window.location.href='artistasobra.php');
+                    Swal.fire({
+                        title: 'Excluída!',
+                        text: 'A obra foi excluída com sucesso.',
+                        icon: 'success',
+                        confirmButtonColor: '#cc624e',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = 'artistasobra.php';
+                    });
                 } else {
-                    Swal.fire('Erro!', data.message || 'Erro ao excluir a obra.','error');
+                    Swal.fire({
+                        title: 'Erro!',
+                        text: data.message || 'Erro ao excluir a obra.',
+                        icon: 'error',
+                        confirmButtonColor: '#dc3545',
+                        confirmButtonText: 'Entendi'
+                    });
                 }
-            }).catch(()=>Swal.fire('Erro!','Erro de conexão.','error'));
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                Swal.fire({
+                    title: 'Erro!',
+                    text: 'Erro de conexão. Verifique sua internet.',
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545',
+                    confirmButtonText: 'Entendi'
+                });
+            });
         }
     });
 }
@@ -310,6 +539,17 @@ if(profileIcon && profileDropdown){
         }
     });
 }
+
+// Efeito hover suave nos botões
+document.querySelectorAll('.btn-base').forEach(btn => {
+    btn.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-2px)';
+    });
+    
+    btn.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+    });
+});
 </script>
 </body>
 </html>
