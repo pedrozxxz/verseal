@@ -28,13 +28,18 @@ if ($conn->connect_error) {
     die("Falha na conexão: " . $conn->connect_error);
 }
 
-// Buscar obras do usuário logado
 $sql_obras = "
-    SELECT *
-    FROM produtos
-    WHERE artista = ?
-    ORDER BY data_cadastro DESC
+    SELECT p.*,
+           CASE 
+             WHEN pi.produto_id IS NOT NULL THEN 'vendida'
+             ELSE 'disponivel'
+           END AS status
+    FROM produtos p
+    LEFT JOIN itens_pedido pi ON pi.produto_id = p.id
+    WHERE p.artista = ?
+    ORDER BY p.data_cadastro DESC
 ";
+
 $stmt_obras = $conn->prepare($sql_obras);
 $nomeArtista = $usuarioLogado['nome'];
 $stmt_obras->bind_param("s", $nomeArtista);
@@ -87,10 +92,7 @@ if ($result_obras) {
             "categoria" => $categorias,
             "data_cadastro" => $obra['data_cadastro'] ?? '',
             "data_criacao" => $obra['data_cadastro'] ?? '',
-            "disponivel" => (
-                  boolval($obra['ativo'] ?? true) && 
-                  ($obra['status'] ?? '') === 'nao_comprado'
-              )
+            "status" => $obra['status'] ?? 'disponivel'
 
         ];
     }
@@ -787,46 +789,65 @@ $conn->close();
             <span class="info-label">Categorias:</span>
             <span class="info-value">${Array.isArray(obra.categoria) ? obra.categoria.join(', ') : 'Não informado'}</span>
           </div>
-          <div class="info-item">
-            <span class="info-label">Disponível:</span>
-            <span class="info-value">${obra.disponivel || 'Não informado'}</span>
-          </div>
+          <span class="info-label">Status:</span>
+          <span class="info-value" style="font-weight:bold; color:${obra.status === 'vendida' ? '#dc3545' : '#28a745'}">
+            ${obra.status === 'vendida' ? 'VENDIDA' : 'DISPONÍVEL'}
+          </span>
         </div>
         <div class="descricao-completa">
           <h4>Descrição da Obra</h4>
           <p>${obra.desc || 'Esta obra não possui descrição.'}</p>
         </div>
         <div class="modal-actions">
-          <a href="editar_obra2.php?id=${obra.id}" class="btn-editar-modal" style="
-            background: #cc624e;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 8px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: bold;
-            transition: background 0.3s;
-          ">
-            <i class="fas fa-edit"></i> Editar Obra
-          </a>
-          <button class="btn-excluir-modal" onclick="confirmarExclusaoModal(${obra.id})" style="
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: bold;
-            transition: background 0.3s;
-          ">
-            <i class="fas fa-trash"></i> Excluir Obra
-          </button>
-        </div>
+  ${
+    obra.status === 'vendida'
+    ? `
+      <div style="
+        background:#dc3545;
+        color:white;
+        padding:15px 25px;
+        border-radius:10px;
+        font-weight:bold;
+        display:flex;
+        align-items:center;
+        gap:10px;
+      ">
+        <i class="fas fa-lock"></i> OBRA VENDIDA — EDIÇÃO BLOQUEADA
+      </div>
+    `
+    : `
+      <a href="editar_obra2.php?id=${obra.id}" class="btn-editar-modal" style="
+        background: #cc624e;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: bold;
+      ">
+        <i class="fas fa-edit"></i> Editar Obra
+      </a>
+
+      <button class="btn-excluir-modal" onclick="confirmarExclusaoModal(${obra.id})" style="
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: bold;
+      ">
+        <i class="fas fa-trash"></i> Excluir Obra
+      </button>
+    `
+  }
+</div>
+
       `;
 
       // Mostrar modal

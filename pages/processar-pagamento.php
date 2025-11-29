@@ -131,6 +131,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         $pedido_db_id = $conn->insert_id;
+
+        // 4. Inserir produtos do pedido
+$sql_item = "INSERT INTO itens_pedido (pedido_id, produto_id, preco) VALUES (?, ?, ?)";
+$stmt_item = $conn->prepare($sql_item);
+
+foreach ($carrinho as $item) {
+    $produto_id = $item['id'];      // ID correto do produto
+    $preco = $item['preco'];
+
+    $stmt_item->bind_param("iid", $pedido_db_id, $produto_id, $preco);
+
+    if (!$stmt_item->execute()) {
+        throw new Exception("Erro ao inserir item do pedido: " . $stmt_item->error);
+    }
+}
+
+
         $stmt_pedido->close();
         
         // 2. Inserir endereço de entrega

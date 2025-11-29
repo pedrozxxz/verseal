@@ -32,10 +32,16 @@ if ($conn->connect_error) {
 // Buscar TODOS os produtos (obras) do banco de dados
 $sql_produtos = "
     SELECT p.* 
-    FROM produtos p 
+    FROM produtos p
     WHERE p.ativo = 1
+    AND NOT EXISTS (
+        SELECT 1 
+        FROM itens_pedido ip 
+        WHERE ip.produto_id = p.id
+    )
     ORDER BY p.data_cadastro DESC
 ";
+
 
 $result_produtos = $conn->query($sql_produtos);
 $produtos = [];

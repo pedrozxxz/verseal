@@ -66,9 +66,14 @@ elseif (isset($_SESSION["artistas"])) {
     $usuario_id = $usuarioLogado['id'];
 }
 
-// Busca as obras cadastradas no banco
-$sql = "SELECT id, nome, artista, preco, descricao AS descricao, dimensoes, tecnica, ano, material, imagem_url, categorias 
-        FROM produtos";
+$sql = "
+SELECT p.id, p.nome, p.artista, p.preco, p.descricao AS descricao, 
+       p.dimensoes, p.tecnica, p.ano, p.material, p.imagem_url, p.categorias
+FROM produtos p
+LEFT JOIN itens_pedido ip ON ip.produto_id = p.id
+WHERE ip.produto_id IS NULL
+";
+
 $result = $conexao->query($sql);
 
 // Cria array com as obras
