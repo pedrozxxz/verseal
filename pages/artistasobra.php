@@ -87,7 +87,11 @@ if ($result_obras) {
             "categoria" => $categorias,
             "data_cadastro" => $obra['data_cadastro'] ?? '',
             "data_criacao" => $obra['data_cadastro'] ?? '',
-            "disponivel" => boolval($obra['ativo'] ?? true)
+            "disponivel" => (
+                  boolval($obra['ativo'] ?? true) && 
+                  ($obra['status'] ?? '') === 'nao_comprado'
+              )
+
         ];
     }
 }

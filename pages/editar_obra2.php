@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['salvar_obra'])) {
     // CORREÇÃO: Atualizar no banco com coluna dimensoes
     $sql_update = "UPDATE produtos SET nome = ?, preco = ?, descricao = ?, dimensoes = ?, tecnica = ?, ano = ?, material = ?, imagem_url = ? WHERE id = ? AND artista = ?";
     $stmt_update = $conn->prepare($sql_update);
-    $stmt_update->bind_param("sdsssisisi", $nome, $preco, $descricao, $dimensoes, $tecnica, $ano, $material, $imagem_url, $obraId, $nomeUsuario);
+    $stmt_update->bind_param("sdsssisssi", $nome, $preco, $descricao, $dimensoes, $tecnica, $ano, $material, $imagem_url, $obraId, $nomeUsuario);
 
     if ($stmt_update->execute()) {
         header('Location: artistasobra.php?obra_editada=' . $obraId . '&ordenacao=recentes');

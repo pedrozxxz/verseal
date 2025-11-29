@@ -31,44 +31,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $categorias_json = json_encode($categorias);
 
-    // Upload da imagem - VERSAO CORRIGIDA
-    $imagem_url = '';
-    if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/verseal/img/obras/'; // CAMINHO ABSOLUTO
-        
-        // Criar diretório se não existir
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
-        }
-
-        // Verificar extensões permitidas
-        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
-        $file_extension = strtolower(pathinfo($_FILES['imagem']['name'], PATHINFO_EXTENSION));
-        
-        if (!in_array($file_extension, $allowed_extensions)) {
-            echo "<script>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro!',
-                    text: 'Formato de arquivo não permitido. Use apenas JPG, PNG ou GIF.',
-                    confirmButtonText: 'OK'
-                });
-            </script>";
-        } else {
-            $file_name = uniqid() . '_' . time() . '.' . $file_extension;
-            $upload_file = $upload_dir . $file_name;
-
-            if (move_uploaded_file($_FILES['imagem']['tmp_name'], $upload_file)) {
-                $imagem_url = 'img/obras/' . $file_name;
-            } else {
-                error_log("Erro ao mover arquivo: " . $_FILES['imagem']['error']);
-            }
-        }
+    // Upload da imagem - SOLUÇÃO AUTOMÁTICA
+$imagem_url = '';
+if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
+    // 🔹 DETECTA AUTOMATICAMENTE A ESTRUTURA
+    $base_path = $_SERVER['DOCUMENT_ROOT'] . '/verseal/';
+    
+    // Verifica se existe a pasta verseal dentro de verseal
+    if (is_dir($base_path . 'verseal/')) {
+        $upload_dir = $base_path . 'verseal/img/obras/';
     } else {
-        // Debug do erro de upload
-        $upload_error = $_FILES['imagem']['error'] ?? 'Nenhum arquivo';
-        error_log("Erro upload imagem: " . $upload_error);
+        $upload_dir = $base_path . 'img/obras/';
     }
+    
+    // Criar diretório se não existir
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+
+    // Verificar extensões permitidas
+    $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+    $file_extension = strtolower(pathinfo($_FILES['imagem']['name'], PATHINFO_EXTENSION));
+    
+    if (!in_array($file_extension, $allowed_extensions)) {
+        echo "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: 'Formato de arquivo não permitido. Use apenas JPG, PNG ou GIF.',
+                confirmButtonText: 'OK'
+            });
+        </script>";
+    } else {
+        $file_name = uniqid() . '_' . time() . '.' . $file_extension;
+        $upload_file = $upload_dir . $file_name;
+
+        if (move_uploaded_file($_FILES['imagem']['tmp_name'], $upload_file)) {
+            $imagem_url = 'img/obras/' . $file_name;
+            
+            // 🔹 DEBUG: Verificar se está funcionando
+            echo "<script>console.log('Arquivo salvo em: $upload_file');</script>";
+        } else {
+            error_log("Erro ao mover arquivo para: " . $upload_file);
+        }
+    }
+}
 
     // Inserir obra no banco - VERIFICAR SE A IMAGEM_URL ESTÁ PREENCHIDA
     if (!empty($imagem_url)) {
