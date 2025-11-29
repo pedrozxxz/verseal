@@ -212,7 +212,7 @@ if (!isset($_SESSION['carrinho_notificacoes'])) {
             <?php endif; ?>
 
             <div class="dropdown-divider"></div>
-            <a href="logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+            <a href="pages/logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
 
           <?php else: ?>
             <div class="user-info">
