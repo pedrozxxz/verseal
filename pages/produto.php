@@ -85,7 +85,6 @@ if ($result_produtos && $result_produtos->num_rows > 0) {
             "material" => $produto['material'] ?? '',
             "categorias" => $categorias,
             "disponivel" => boolval($produto['ativo'] ?? true),
-            "estoque" => intval($produto['estoque'] ?? 0),
             "data_cadastro" => $produto['data_cadastro'] ?? ''
         ];
     }
@@ -756,10 +755,6 @@ $conn->close();
           <div class="info-item">
             <span class="info-label">Material:</span>
             <span class="info-value">${obra.material || 'Não informado'}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Estoque:</span>
-            <span class="info-value">${obra.estoque} unidades</span>
           </div>
         </div>
         <div class="descricao-completa">

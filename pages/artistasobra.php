@@ -86,8 +86,7 @@ if ($result_obras) {
             "material" => $obra['material'] ?? '',
             "categoria" => $categorias,
             "data_cadastro" => $obra['data_cadastro'] ?? '',
-            "data_criacao" => $obra['data_cadastro'] ?? '', // 🔹 CORREÇÃO: Adicionar data_criacao
-            "estoque" => intval($obra['estoque'] ?? 0),
+            "data_criacao" => $obra['data_cadastro'] ?? '',
             "disponivel" => boolval($obra['ativo'] ?? true)
         ];
     }
@@ -779,10 +778,6 @@ $conn->close();
           <div class="info-item">
             <span class="info-label">Material:</span>
             <span class="info-value">${obra.material || 'Não informado'}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Estoque:</span>
-            <span class="info-value">${obra.estoque || 0} unidades</span>
           </div>
           <div class="info-item">
             <span class="info-label">Categorias:</span>
