@@ -367,7 +367,7 @@ function generatePixCode($valor, $pedido_id) {
                     
                     <div class="dropdown-divider"></div>
                     <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-                    <a href="./cadastro.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+                    <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
                 <?php endif; ?>
             </div>
         </div>

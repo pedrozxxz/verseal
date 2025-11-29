@@ -220,7 +220,7 @@ if (!isset($_SESSION['carrinho_notificacoes'])) {
             </div>
             <div class="dropdown-divider"></div>
             <a href="pages/login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-            <a href="pages/cadastro.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+            <a href="pages/login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
           <?php endif; ?>
         </div>
       </div>
