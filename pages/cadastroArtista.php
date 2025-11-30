@@ -50,21 +50,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bind_param("sssssss", $nome, $nome_artistico, $insta, $email, $telefone, $cpf, $senhaHash);
 
             if ($stmt->execute()) {
-                $_SESSION["artista"] = $nome;
+    // Buscar os dados completos do artista recém-cadastrado
+    $artista_id = $stmt->insert_id;
+    $sql_artista = "SELECT * FROM artistas WHERE id = ?";
+    $stmt_artista = $conn->prepare($sql_artista);
+    $stmt_artista->bind_param("i", $artista_id);
+    $stmt_artista->execute();
+    $result_artista = $stmt_artista->get_result();
+    $artista_data = $result_artista->fetch_assoc();
+    
+    // Salvar todas as sessões necessárias
+    $_SESSION["artistas"] = $artista_data;
+    $_SESSION["artistas_id"] = $artista_data['id'];
+    $_SESSION["tipo_usuario"] = 'artista';
+    $_SESSION["tipo_artistas"] = 'artista';
+    
+    // Também criar sessões compatíveis com cliente
+    $_SESSION["usuario"] = [
+        "id" => $artista_data["id"],
+        "nome" => $artista_data["nome"],
+        "email" => $artista_data["email"],
+        "origem" => "artista"
+    ];
+    $_SESSION["usuario_id"] = $artista_data["id"];
+    $_SESSION["clientes"] = $_SESSION["usuario"];
+    $_SESSION["clientes_id"] = $artista_data["id"];
+    
+    echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Cadastro realizado!',
+                text: 'Você foi cadastrado e logado com sucesso como artista.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = 'artistahome.php';
+            });
+        });
+    </script>";
 
-                echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
-                echo "<script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        Swal.fire({
-                            title: 'Cadastro realizado!',
-                            text: 'Você foi cadastrado e logado com sucesso como artista.',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            window.location.href = 'artistahome.php';
-                        });
-                    });
-                </script>";
             } else {
                 echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
                 echo "<script>
