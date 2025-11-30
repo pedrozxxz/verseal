@@ -8,7 +8,7 @@ if (!isset($_SESSION['carrinho_notificacoes'])) {
 }
 
 // Verificar se o usuário está logado (cliente)
-if (!isset($_SESSION["usuarios"])) {
+if (!isset($_SESSION["usuario"])) {
     header("Location: login.php");
     exit();
 }
@@ -24,7 +24,7 @@ if ($conn->connect_error) {
 }
 
 // Carregar dados do usuário a partir da sessão
-$usuarioLogado = $_SESSION["usuarios"];
+$usuarioLogado = $_SESSION["usuario"];
 $usuario_id = $usuarioLogado['id'] ?? null;
 
 if (!$usuario_id) {

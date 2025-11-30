@@ -107,6 +107,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $stmt_update->close();
 }
+$total_nao_lidas = 0;
+if (isset($usuarioLogado['id']) && function_exists('getTotalMensagensNaoLidas')) {
+    $total_nao_lidas = getTotalMensagensNaoLidas($conn, $usuarioLogado['id']);
+}
 
 $conn->close();
 ?>
@@ -329,24 +333,6 @@ button:hover {
 </style>
 
 </head>
-<body>
-<?php
-// header.php
-require_once 'config.php';
-?>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Verseal - Plataforma Artística</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
-  <link rel="stylesheet" href="../css/style.css" />
-</head>
-
-<body>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -363,44 +349,56 @@ require_once 'config.php';
 </head>
 
 <body>
-<?php
-// config.php deve conter apenas configurações, não HTML
-require_once 'config.php';
-?>
 <header>
     <div class="logo">Verseal</div>
+
     <nav>
       <a href="artistahome.php"><i class="fas fa-home"></i> Início</a>
       <a href="artistasobra.php"><i class="fas fa-palette"></i> Obras</a>
       <a href="artistabiografia.php"><i class="fas fa-user"></i> Quem eu sou?</a>
-  
 
-     <div class="profile-dropdown">
-  <a href="#" class="icon-link" id="profile-icon">
-    <i class="fas fa-user"></i>
-  </a>
-  <div class="dropdown-content" id="profile-dropdown">
-    <?php if (isset($usuarioLogado) && !empty($usuarioLogado['nome'])): ?>
-      <div class="user-info">
-        <p>Bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado['nome']); ?></span>!</p>
-        <small><?php echo $tipoUsuario === 'artista' ? 'Artista' : 'Usuário'; ?></small>
+      <?php if (!empty($usuarioLogado['id'])): ?>
+      <div class="notificacao-mensagens">
+          <a href="artistaperfil.php?aba=mensagens" class="icon-link">
+              <i class="fas fa-envelope"></i>
+              
+              <?php if ($total_nao_lidas > 0): ?>
+                <span class="mensagens-badge" id="mensagensBadge"><?php echo $total_nao_lidas; ?></span>
+              <?php endif; ?>
+          </a>
       </div>
-      <div class="dropdown-divider"></div>
-      <a href="./artistaperfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
-      <?php if ($tipoUsuario === 'artista'): ?>
-        <a href="./editarbiografia.php" class="dropdown-item"><i class="fas fa-edit"></i> Editar Biografia</a>
       <?php endif; ?>
-      <div class="dropdown-divider"></div>
-      <a href="./artistalogout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
-    <?php else: ?>
-      <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
-      <div class="dropdown-divider"></div>
-      <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
-      <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
-    <?php endif; ?>
-  </div>
-</div>
-  </nav>
+
+      <!-- DROPDOWN PERFIL -->
+      <div class="profile-dropdown">
+          <a href="#" class="icon-link" id="profile-icon">
+            <i class="fas fa-user"></i>
+          </a>
+
+          <div class="dropdown-content" id="profile-dropdown">
+            <?php if (!empty($usuarioLogado['nome'])): ?>
+              <div class="user-info">
+                <p>Bem-vindo, <span id="user-name"><?php echo htmlspecialchars($usuarioLogado['nome']); ?></span>!</p>
+                <small><?php echo ucfirst($tipoUsuario); ?></small>
+              </div>
+
+              <div class="dropdown-divider"></div>
+              <a href="./artistaperfil.php" class="dropdown-item"><i class="fas fa-user-circle"></i> Meu Perfil</a>
+              <a href="./editarbiografia.php" class="dropdown-item"><i class="fas fa-edit"></i> Editar Biografia</a>
+
+              <div class="dropdown-divider"></div>
+              <a href="./logout.php" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+
+            <?php else: ?>
+              <div class="user-info"><p>Faça login para acessar seu perfil</p></div>
+              <div class="dropdown-divider"></div>
+              <a href="./login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Fazer Login</a>
+              <a href="./login.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Cadastrar</a>
+            <?php endif; ?>
+          </div>
+      </div>
+
+    </nav>
 </header>
 
 <div class="edit-bio-container">
@@ -576,6 +574,21 @@ document.addEventListener('DOMContentLoaded', function () {
         fileName.textContent = 'Imagem atual carregada';
         fileName.style.color = '#27ae60';
     }
+     function atualizarBadgeMensagens() {
+          const badge = document.getElementById('mensagensBadge');
+          const totalNaoLidas = <?php echo $total_nao_lidas; ?>;
+
+          if (badge) {
+              if (totalNaoLidas > 0) {
+                  badge.textContent = totalNaoLidas;
+                  badge.style.display = 'flex';
+              } else {
+                  badge.style.display = 'none';
+              }
+          }
+      }
+
+      atualizarBadgeMensagens();
 });
 </script>
 </body>

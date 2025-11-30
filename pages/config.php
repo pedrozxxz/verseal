@@ -87,4 +87,18 @@ elseif (isUsuario()) {
     }
     $tipoUsuario = "usuario";
 }
+
+// 🔹 FUNÇÃO PARA CONTAR MENSAGENS NÃO LIDAS
+function getTotalMensagensNaoLidas($conn, $artista_id) {
+    $sql = "SELECT COUNT(*) as total FROM mensagens_artistas WHERE artista_id = ? AND lida = 0";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $artista_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
+    
+    return $row['total'] ?? 0;
+}
+
 ?>
