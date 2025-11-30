@@ -151,7 +151,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+<div class="hero-bg">
+    <!-- SHAPES COLORIDOS -->
+    <div class="shape shape1"></div>
+    <div class="shape shape2"></div>
+    <div class="shape shape3"></div>
 
+    <!-- QUADROS -->
+    <div class="frame frame1"></div>
+    <div class="frame frame2"></div>
+    <div class="frame frame3"></div>
+</div>
+ <!-- Adicione isso após as partículas e antes do container -->
+<div class="organic-shape shape-1"></div>
+<div class="organic-shape shape-2"></div>
+<div class="organic-shape shape-3"></div>
+
+  <div class="art-grid"></div>
+
+<div class="curve"></div>
+<div class="curve"></div>
+<div class="curve"></div>
+
+<img src="../img/monalisa.jfif" class="art-frame frame2">
+<img src="../img/vangogh.jfif" class="art-frame frame3">
+<img src="../img/moça-bonita.jfif" class="art-frame frame4">
+<img src="../img/moço-lowprofile.jfif" class="art-frame frame1">
   <div id="particles-js"></div>
 
   <main class="container" data-aos="zoom-in">

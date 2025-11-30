@@ -103,198 +103,384 @@ if (isset($obra['imagem_url']) && !empty($obra['imagem_url'])) {
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Open+Sans&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
 <link rel="stylesheet" href="../css/style.css" />
-<link rel="stylesheet" href="../css/adicionar-obras.css" />
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
-/* Estilos para os botões - SIMÉTRICOS E HARMONIOSOS */
+/* ==== ESTILO GERAL ==== */
+body {
+  background-color: #fff;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #f6eae5 0px,
+    #f6eae5 1px,
+    transparent 1px,
+    transparent 30px
+  );
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', sans-serif;
+  min-height: 100vh;
+}
+
+/* ==== LAYOUT PRINCIPAL ==== */
+.edit-obra-container {
+  width: 100%;
+  max-width: 1300px;
+  margin: 120px auto;
+  background: #ffffff;
+  border-radius: 25px;
+  padding: 60px;
+  display: grid;
+  grid-template-columns: 1fr 420px; /* FORMULÁRIO À ESQUERDA, IMAGEM À DIREITA */
+  gap: 50px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  position: relative;
+  min-height: 600px;
+}
+
+/* ==== TÍTULO ==== */
+.edit-obra-container::before {
+  content: 'EDITAR OBRA';
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: url('../img/pincelada.png') no-repeat center/contain;
+  color: #fff;
+  font-size: 2.2rem;
+  padding: 15px 40px;
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+/* ==== ÁREA DA IMAGEM - AGORA NA DIREITA ==== */
+.foto-area {
+  background: #fdf9f8;
+  border-radius: 20px;
+  padding: 25px;
+  border: 2px dashed #f0dcd0;
+  text-align: center;
+  height: fit-content;
+  position: sticky;
+  top: 140px; /* FIXO NA TELA */
+  align-self: start;
+}
+
+.foto-area img,
+#imagePreview {
+  width: 100%;
+  height: 330px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 2px solid #e07b67;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.preview-placeholder {
+  width: 100%;
+  height: 330px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 16px;
+  border: 2px dashed #dee2e6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: #6c757d;
+  margin-bottom: 15px;
+}
+
+.preview-placeholder i {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+/* BOTÃO DE UPLOAD */
+.file-input-wrapper {
+  width: 100%;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.file-input-button {
+  background: linear-gradient(135deg, #e07b67, #cc624e);
+  color: #fff;
+  padding: 12px;
+  border-radius: 25px;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(204, 98, 78, 0.3);
+  transition: all 0.3s ease;
+}
+
+.file-input-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(204, 98, 78, 0.4);
+}
+
+.file-input-wrapper input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-name {
+  display: block;
+  margin-top: 8px;
+  font-size: .85rem;
+  color: #555;
+}
+
+/* ==== FORMULÁRIO - AGORA À ESQUERDA ==== */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+form input,
+form textarea,
+form select {
+  padding: 13px 15px;
+  border: 2px solid #f0dcd0;
+  background: #fdf9f8;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: .3s;
+  font-family: 'Open Sans', sans-serif;
+}
+
+form input:focus,
+form textarea:focus,
+form select:focus {
+  border-color: #e07b67;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(224, 123, 103, .15);
+  outline: none;
+}
+
+textarea {
+  height: 130px;
+  resize: none;
+}
+
+/* CAMPOS EM 2 COLUNAS */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* CATEGORIAS */
+.categorias-group {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 12px;
+}
+
+.categoria-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.categoria-checkbox:hover {
+  background: #f0dcd0;
+}
+
+.categoria-checkbox input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.categoria-checkbox label {
+  cursor: pointer;
+  margin: 0;
+}
+
+/* BOTÕES DE AÇÃO */
+.botoes-acoes {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  padding: 20px 0;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+}
+
 .btn-base {
-    border: none;
-    padding: 14px 32px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-    min-width: 200px;
-    text-decoration: none;
-    font-family: 'Open Sans', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 30px;
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  width: 100%;
+  max-width: 300px;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: 'Open Sans', sans-serif;
 }
 
-.btn-salvar { 
-    background: linear-gradient(135deg, #cc624e, #d97360); 
-    color: white; 
-    box-shadow: 0 4px 12px rgba(204, 98, 78, 0.3);
+.btn-salvar {
+  background: linear-gradient(135deg, #e07b67, #cc624e);
+  box-shadow: 0 8px 20px rgba(204, 98, 78, .4);
 }
 
-.btn-salvar:hover { 
-    background: linear-gradient(135deg, #e07b67, #e88572);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(204, 98, 78, 0.4);
+.btn-salvar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(204, 98, 78, .5);
 }
 
-.btn-excluir { 
-    background: linear-gradient(135deg, #dc3545, #e04a59);
-    color: white;
-    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+.btn-excluir {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
 }
 
-.btn-excluir:hover { 
-    background: linear-gradient(135deg, #c82333, #d42e3e);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+.btn-excluir:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(220, 53, 69, 0.5);
 }
 
-.btn-cancelar { 
-    background: linear-gradient(135deg, #6c757d, #7a8288);
-    color: white;
-    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+.btn-cancelar {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
 }
 
-.btn-cancelar:hover { 
-    background: linear-gradient(135deg, #5a6268, #686f75);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+.btn-cancelar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(108, 117, 125, 0.5);
 }
 
-/* Container dos botões - CENTRALIZADO E SIMÉTRICO */
-.botoes-acoes { 
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    align-items: center;
-    margin-top: 40px;
-    padding: 20px 0;
-    flex-wrap: wrap;
+/* ELEMENTOS FIXOS */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
 }
 
-/* ESTILOS PARA O TEXTAREA DA DESCRIÇÃO - IGUAL AOS OUTROS INPUTS */
-.form-group textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-family: 'Open Sans', sans-serif;
-    background-color: #fff;
-    transition: all 0.3s ease;
-    resize: vertical;
-    min-height: 120px;
-    line-height: 1.5;
-    color: #333;
-    box-sizing: border-box;
+.edit-obra-container {
+  position: relative;
+  z-index: 1;
 }
 
-/* Estilização consistente para todos os inputs, selects e textarea */
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-family: 'Open Sans', sans-serif;
-    background-color: #fff;
-    transition: all 0.3s ease;
-    color: #333;
-    box-sizing: border-box;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: #cc624e;
-    background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(204, 98, 78, 0.1);
-}
-
-.form-group input:hover,
-.form-group select:hover,
-.form-group textarea:hover {
-    border-color: #cc624e;
-}
-
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-    color: #999;
-}
-
-/* Labels dos formulários */
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #333;
-    font-family: 'Open Sans', sans-serif;
-    font-size: 0.95rem;
-}
-
-/* Responsividade para telas menores */
-@media (max-width: 768px) {
-    .botoes-acoes {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .btn-base {
-        min-width: 250px;
-        width: 100%;
-        max-width: 300px;
-    }
-}
-
-/* Efeito de clique nos botões */
-.btn-base:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Ícones dos botões */
-.btn-base i {
-    font-size: 1.1rem;
-}
-
-.mensagem-erro { 
-    background: #f8d7da; 
-    color: #721c24; 
-    padding: 12px 16px; 
-    border-radius: 6px; 
-    margin-bottom: 20px; 
-    border: 1px solid #f5c6cb;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+/* MENSAGEM DE ERRO */
+.mensagem-erro {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #f5c6cb;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  grid-column: 1 / -1;
 }
 
 .mensagem-erro i {
-    font-size: 1.2rem;
+  font-size: 1.2rem;
 }
 
-/* Melhorias na área de upload */
-.upload-area {
-    transition: all 0.3s ease;
-    border: 2px dashed #ddd;
+/* RESPONSIVIDADE */
+@media (max-width: 980px) {
+  .edit-obra-container {
+    grid-template-columns: 1fr;
+    padding: 40px 20px;
+    margin: 100px auto;
+    gap: 30px;
+  }
+  
+  .foto-area {
+    position: relative;
+    top: 0;
+    order: 1;
+  }
+  
+  form {
+    order: 2;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .edit-obra-container::before {
+    font-size: 1.8rem;
+    padding: 12px 30px;
+    top: -30px;
+  }
+  
+  .botoes-acoes {
+    flex-direction: column;
+  }
+  
+  .btn-base {
+    max-width: 100%;
+  }
 }
 
-.upload-area:hover {
-    border-color: #cc624e;
-    background-color: #f9f9f9;
+@media (max-width: 768px) {
+  .categorias-group {
+    grid-template-columns: 1fr;
+  }
+  
+  .edit-obra-container {
+    padding: 30px 15px;
+  }
 }
 
-/* Estilo para o título da página */
-.adicionar-obras h1 {
-    text-align: center;
-    margin-bottom: 30px;
-    color: #333;
-    font-family: 'Playfair Display', serif;
-    font-weight: 600;
+/* ESTILOS ESPECÍFICOS PARA O SELECT DE OBRA */
+.form-group select {
+  width: 100%;
+  padding: 13px 15px;
+  border: 2px solid #f0dcd0;
+  background: #fdf9f8;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: .3s;
+  font-family: 'Open Sans', sans-serif;
+  color: #333;
+  cursor: pointer;
+}
+
+.form-group select:focus {
+  border-color: #e07b67;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(224, 123, 103, .15);
+  outline: none;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.95rem;
 }
 </style>
 </head>
@@ -325,110 +511,106 @@ if (isset($obra['imagem_url']) && !empty($obra['imagem_url'])) {
 </nav>
 </header>
 
-<section class="adicionar-obras">
-<div class="container">
-<h1>EDITAR OBRAS</h1>
+<!-- CONTAINER PRINCIPAL COM O MESMO LAYOUT -->
+<div class="edit-obra-container">
+  <!-- FORMULÁRIO À ESQUERDA -->
+  <form method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="salvar_obra" value="1">
 
-<?php if (isset($erro)): ?>
-<div class="mensagem-erro"><i class="fas fa-exclamation-triangle"></i> <?php echo $erro; ?></div>
-<?php endif; ?>
+    <?php if (isset($erro)): ?>
+    <div class="mensagem-erro">
+      <i class="fas fa-exclamation-triangle"></i> <?php echo $erro; ?>
+    </div>
+    <?php endif; ?>
 
-<form class="form-obras" id="form-obras" method="POST" enctype="multipart/form-data">
-<input type="hidden" name="salvar_obra" value="1">
+    <div class="form-group">
+      <label for="select-obra">Selecione a Obra</label>
+      <select id="select-obra" name="obra_id" onchange="carregarObra(this.value)">
+        <?php foreach ($todasObras as $id => $obra_item): ?>
+        <option value="<?php echo $id; ?>" <?php echo $id == $obraId ? 'selected' : ''; ?>>
+          <?php echo htmlspecialchars($obra_item['nome']); ?>
+        </option>
+        <?php endforeach; ?>
+      </select>
+    </div>
 
-<div class="form-grid">
-<div class="form-column">
+    <div class="form-group">
+      <label for="nome-obra">Nome da Obra</label>
+      <input type="text" id="nome-obra" name="nome_obra" placeholder="Digite o nome da obra..." value="<?php echo htmlspecialchars($obra['nome']); ?>" required>
+    </div>
 
-<div class="form-group">
-<label for="select-obra">Selecione a Obra</label>
-<select id="select-obra" name="obra_id" onchange="carregarObra(this.value)">
-<?php foreach ($todasObras as $id => $obra_item): ?>
-<option value="<?php echo $id; ?>" <?php echo $id == $obraId ? 'selected' : ''; ?>>
-<?php echo htmlspecialchars($obra_item['nome']); ?>
-</option>
-<?php endforeach; ?>
-</select>
-</div>
+    <div class="form-group">
+      <label for="preco">Preço (R$)</label>
+      <input type="number" id="preco" name="preco" step="0.01" placeholder="0.00" value="<?php echo $obra['preco']; ?>" required>
+    </div>
 
-<div class="form-group">
-<label for="nome-obra">Nome da Obra</label>
-<input type="text" id="nome-obra" name="nome_obra" placeholder="Digite..." value="<?php echo htmlspecialchars($obra['nome']); ?>" required>
-</div>
+    <div class="form-group">
+      <label for="descricao">Descrição da Obra</label>
+      <textarea id="descricao" name="descricao" placeholder="Descreva a obra..." required><?php echo htmlspecialchars($obra['descricao']); ?></textarea>
+    </div>
 
-<div class="form-group">
-<label for="preco">Preço</label>
-<input type="number" id="preco" name="preco" step="0.01" placeholder="Digite..." value="<?php echo $obra['preco']; ?>" required>
-</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="tecnica">Técnica/Estilo</label>
+        <select id="tecnica" name="tecnica" required>
+          <?php
+          $tecnicas = ["Técnica mista","Pintura digital","Expressionismo","Abstração","Figurativo","Realismo","Urban sketching","Manual","NFT","Mesa Digital","Pintura","Escultura","Fotografia"];
+          foreach($tecnicas as $t): ?>
+          <option value="<?php echo $t; ?>" <?php echo $obra['tecnica']==$t?'selected':''; ?>><?php echo $t; ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
 
-<div class="form-group">
-<label for="tecnica">Técnica/Estilo</label>
-<select id="tecnica" name="tecnica" required>
-<?php
-$tecnicas = ["Técnica mista","Pintura digital","Expressionismo","Abstração","Figurativo","Realismo","Urban sketching","Manual","NFT","Mesa Digital","Pintura","Escultura","Fotografia"];
-foreach($tecnicas as $t): ?>
-<option value="<?php echo $t; ?>" <?php echo $obra['tecnica']==$t?'selected':''; ?>><?php echo $t; ?></option>
-<?php endforeach; ?>
-</select>
-</div>
+      <div class="form-group">
+        <label for="dimensao">Dimensões</label>
+        <input type="text" id="dimensao" name="dimensao" placeholder="Ex: 50x70cm" value="<?php echo htmlspecialchars($obra['dimensoes']); ?>" required>
+      </div>
+    </div>
 
-<div class="form-group">
-<label for="dimensao">Dimensão</label>
-<!-- CORREÇÃO: usar $obra['dimensoes'] em vez de $obras['dimensao'] -->
-<input type="text" id="dimensao" name="dimensao" placeholder="Digite..." value="<?php echo htmlspecialchars($obra['dimensoes']); ?>" required>
-</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="ano">Ano de Criação</label>
+        <input type="number" id="ano" name="ano" min="1900" max="2030" value="<?php echo $obra['ano']; ?>" required>
+      </div>
 
-<div class="form-group">
-<label for="ano">Ano de Criação</label>
-<input type="number" id="ano" name="ano" min="1900" max="2030" value="<?php echo $obra['ano']; ?>" required>
-</div>
+      <div class="form-group">
+        <label for="material">Material</label>
+        <input type="text" id="material" name="material" placeholder="Ex: Tinta acrílica, Tela..." value="<?php echo htmlspecialchars($obra['material']); ?>" required>
+      </div>
+    </div>
 
-<div class="form-group">
-<label for="material">Material</label>
-<input type="text" id="material" name="material" placeholder="Digite..." value="<?php echo htmlspecialchars($obra['material']); ?>" required>
-</div>
+    <!-- INPUT DO FILE ESCONDIDO DENTRO DO FORMULÁRIO -->
+    <input type="file" id="nova-imagem" name="nova_imagem" accept="image/*" style="display: none;">
 
-<div class="form-group">
-<label for="descricao">Descrição da Obra</label>
-<textarea id="descricao" name="descricao" placeholder="Descreva a obra..." rows="4" required><?php echo htmlspecialchars($obra['descricao']); ?></textarea>
-</div>
+    <div class="botoes-acoes">
+      <button type="submit" class="btn-base btn-salvar">
+        <i class="fas fa-save"></i> SALVAR ALTERAÇÕES
+      </button>
+      <button type="button" class="btn-base btn-excluir" onclick="confirmarExclusao(<?php echo $obraId; ?>)">
+        <i class="fas fa-trash"></i> EXCLUIR OBRA
+      </button>
+      <a href="artistasobra.php" class="btn-base btn-cancelar">
+        <i class="fas fa-times"></i> CANCELAR
+      </a>
+    </div>
+  </form>
 
+  <!-- ÁREA DA IMAGEM À DIREITA -->
+  <div class="foto-area">
+    <div id="previewContainer">
+      <img src="<?php echo htmlspecialchars($imagemExibir); ?>" alt="Imagem da obra" id="imagem-atual" onerror="this.src='../img/imagem2.png';">
+    </div>
+    
+    <!-- BOTÃO PARA ACIONAR O INPUT FILE -->
+    <div class="file-input-wrapper">
+      <div class="file-input-button" onclick="document.getElementById('nova-imagem').click()">
+        <i class="fas fa-upload"></i> ALTERAR IMAGEM
+      </div>
+    </div>
+    <span id="file-name" class="file-name">Clique para alterar a imagem atual</span>
+    <small style="color: #666; display: block; margin-top: 8px;">Formatos: JPG, PNG, GIF (Máx. 10MB)</small>
+  </div>
 </div>
-
-<div class="form-column">
-<div class="upload-area" id="upload-area">
-<div class="upload-content">
-<i class="fas fa-cloud-upload-alt"></i>
-<h3>IMAGEM ATUAL</h3>
-<p>Clique para alterar a imagem</p>
-<span>PNG, JPG, JPEG até 10MB</span>
-</div>
-<input type="file" id="nova-imagem" name="nova_imagem" accept="image/*" hidden onchange="previewImage(this)">
-</div>
-
-<div class="image-preview" id="image-preview">
-<img src="<?php echo htmlspecialchars($imagemExibir); ?>" alt="Imagem da obra" id="imagem-atual" onerror="this.src='../img/imagem2.png';">
-</div>
-</div>
-</div>
-
-<div class="botoes-acoes">
-    <button type="submit" class="btn-base btn-salvar"><i class="fas fa-save"></i> SALVAR ALTERAÇÕES</button>
-    <button type="button" class="btn-base btn-excluir" onclick="confirmarExclusao(<?php echo $obraId; ?>)"><i class="fas fa-trash"></i> EXCLUIR OBRA</button>
-    <a href="artistasobra.php" class="btn-base btn-cancelar"><i class="fas fa-times"></i> CANCELAR</a>
-</div>
-
-</form>
-</div>
-</section>
-
-<footer>
-<p>&copy; 2025 Verseal. Todos os direitos reservados.</p>
-<div class="social">
-<a href="#"><i class="fab fa-instagram"></i></a>
-<a href="#"><i class="fab fa-linkedin-in"></i></a>
-<a href="#"><i class="fab fa-whatsapp"></i></a>
-</div>
-</footer>
 
 <script>
 function carregarObra(obraId) {
@@ -437,9 +619,30 @@ function carregarObra(obraId) {
 
 function previewImage(input) {
     const preview = document.getElementById('imagem-atual');
+    const fileName = document.getElementById('file-name');
+    
     if (input.files && input.files[0]) {
+        // Verificar tamanho do arquivo (máximo 10MB)
+        if (input.files[0].size > 10 * 1024 * 1024) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: 'A imagem deve ter no máximo 10MB',
+                confirmButtonText: 'OK'
+            });
+            input.value = '';
+            fileName.textContent = 'Arquivo muito grande (máx. 10MB)';
+            fileName.style.color = '#e74c3c';
+            return;
+        }
+        
+        fileName.textContent = input.files[0].name;
+        fileName.style.color = '#27ae60';
+        
         const reader = new FileReader();
-        reader.onload = function(e) { preview.src = e.target.result; }
+        reader.onload = function(e) { 
+            preview.src = e.target.result; 
+        }
         reader.readAsDataURL(input.files[0]);
     }
 }
@@ -453,12 +656,7 @@ function confirmarExclusao(obraId) {
         confirmButtonColor: '#dc3545',
         cancelButtonColor: '#6c757d',
         confirmButtonText: 'Sim, excluir!',
-        cancelButtonText: 'Cancelar',
-        buttonsStyling: true,
-        customClass: {
-            confirmButton: 'btn-alert-confirm',
-            cancelButton: 'btn-alert-cancel'
-        }
+        cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
             // Mostrar loading
@@ -520,10 +718,10 @@ function confirmarExclusao(obraId) {
     });
 }
 
-// Upload área
-const uploadArea = document.getElementById('upload-area');
-const imageInput = document.getElementById('nova-imagem');
-uploadArea.addEventListener('click', () => imageInput.click());
+// Preview da imagem quando selecionar nova
+document.getElementById('nova-imagem').addEventListener('change', function(e) {
+    previewImage(this);
+});
 
 // Dropdown perfil
 const profileIcon = document.getElementById('profile-icon');
@@ -540,15 +738,32 @@ if(profileIcon && profileDropdown){
     });
 }
 
-// Efeito hover suave nos botões
-document.querySelectorAll('.btn-base').forEach(btn => {
-    btn.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-2px)';
-    });
+// Validação do formulário
+document.querySelector('form').addEventListener('submit', function(e) {
+    const preco = document.getElementById('preco').value;
+    const ano = document.getElementById('ano').value;
     
-    btn.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0)';
-    });
+    if (parseFloat(preco) <= 0) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro!',
+            text: 'Por favor, insira um preço válido maior que zero.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+    
+    if (parseInt(ano) < 1900 || parseInt(ano) > 2030) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro!',
+            text: 'Por favor, insira um ano válido entre 1900 e 2030.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
 });
 </script>
 </body>

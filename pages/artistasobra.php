@@ -407,7 +407,6 @@ $conn->close();
     }
     
     .badge-editado { 
-        background: #28a745; 
         color: white; 
         padding: 4px 8px; 
         border-radius: 12px; 

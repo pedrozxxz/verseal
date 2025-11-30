@@ -1,3 +1,5 @@
+DEIXE O FORMULARIO NA DIREITA PELO AMOR DE DEUS
+
 <?php
 session_start();
 $usuarioLogado = $_SESSION["usuario"] ?? null;
@@ -138,410 +140,290 @@ $conn->close();
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
-    /* FUNDO COM LINHAS DIAGONAIS */
-    body {
-      background-color: #fff;
-      background-image: repeating-linear-gradient(
-        -45deg,
-        #f6eae5 0px,
-        #f6eae5 1px,
-        transparent 1px,
-        transparent 30px
-      );
-      margin: 0;
-      padding: 0;
-      font-family: 'Open Sans', sans-serif;
-    }
+   /* ==== ESTILO GERAL ==== */
+body {
+  background-color: #fff;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #f6eae5 0px,
+    #f6eae5 1px,
+    transparent 1px,
+    transparent 30px
+  );
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', sans-serif;
+  min-height: 100vh;
+}
 
-    /* CONTAINER PRINCIPAL */
-    .edit-obra-container {
-      max-width: 1100px;
-      margin: 100px auto 50px;
-      background: #ffffff;
-      border-radius: 25px;
-      padding: 60px 70px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-      display: flex;
-      align-items: flex-start;
-      gap: 60px;
-      position: relative;
-    }
+/* ==== LAYOUT PRINCIPAL ==== */
+.edit-obra-container {
+  width: 100%;
+  max-width: 1300px;
+  margin: 120px auto;
+  background: #ffffff;
+  border-radius: 25px;
+  padding: 60px;
+  display: grid;
+  grid-template-columns: 1fr 420px; /* FORMULÁRIO À ESQUERDA, IMAGEM À DIREITA */
+  gap: 50px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  position: relative;
+  min-height: 600px;
+}
 
-    /* TÍTULO COM PINCELADA */
-    .edit-obra-container::before {
-      content: 'ADICIONAR OBRA';
-      position: absolute;
-      top: -40px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-family: 'Playfair Display', serif;
-      font-size: 2.2rem;
-      color: #fff;
-      background: url('../img/pincelada.png') no-repeat center/contain;
-      padding: 15px 40px;
-      text-align: center;
-      font-weight: bold;
-      letter-spacing: 2px;
-      z-index: 1;
-    }
+/* ==== TÍTULO ==== */
+.edit-obra-container::before {
+  content: 'ADICIONAR OBRA';
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: url('../img/pincelada.png') no-repeat center/contain;
+  color: #fff;
+  font-size: 2.2rem;
+  padding: 15px 40px;
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
 
-    /* FOTO AREA */
-    .foto-area {
-      flex: 1;
-      text-align: center;
-      padding: 20px;
-      background: #fdf9f8;
-      border-radius: 20px;
-      border: 2px dashed #f0dcd0;
-    }
+/* ==== ÁREA DA IMAGEM - AGORA NA DIREITA ==== */
+.foto-area {
+  background: #fdf9f8;
+  border-radius: 20px;
+  padding: 25px;
+  border: 2px dashed #f0dcd0;
+  text-align: center;
+  height: fit-content;
+  position: sticky;
+  top: 140px; /* FIXO NA TELA */
+  align-self: start;
+}
 
-    .foto-area img {
-      width: 100%;
-      max-width: 320px;
-      height: 320px;
-      object-fit: cover;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-      border: 2px solid #e07b67;
-    }
+.foto-area img,
+#imagePreview {
+  width: 100%;
+  height: 330px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 2px solid #e07b67;
+  display: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
 
-    .file-input-wrapper {
-      position: relative;
-      display: inline-block;
-      width: 100%;
-      max-width: 250px;
-    }
+.preview-placeholder {
+  width: 100%;
+  height: 330px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 16px;
+  border: 2px dashed #dee2e6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: #6c757d;
+  margin-bottom: 15px;
+}
 
-    .file-input-button {
-      display: block;
-      padding: 12px 20px;
-      background: linear-gradient(135deg, #e07b67, #cc624e);
-      color: white;
-      border: none;
-      border-radius: 25px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-      box-shadow: 0 4px 15px rgba(204, 98, 78, 0.3);
-      width: 100%;
-    }
+.preview-placeholder i {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
 
-    .file-input-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(204, 98, 78, 0.4);
-    }
+/* BOTÃO DE UPLOAD */
+.file-input-wrapper {
+  width: 100%;
+  position: relative;
+  margin-bottom: 10px;
+}
 
-    .file-input-wrapper input[type="file"] {
-      position: absolute;
-      left: 0;
-      top: 0;
-      opacity: 0;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-    }
+.file-input-button {
+  background: linear-gradient(135deg, #e07b67, #cc624e);
+  color: #fff;
+  padding: 12px;
+  border-radius: 25px;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(204, 98, 78, 0.3);
+  transition: all 0.3s ease;
+}
 
-    .file-name {
-      display: block;
-      margin-top: 8px;
-      font-size: 0.85rem;
-      color: #666;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+.file-input-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(204, 98, 78, 0.4);
+}
 
-    /* FORMULÁRIO */
-    form {
-      flex: 1.2;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+.file-input-wrapper input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
 
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+.file-name {
+  display: block;
+  margin-top: 8px;
+  font-size: .85rem;
+  color: #555;
+}
 
-    form label {
-      font-weight: 600;
-      color: #444;
-      font-size: 1rem;
-      margin-bottom: 0;
-    }
+/* ==== FORMULÁRIO - AGORA À ESQUERDA ==== */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
-    form input,
-    form textarea,
-    form select {
-      width: 100%;
-      padding: 14px 16px;
-      border: 2px solid #f0dcd0;
-      border-radius: 12px;
-      font-size: 1rem;
-      color: #333;
-      outline: none;
-      transition: all 0.3s ease;
-      background: #fdf9f8;
-      box-sizing: border-box;
-      font-family: 'Open Sans', sans-serif;
-    }
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
-    form input:focus,
-    form textarea:focus,
-    form select:focus {
-      border-color: #e07b67;
-      box-shadow: 0 0 0 3px rgba(224, 123, 103, 0.1);
-      background: #fff;
-    }
+form input,
+form textarea,
+form select {
+  padding: 13px 15px;
+  border: 2px solid #f0dcd0;
+  background: #fdf9f8;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: .3s;
+  font-family: 'Open Sans', sans-serif;
+}
 
-    form textarea {
-      height: 120px;
-      resize: vertical;
-      line-height: 1.5;
-    }
+form input:focus,
+form textarea:focus,
+form select:focus {
+  border-color: #e07b67;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(224, 123, 103, .15);
+  outline: none;
+}
 
-    /* GRID PARA CAMPOS MENORES */
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
+textarea {
+  height: 130px;
+  resize: none;
+}
 
-    /* CHECKBOXES */
-    .categorias-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 5px;
-    }
+/* CAMPOS EM 2 COLUNAS */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
 
-    .categoria-checkbox {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
+/* CATEGORIAS */
+.categorias-group {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 12px;
+}
 
-    .categoria-checkbox:hover {
-      background: #f0dcd0;
-    }
+.categoria-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
 
-    .categoria-checkbox input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: #e07b67;
-    }
+.categoria-checkbox:hover {
+  background: #f0dcd0;
+}
 
-    .categoria-checkbox label {
-      font-weight: 500;
-      color: #555;
-      cursor: pointer;
-      margin: 0;
-    }
+.categoria-checkbox input[type="checkbox"] {
+  cursor: pointer;
+}
 
-    /* BOTÃO SALVAR */
-    .form-actions {
-      text-align: center;
-      margin-top: 30px;
-    }
+.categoria-checkbox label {
+  cursor: pointer;
+  margin: 0;
+}
 
-    button[type="submit"] {
-      padding: 15px 50px;
-      background: linear-gradient(135deg, #e07b67, #cc624e);
-      color: #fff;
-      border: none;
-      border-radius: 30px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 8px 20px rgba(204, 98, 78, 0.4);
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-    }
+/* BOTÃO SALVAR */
+button[type="submit"] {
+  background: linear-gradient(135deg, #e07b67, #cc624e);
+  border: none;
+  padding: 15px 30px;
+  border-radius: 30px;
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(204, 98, 78, .4);
+  width: 100%;
+  max-width: 300px;
+  align-self: center;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
 
-    button[type="submit"]:hover {
-      transform: translateY(-3px);
-      background: linear-gradient(135deg, #cc624e, #e07b67);
-      box-shadow: 0 12px 25px rgba(224, 123, 103, 0.5);
-    }
+button[type="submit"]:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(204, 98, 78, .5);
+}
 
-    /* Preview da imagem */
-    #imagePreview {
-      width: 100%;
-      max-width: 320px;
-      height: 320px;
-      object-fit: cover;
-      border-radius: 15px;
-      display: none;
-      margin-bottom: 20px;
-      border: 2px solid #e07b67;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
+/* ELEMENTOS FIXOS */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
 
-    .preview-placeholder {
-      width: 100%;
-      max-width: 320px;
-      height: 320px;
-      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-      border-radius: 15px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #6c757d;
-      border: 2px dashed #dee2e6;
-      margin-bottom: 20px;
-    }
+.edit-obra-container {
+  position: relative;
+  z-index: 1;
+}
 
-    .preview-placeholder i {
-      font-size: 3rem;
-      margin-bottom: 15px;
-      color: #adb5bd;
-    }
+/* RESPONSIVIDADE */
+@media (max-width: 980px) {
+  .edit-obra-container {
+    grid-template-columns: 1fr;
+    padding: 40px 20px;
+    margin: 100px auto;
+    gap: 30px;
+  }
+  
+  .foto-area {
+    position: relative;
+    top: 0;
+    order: 1;
+  }
+  
+  form {
+    order: 2;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .edit-obra-container::before {
+    font-size: 1.8rem;
+    padding: 12px 30px;
+    top: -30px;
+  }
+}
 
-    .preview-placeholder span {
-      font-size: 0.9rem;
-      text-align: center;
-    }
+@media (max-width: 768px) {
+  .categorias-group {
+    grid-template-columns: 1fr;
+  }
+  
+  .edit-obra-container {
+    padding: 30px 15px;
+  }
+}
 
-    /* HEADER STYLES */
-    header {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    /* RESPONSIVIDADE */
-    @media (max-width: 968px) {
-      .edit-obra-container {
-        flex-direction: column;
-        padding: 40px 30px;
-        margin: 80px 20px;
-        gap: 40px;
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-        gap: 15px;
-      }
-
-      .categorias-group {
-        grid-template-columns: 1fr;
-      }
-
-      .edit-obra-container::before {
-        font-size: 1.8rem;
-        padding: 12px 30px;
-        top: -30px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .edit-obra-container {
-        padding: 30px 20px;
-        margin: 70px 15px;
-      }
-
-      .edit-obra-container::before {
-        font-size: 1.5rem;
-        padding: 10px 25px;
-        top: -25px;
-      }
-
-      form input,
-      form textarea,
-      form select {
-        padding: 12px 14px;
-      }
-    }
-
-    /* ESTILOS PARA O DROPDOWN DO PERFIL */
-    .profile-dropdown {
-      position: relative;
-      display: inline-block;
-    }
-
-    .profile-dropdown .icon-link {
-      color: #333;
-      text-decoration: none;
-      padding: 10px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: color 0.3s;
-    }
-
-    .profile-dropdown .icon-link:hover {
-      color: #e07b67;
-    }
-
-    .profile-dropdown .dropdown-content {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 100%;
-      background: white;
-      min-width: 280px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-      border-radius: 10px;
-      z-index: 1000;
-      padding: 15px 0;
-    }
-
-    .profile-dropdown .dropdown-content.show {
-      display: block;
-    }
-
-    .user-info {
-      padding: 0 15px 10px;
-      text-align: center;
-      border-bottom: 1px solid #eee;
-    }
-
-    .user-info p {
-      margin: 0;
-      font-weight: 600;
-      color: #333;
-      font-size: 0.95rem;
-    }
-
-    .dropdown-divider {
-      height: 1px;
-      background: #eee;
-      margin: 10px 0;
-    }
-
-    .dropdown-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 15px;
-      color: #333;
-      text-decoration: none;
-      transition: background 0.3s;
-      font-size: 0.9rem;
-    }
-
-    .dropdown-item:hover {
-      background: #f8f9fa;
-    }
-
-    .dropdown-item.logout-btn {
-      color: #dc3545;
-    }
-
-    .dropdown-item.logout-btn:hover {
-      background: #ffe6e6;
-    }
   </style>
 </head>
 
@@ -602,26 +484,11 @@ $conn->close();
 
   <!-- FORMULÁRIO DE ADIÇÃO DE OBRA -->
   <div class="edit-obra-container">
+    <!-- FORMULÁRIO À ESQUERDA -->
     <form action="" method="post" enctype="multipart/form-data">
-      <div class="foto-area">
-      <div id="previewContainer">
-        <div class="preview-placeholder" id="previewPlaceholder">
-          <i class="fas fa-image"></i>
-          <span>Preview da imagem</span>
-        </div>
-        <img src="" alt="Preview da obra" id="imagePreview">
-      </div>
+      <!-- INPUT DO FILE DENTRO DO FORMULÁRIO (ESCONDIDO) -->
+      <input type="file" name="imagem" id="imagemInput" accept="image/*" style="display: none;">
       
-      <div class="file-input-wrapper">
-        <div class="file-input-button">
-          <i class="fas fa-upload"></i> Escolher Imagem
-        </div>
-        <input type="file" name="imagem" id="imagemInput" accept="image/*">
-      </div>
-      <span id="file-name" class="file-name">Nenhum arquivo selecionado</span>
-      <small style="color: #666; display: block; margin-top: 8px;">Formatos: JPG, PNG, GIF (Máx. 5MB)</small>
-    </div>
-
       <div class="form-group">
         <label for="nome">Nome da Obra</label>
         <input type="text" name="nome" id="nome" placeholder="Digite o nome da obra..." required>
@@ -689,6 +556,26 @@ $conn->close();
         </button>
       </div>
     </form>
+
+    <!-- ÁREA DA IMAGEM À DIREITA -->
+    <div class="foto-area">
+      <div id="previewContainer">
+        <div class="preview-placeholder" id="previewPlaceholder">
+          <i class="fas fa-image"></i>
+          <span>Preview da imagem</span>
+        </div>
+        <img src="" alt="Preview da obra" id="imagePreview">
+      </div>
+      
+      <!-- BOTÃO PARA ACIONAR O INPUT FILE -->
+      <div class="file-input-wrapper">
+        <div class="file-input-button" onclick="document.getElementById('imagemInput').click()">
+          <i class="fas fa-upload"></i> Escolher Imagem
+        </div>
+      </div>
+      <span id="file-name" class="file-name">Nenhum arquivo selecionado</span>
+      <small style="color: #666; display: block; margin-top: 8px;">Formatos: JPG, PNG, GIF (Máx. 5MB)</small>
+    </div>
   </div>
 
   <script>
@@ -702,7 +589,12 @@ $conn->close();
       if (file) {
         // Verificar tamanho do arquivo (máximo 5MB)
         if (file.size > 5 * 1024 * 1024) {
-          alert('A imagem deve ter no máximo 5MB');
+          Swal.fire({
+            icon: 'error',
+            title: 'Erro!',
+            text: 'A imagem deve ter no máximo 5MB',
+            confirmButtonText: 'OK'
+          });
           this.value = '';
           fileName.textContent = 'Arquivo muito grande (máx. 5MB)';
           fileName.style.color = '#e74c3c';
@@ -757,16 +649,38 @@ $conn->close();
     document.querySelector('form').addEventListener('submit', function(e) {
       const preco = document.getElementById('preco').value;
       const ano = document.getElementById('ano').value;
+      const imagemInput = document.getElementById('imagemInput');
       
       if (parseFloat(preco) <= 0) {
         e.preventDefault();
-        alert('Por favor, insira um preço válido maior que zero.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro!',
+          text: 'Por favor, insira um preço válido maior que zero.',
+          confirmButtonText: 'OK'
+        });
         return;
       }
       
       if (parseInt(ano) < 1900 || parseInt(ano) > 2030) {
         e.preventDefault();
-        alert('Por favor, insira um ano válido entre 1900 e 2030.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro!',
+          text: 'Por favor, insira um ano válido entre 1900 e 2030.',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
+      
+      if (!imagemInput.files || !imagemInput.files[0]) {
+        e.preventDefault();
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro!',
+          text: 'Por favor, selecione uma imagem para a obra.',
+          confirmButtonText: 'OK'
+        });
         return;
       }
     });
@@ -783,22 +697,23 @@ $conn->close();
           console.log(key + ':', value);
         }
       }
-            function atualizarBadgeMensagens() {
-          const badge = document.getElementById('mensagensBadge');
-          const totalNaoLidas = <?php echo $total_nao_lidas; ?>;
-
-          if (badge) {
-              if (totalNaoLidas > 0) {
-                  badge.textContent = totalNaoLidas;
-                  badge.style.display = 'flex';
-              } else {
-                  badge.style.display = 'none';
-              }
-          }
-      }
-
-      atualizarBadgeMensagens();
     });
+
+    function atualizarBadgeMensagens() {
+      const badge = document.getElementById('mensagensBadge');
+      const totalNaoLidas = <?php echo $total_nao_lidas; ?>;
+
+      if (badge) {
+        if (totalNaoLidas > 0) {
+          badge.textContent = totalNaoLidas;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    }
+
+    atualizarBadgeMensagens();
   </script>
 
 </body>

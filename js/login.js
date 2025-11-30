@@ -22,6 +22,52 @@ function showRegister() {
   toggleText.querySelector('#toggleLink').addEventListener('click', showLogin);
 }
 
+// Adicione isso ao seu login.js
+document.addEventListener('DOMContentLoaded', function() {
+  const loginBtn = document.getElementById('btn-login');
+  const registerBtn = document.getElementById('btn-register');
+  const loginForm = document.getElementById('loginForm');
+  const cadastroForm = document.getElementById('cadastroForm');
+  const tabsContainer = document.querySelector('.tabs');
+
+  // Criar partículas flutuantes
+  createParticles();
+
+  function switchToLogin() {
+    loginBtn.classList.add('active');
+    registerBtn.classList.remove('active');
+    loginForm.classList.add('active');
+    cadastroForm.classList.remove('active');
+    tabsContainer.classList.remove('register-active');
+  }
+
+  function switchToRegister() {
+    registerBtn.classList.add('active');
+    loginBtn.classList.remove('active');
+    cadastroForm.classList.add('active');
+    loginForm.classList.remove('active');
+    tabsContainer.classList.add('register-active');
+  }
+
+  loginBtn.addEventListener('click', switchToLogin);
+  registerBtn.addEventListener('click', switchToRegister);
+
+  function createParticles() {
+    const particlesContainer = document.createElement('div');
+    particlesContainer.className = 'floating-particles';
+    document.body.appendChild(particlesContainer);
+
+    for (let i = 0; i < 15; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = Math.random() * 100 + 'vw';
+      particle.style.top = Math.random() * 100 + 'vh';
+      particle.style.animationDelay = Math.random() * 5 + 's';
+      particlesContainer.appendChild(particle);
+    }
+  }
+});
+
 btnLogin.addEventListener('click', showLogin);
 btnRegister.addEventListener('click', showRegister);
 toggleLink.addEventListener('click', showRegister);

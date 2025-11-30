@@ -310,6 +310,23 @@ $conn->close();
   </style>
 </head>
 <body>
+
+  <!-- Adicione isso após as partículas e antes do container -->
+<div class="organic-shape shape-1"></div>
+<div class="organic-shape shape-2"></div>
+<div class="organic-shape shape-3"></div>
+
+  <div class="art-grid"></div>
+
+<div class="curve"></div>
+<div class="curve"></div>
+<div class="curve"></div>
+
+<img src="../img/monalisa.jfif" class="art-frame frame2">
+<img src="../img/vangogh.jfif" class="art-frame frame3">
+<img src="../img/moça-bonita.jfif" class="art-frame frame4">
+<img src="../img/moço-lowprofile.jfif" class="art-frame frame1">
+
   <a href="<?php echo $voltarUrl; ?>" class="btn-voltar">← Voltar</a>
 
   <main class="container" data-aos="zoom-in">
