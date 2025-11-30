@@ -909,7 +909,7 @@ $conn->close();
                 dados.append('acao', 'excluir');
                 dados.append('obra_id', obraId);
 
-                return fetch('excluirobra.php', {
+                return fetch('excluir_obra.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',

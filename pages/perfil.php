@@ -353,8 +353,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["alterar_senha"])) {
                 <p>Membro desde <?php echo date('m/Y', strtotime($usuario['data_cadastro'] ?? 'now')); ?></p>
             </div>
 
+            <!-- Adicione isso no menu-lateral, após os links existentes -->
             <ul class="menu-links">
                 <li><a href="perfil.php" class="ativo"><i class="fas fa-user-circle"></i> Meu Perfil</a></li>
+                <li><a href="compras.php"><i class="fas fa-shopping-bag"></i> Minhas Compras</a></li>
                 <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
             </ul>
         </div>

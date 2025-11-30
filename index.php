@@ -34,6 +34,21 @@ if (!isset($_SESSION['carrinho_notificacoes'])) {
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
+    .hero {
+        position: relative;
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 90px 5%;
+        background-image: url('./img/fundo.png');
+        border-radius: 12px;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        color: white;
+        overflow: hidden;
+    }
     .fade-in {
       opacity: 0;
       transform: translateY(40px);
