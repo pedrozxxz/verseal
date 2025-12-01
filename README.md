@@ -50,14 +50,17 @@ verseal/
 ## Como Rodar o Projeto
 
 1. **Clone o repositório:**
+   
    git clone https://github.com/pedrozxxz/verseal.git
 
 **Coloque o projeto dentro do htdocs (XAMPP) ou www (WAMP):**
 
 2. **Copiar código**
+   
 C:/xampp/htdocs/verseal
 
 **Configure o banco no arquivo:**
+
 config.php
 
 **Inicie o servidor local**
