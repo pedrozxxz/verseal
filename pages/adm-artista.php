@@ -233,33 +233,10 @@ $totalPaginas = ceil($totalArtistas / $limite);
             <a href="adm-artista.php" class="active">Artistas</a>
             <a href="adm-obras.php">Obras</a>
             <a href="adm-contato.php">Contato</a>
+            <a href="logout.php">Sair</a>
         </nav>
     </aside>
 
-    <!-- MENU HAMBÚRGUER FLUTUANTE -->
-    <div class="hamburger-menu-desktop">
-        <input type="checkbox" id="menu-toggle-desktop">
-        <label for="menu-toggle-desktop" class="hamburger-desktop">
-            <i class="fas fa-bars"></i>
-            <span>ACESSO</span>
-        </label>
-        <div class="menu-content-desktop">
-            <div class="menu-section">
-                <a href="../index.php" class="menu-item">
-                    <i class="fas fa-user"></i>
-                    <span>Cliente</span>
-                </a>
-                <a href="./admhome.php" class="menu-item active">
-                    <i class="fas fa-user-shield"></i>
-                    <span>ADM</span>
-                </a>
-                <a href="./artistahome.php" class="menu-item">
-                    <i class="fas fa-palette"></i>
-                    <span>Artista</span>
-                </a>
-            </div>
-        </div>
-    </div>
 
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="dashboard">

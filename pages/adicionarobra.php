@@ -165,12 +165,13 @@ body {
   border-radius: 25px;
   padding: 60px;
   display: grid;
-  grid-template-columns: 1fr 420px; /* FORMULÁRIO À ESQUERDA, IMAGEM À DIREITA */
+  grid-template-columns: 420px 1fr; /* IMAGEM À ESQUERDA — FORMULÁRIO À DIREITA */
   gap: 50px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
   position: relative;
   min-height: 600px;
 }
+
 
 /* ==== TÍTULO ==== */
 .edit-obra-container::before {

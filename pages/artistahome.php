@@ -12,15 +12,15 @@ require_once 'config.php';
 $usuarioLogado = null;
 $tipoUsuario = null;
 
-// 🔹 Verificar Cliente
-if (isset($_SESSION["cliente"]) || isset($_SESSION["usuario"])) {
-    $usuarioLogado = $_SESSION["cliente"] ?? $_SESSION["usuario"];
-    $tipoUsuario = "cliente";
-}
-// 🔹 Verificar Artista
-elseif (isset($_SESSION["artistas"])) {
+// 🔹 Verificar Artista PRIMEIRO (pois queremos que artistas sejam identificados como artistas)
+if (isset($_SESSION["artistas"])) {
     $usuarioLogado = $_SESSION["artistas"];
     $tipoUsuario = "artista";
+}
+// 🔹 Verificar Cliente DEPOIS (se não for artista)
+elseif (isset($_SESSION["cliente"]) || isset($_SESSION["usuario"])) {
+    $usuarioLogado = $_SESSION["cliente"] ?? $_SESSION["usuario"];
+    $tipoUsuario = "cliente";
 }
 
 // 🔹 Verificar mensagens não lidas

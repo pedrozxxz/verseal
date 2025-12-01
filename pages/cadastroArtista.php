@@ -108,58 +108,73 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // LOGIN DE ARTISTA
     if (isset($_POST["login"])) {
-        $email = $_POST["email"];
-        $senha = $_POST["senha"];
+    $email = $_POST["email"];
+    $senha = $_POST["senha"];
 
-        $sql = "SELECT * FROM artistas WHERE email = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
+    $sql = "SELECT * FROM artistas WHERE email = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-        if ($row = $result->fetch_assoc()) {
-            if (password_verify($senha, $row["senha"])) {
-                $_SESSION["artista"] = $row["nome"];
+    if ($row = $result->fetch_assoc()) {
+        if (password_verify($senha, $row["senha"])) {
+            // SALVAR TODOS OS DADOS DO ARTISTA NA SESSÃO
+            $_SESSION["artistas"] = $row; // Todos os dados do artista
+            $_SESSION["artistas_id"] = $row['id'];
+            $_SESSION["tipo_usuario"] = 'artista';
+            $_SESSION["tipo_artistas"] = 'artista';
+            
+            // Também criar sessões compatíveis com cliente
+            $_SESSION["usuario"] = [
+                "id" => $row["id"],
+                "nome" => $row["nome"],
+                "email" => $row["email"],
+                "origem" => "artista"
+            ];
+            $_SESSION["usuario_id"] = $row["id"];
+            $_SESSION["clientes"] = $_SESSION["usuario"];
+            $_SESSION["clientes_id"] = $row["id"];
 
-                echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
-                echo "<script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        Swal.fire({
-                            title: 'Login bem sucedido!',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            window.location.href = 'artistahome.php';
-                        });
+            echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
+            echo "<script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        title: 'Login bem sucedido!',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = 'artistahome.php';
                     });
-                </script>";
-            } else {
-                echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
-                echo "<script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        Swal.fire({
-                            icon:'error', 
-                            title:'Senha incorreta!', 
-                            timer:1500, 
-                            showConfirmButton:false
-                        });
-                    });
-                </script>";
-            }
+                });
+            </script>";
         } else {
             echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
             echo "<script>
                 document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire({
                         icon:'error', 
-                        title:'Artista não encontrado!', 
+                        title:'Senha incorreta!', 
                         timer:1500, 
                         showConfirmButton:false
                     });
                 });
             </script>";
         }
+    } else {
+        echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon:'error', 
+                    title:'Artista não encontrado!', 
+                    timer:1500, 
+                    showConfirmButton:false
+                });
+            });
+        </script>";
     }
+}
 }
 ?>
 

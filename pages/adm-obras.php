@@ -49,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tecnica = $_POST['tecnica'];
         $ano = $_POST['ano'];
         $material = $_POST['material'];
-        $estoque = $_POST['estoque'];
         $destaque = isset($_POST['destaque']) ? 1 : 0;
 
         // Processar categorias
@@ -93,13 +92,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 UPDATE produtos 
                 SET nome = ?, artista = ?, preco = ?, descricao = ?, dimensoes = ?, 
                     tecnica = ?, ano = ?, material = ?, categorias = ?, imagem_url = ?, 
-                    estoque = ?, destaque = ?, data_atualizacao = NOW()
+                    destaque = ?, data_atualizacao = NOW()
                 WHERE id = ?
             ");
             $stmt->execute([
                 $nome, $artista, $preco, $descricao, $dimensoes, 
                 $tecnica, $ano, $material, $categorias_json, $imagem_url,
-                $estoque, $destaque, $produto_id
+                $destaque, $produto_id
             ]);
 
             header("Location: adm-obras.php?editado=1");
@@ -121,7 +120,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tecnica = $_POST['tecnica'];
         $ano = $_POST['ano'];
         $material = $_POST['material'];
-        $estoque = $_POST['estoque'];
         $destaque = isset($_POST['destaque']) ? 1 : 0;
 
         // Processar categorias
@@ -160,13 +158,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("
                 INSERT INTO produtos 
                 (nome, artista, preco, descricao, dimensoes, tecnica, ano, material, 
-                 categorias, imagem_url, estoque, destaque, ativo, data_cadastro, data_atualizacao) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())
+                 categorias, imagem_url, destaque, ativo, data_cadastro, data_atualizacao) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())
             ");
             $stmt->execute([
                 $nome, $artista, $preco, $descricao, $dimensoes, 
                 $tecnica, $ano, $material, $categorias_json, $imagem_url,
-                $estoque, $destaque
+                $destaque
             ]);
 
             header("Location: adm-obras.php?nova_sucesso=1&nome=" . urlencode($nome));
@@ -231,6 +229,7 @@ $totalPaginas = ceil($totalObras / $limite);
             <a href="adm-artista.php">Artistas</a>
             <a href="adm-obras.php" class="active">Obras</a>
             <a href="adm-contato.php">Contato</a>
+            <a href="logout.php">Sair</a>   
         </nav>
     </aside>
 
@@ -242,31 +241,6 @@ $totalPaginas = ceil($totalObras / $limite);
         </header>
 
         <section class="content">
-            <!-- MENU HAMBÚRGUER FLUTUANTE -->
-            <div class="hamburger-menu-desktop">
-                <input type="checkbox" id="menu-toggle-desktop">
-                <label for="menu-toggle-desktop" class="hamburger-desktop">
-                    <i class="fas fa-bars"></i>
-                    <span>ACESSO</span>
-                </label>
-                <div class="menu-content-desktop">
-                    <div class="menu-section">
-                        <a href="../index.php" class="menu-item">
-                            <i class="fas fa-user"></i>
-                            <span>Cliente</span>
-                        </a>
-                        <a href="./admhome.php" class="menu-item active">
-                            <i class="fas fa-user-shield"></i>
-                            <span>ADM</span>
-                        </a>
-                        <a href="./artistahome.php" class="menu-item">
-                            <i class="fas fa-palette"></i>
-                            <span>Artista</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
             <!-- CONTAINER DA TABELA -->
             <div class="table-container">
                 <table>
@@ -276,7 +250,6 @@ $totalPaginas = ceil($totalObras / $limite);
                             <th><i class="fas fa-palette icon"></i> ARTISTA</th>
                             <th><i class="fas fa-tag icon"></i> PREÇO</th>
                             <th><i class="fas fa-image icon"></i> IMAGEM</th>
-                            <th><i class="fas fa-box icon"></i> ESTOQUE</th>
                             <th>AÇÕES</th>
                         </tr>
                     </thead>
@@ -309,32 +282,31 @@ $totalPaginas = ceil($totalObras / $limite);
                                             </div>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?php echo $obra['estoque']; ?></td>
-                                    <td>
-                                        <div class="acoes-botoes">
-                                            <button class="edit" onclick="abrirModalEditarObra(
-                                                <?php echo $obra['id']; ?>, 
-                                                '<?php echo addslashes(htmlspecialchars($obra['nome'])); ?>', 
-                                                '<?php echo addslashes(htmlspecialchars($obra['artista'])); ?>', 
-                                                '<?php echo $obra['preco']; ?>', 
-                                                `<?php echo addslashes(str_replace(["\r", "\n"], '', $obra['descricao'])); ?>`, 
-                                                '<?php echo addslashes(htmlspecialchars($obra['dimensoes'])); ?>', 
-                                                '<?php echo addslashes(htmlspecialchars($obra['tecnica'])); ?>', 
-                                                '<?php echo $obra['ano']; ?>', 
-                                                '<?php echo addslashes(htmlspecialchars($obra['material'])); ?>', 
-                                                <?php echo $obra['estoque']; ?>, 
-                                                <?php echo $obra['destaque']; ?>, 
-                                                '<?php echo !empty($obra['imagem_url']) ? addslashes($obra['imagem_url']) : ''; ?>',
-                                                `<?php echo addslashes($obra['categorias']); ?>`
-                                            )">
-                                                <i class="fas fa-edit"></i> Editar
-                                            </button>
-                                            <button class="delete"
-                                                onclick="excluirObra(<?php echo $obra['id']; ?>, '<?php echo htmlspecialchars($obra['nome']); ?>')">
-                                                <i class="fas fa-trash"></i> Excluir
-                                            </button>
-                                        </div>
-                                    </td>
+            
+    <td>
+    <div class="acoes-botoes">
+        <button class="edit" onclick="abrirModalEditarObra(
+            <?php echo $obra['id']; ?>, 
+            '<?php echo htmlspecialchars($obra['nome'], ENT_QUOTES); ?>', 
+            '<?php echo htmlspecialchars($obra['artista'], ENT_QUOTES); ?>', 
+            '<?php echo $obra['preco']; ?>', 
+            `<?php echo str_replace(["\r", "\n"], '', htmlspecialchars($obra['descricao'], ENT_QUOTES)); ?>`, 
+            '<?php echo htmlspecialchars($obra['dimensoes'], ENT_QUOTES); ?>', 
+            '<?php echo htmlspecialchars($obra['tecnica'], ENT_QUOTES); ?>', 
+            '<?php echo $obra['ano']; ?>', 
+            '<?php echo htmlspecialchars($obra['material'], ENT_QUOTES); ?>', 
+            <?php echo $obra['destaque']; ?>, 
+            '<?php echo !empty($obra['imagem_url']) ? htmlspecialchars($obra['imagem_url'], ENT_QUOTES) : ''; ?>',
+            '<?php echo !empty($obra['categorias']) ? htmlspecialchars($obra['categorias'], ENT_QUOTES) : '[]'; ?>'
+        )">
+            <i class="fas fa-edit"></i> Editar
+        </button>
+        <button class="delete"
+            onclick="excluirObra(<?php echo $obra['id']; ?>, '<?php echo htmlspecialchars($obra['nome'], ENT_QUOTES); ?>')">
+            <i class="fas fa-trash"></i> Excluir
+        </button>
+    </div>
+</td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -400,11 +372,6 @@ $totalPaginas = ceil($totalObras / $limite);
                         <div class="campo">
                             <label><i class="fas fa-tag"></i> Preço: *</label>
                             <input type="number" id="editar_preco" name="preco" step="0.01" min="0" required>
-                        </div>
-
-                        <div class="campo">
-                            <label><i class="fas fa-box"></i> Estoque: *</label>
-                            <input type="number" id="editar_estoque" name="estoque" min="0" required>
                         </div>
 
                         <div class="campo">
@@ -513,11 +480,6 @@ $totalPaginas = ceil($totalObras / $limite);
                         </div>
 
                         <div class="campo">
-                            <label><i class="fas fa-box"></i> Estoque: *</label>
-                            <input type="number" name="estoque" min="0" required placeholder="Quantidade disponível">
-                        </div>
-
-                        <div class="campo">
                             <label><i class="fas fa-calendar"></i> Ano:</label>
                             <input type="number" name="ano" min="1000" max="2030" placeholder="Ano de criação">
                         </div>
@@ -603,7 +565,7 @@ $totalPaginas = ceil($totalObras / $limite);
 
     <script>
         // Função para abrir modal de edição
-        function abrirModalEditarObra(id, nome, artista, preco, descricao, dimensoes, tecnica, ano, material, estoque, destaque, imagem, categorias) {
+        function abrirModalEditarObra(id, nome, artista, preco, descricao, dimensoes, tecnica, ano, material, destaque, imagem, categorias) {
             console.log('Abrindo modal de edição para obra ID:', id);
             
             try {
@@ -617,7 +579,6 @@ $totalPaginas = ceil($totalObras / $limite);
                 document.getElementById('editar_tecnica').value = tecnica || '';
                 document.getElementById('editar_ano').value = ano || '';
                 document.getElementById('editar_material').value = material || '';
-                document.getElementById('editar_estoque').value = estoque;
                 document.getElementById('editar_destaque').checked = destaque == 1;
                 document.getElementById('editar_imagem_atual').value = imagem || '';
 
