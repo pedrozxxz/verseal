@@ -33,16 +33,17 @@ Este repositório representa o código-fonte completo do site em desenvolvimento
 ## Estrutura de Pastas
 
 verseal/
-│── css/ # Arquivos de estilo
-│── js/ # Scripts de interação
-│── img/ # Imagens do site
-│── uploads/ # Uploads de usuários
-│── pages/ # Páginas internas
-│── config.php # Configuração do banco de dados
-│── index.php # Página inicial
-│── login.php # Sistema de login
-│── artistahome.php # Área do artista
-└── ...
+- css/ # Arquivos de estilo
+- js/ # Scripts de interação
+- img/ # Imagens do site
+- uploads/ # Uploads de usuários
+- pages/ # Páginas internas
+- config.php # Configuração do banco de dados
+- index.php # Página inicial
+- login.php # Sistema de login
+- artistahome.php # Área do artista
+
+  ...
 
 
 ---
