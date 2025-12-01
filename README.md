@@ -64,6 +64,7 @@ C:/xampp/htdocs/verseal
 config.php
 
 **Inicie o servidor local**
+
 Abra o navegador e acesse:
 
 http://localhost/verseal
